@@ -1,0 +1,43 @@
+---
+type: map
+required: true
+
+map:
+    mode:
+        type: int
+        range:
+            min: 0
+        required: true
+
+    pids:
+        type: map
+        required: true
+        func: non_negative_int_keys
+
+        map:
+            =:
+                type: map
+                required: true
+
+                map:
+                    name:
+                        type: str
+                        required: true
+
+                    bytes:
+                        type: any
+                        func: bytes
+                        required: true
+
+                    unit:
+                        type: str
+                        enum:
+                            - rpm
+                            - km/h
+                            - g/s
+                        required: true
+
+                    expr:
+                        type: str
+                        func: infix
+                        required: true

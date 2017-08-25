@@ -1,0 +1,110 @@
+#!/usr/bin/python2.7
+#
+# This utility does YAML schema verification. Given a schema and a YAML data
+# file, it returns 0 if the data matches the schema and non-0 otherwise.
+#
+
+import argparse
+import ast
+import pykwalify.core
+import simpleeval
+import operator
+import os
+import sys
+import yaml
+
+class SchemaError(Exception):
+    pass
+
+def non_negative_int_keys(val, rules_obj, path):
+    '''Returns True if val is a map containing keys that are all non-negative
+       ints, and False otherwise.'''
+    if not isinstance(val, dict):
+        raise SchemaError('Not a map: %s' % val)
+
+    for key in val:
+        if not isinstance(key, int):
+            raise SchemaError('Map key is not an int: %s' % key)
+        if key < 0:
+            raise SchemaError('Map key is negative: %d' % key)
+    return True
+
+_operators = {
+    ast.Add: operator.add,
+    ast.Sub: operator.sub,
+    ast.Mult: operator.mul,
+    ast.Div: operator.div,
+}
+# We don't actually care what the names evaluate to, as we're not using
+# SimpleEval() to actually evaluate anything; we're just using it as a shortcut
+# to check whether or not the expression is valid in-fix. So, all the values
+# given here are just dummy placeholders.
+_names = {
+    'A': 0,
+    'B': 0,
+    'C': 0,
+    'D': 0,
+}
+_infix_eval = simpleeval.SimpleEval(operators=_operators, names=_names)
+def infix(val, rules_obj, path):
+    '''Returns True if val is a valid infix expression and False otherwise.'''
+
+    try:
+        _infix_eval.eval(val)
+    except:
+        raise SchemaError(
+            'The following expression is not valid infix:\n%s' % val)
+    return True
+
+def bytes(val, rules_obj, path):
+    if isinstance(val, int) and val > 0:
+        return True
+    if isinstance(val, str) and val == 'unknown':
+        return True
+
+    raise SchemaError('bytes must be a positive integer or the string unknown')
+
+def get_arg_parser():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        'datafile',
+        action='store',
+        help='The YAML file to check')
+    parser.add_argument(
+        '-s',
+        '--schema',
+        action='store',
+        required=True,
+        help='The schema to check against')
+    parser.add_argument(
+        '-q',
+        '--quiet',
+        action='store_true',
+        default=False,
+        help='No output, just return 0/non-0 if the check passes/fails')
+
+    return parser
+
+def main():
+    parser = get_arg_parser()
+    args = parser.parse_args()
+
+    # Stop pykwalify from writing an annoying "schema-checkc" bytecode file.
+    sys.dont_write_bytecode=True
+
+    core = pykwalify.core.Core(
+        source_file=args.datafile,
+        schema_files=[args.schema],
+        extensions=[__file__])
+    try:
+        core.validate(raise_exception=True)
+    except:
+        if args.quiet:
+            return 1
+        else:
+            raise
+
+    return 0
+
+if __name__ == '__main__':
+    sys.exit(main())
