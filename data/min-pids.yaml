@@ -1,0 +1,20 @@
+---
+mode: 0x1
+pids:
+    0x0C:
+        name: Engine RPM
+        bytes: 2
+        unit: rpm
+        expr: (256*A + B) / 4
+
+    0x0D:
+        name: Vehicle speed
+        bytes: 1
+        unit: km/h
+        expr: A
+
+    0x10:
+        name: MAF air flow rate
+        bytes: 2
+        unit: g/s
+        expr: (256*A + B) / 100
