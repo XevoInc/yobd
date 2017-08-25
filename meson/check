@@ -1,0 +1,19 @@
+#!/bin/bash
+
+set -euo pipefail
+
+wrap() {
+  cmd="$@"
+
+  echo "${cmd}..."
+  $cmd
+}
+
+cd "$MESON_BUILD_ROOT"
+wrap meson test
+
+cd "$MESON_SOURCE_ROOT"
+wrap meson/clang-tidy
+
+cd "$MESON_SOURCE_ROOT"
+wrap meson/schema-check
