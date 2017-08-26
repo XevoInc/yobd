@@ -371,6 +371,16 @@ static const double __ac_HASH_UPPER = 0.77;
  */
 #define kh_int_hash_equal(a, b) ((a) == (b))
 /*! @function
+  @abstract     Integer hash function
+  @param  key   The integer [khint16_t]
+  @return       The hash value [khint_t]
+ */
+#define kh_int16_hash_func(key) (khint_t)(key)
+/*! @function
+  @abstract     Integer comparison function
+ */
+#define kh_int16_hash_equal(a, b) ((a) == (b))
+/*! @function
   @abstract     64-bit integer hash function
   @param  key   The integer [khint64_t]
   @return       The hash value [khint_t]
@@ -665,6 +675,21 @@ static kh_inline khint_t __ac_Wang_hash(khint_t key)
  */
 #define KHASH_MAP_INIT_INT(name, khval_t)								\
 	KHASH_INIT(name, khint32_t, khval_t, 1, kh_int_hash_func, kh_int_hash_equal)
+
+/*! @function
+  @abstract     Instantiate a hash set containing integer keys
+  @param  name  Name of the hash table [symbol]
+ */
+#define KHASH_SET_INIT_INT16(name)										\
+	KHASH_INIT(name, khint16_t, char, 0, kh_int16_hash_func, kh_int16_hash_equal)
+
+/*! @function
+  @abstract     Instantiate a hash map containing integer keys
+  @param  name  Name of the hash table [symbol]
+  @param  khval_t  Type of values [type]
+ */
+#define KHASH_MAP_INIT_INT16(name, khval_t)								\
+	KHASH_INIT(name, khint16_t, khval_t, 1, kh_int16_hash_func, kh_int16_hash_equal)
 
 /*! @function
   @abstract     Instantiate a hash map containing 64-bit integer keys
