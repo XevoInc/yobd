@@ -132,6 +132,7 @@ int main() {
 
 /* compiler specific configuration */
 
+typedef uint_fast8_t khint8_t;
 typedef uint_fast16_t khint16_t;
 typedef uint_fast32_t khint32_t;
 typedef uint_fast64_t khint64_t;
@@ -370,6 +371,16 @@ static const double __ac_HASH_UPPER = 0.77;
   @abstract     Integer comparison function
  */
 #define kh_int_hash_equal(a, b) ((a) == (b))
+/*! @function
+  @abstract     Integer hash function
+  @param  key   The integer [khint8_t]
+  @return       The hash value [khint_t]
+ */
+#define kh_int8_hash_func(key) (khint_t)(key)
+/*! @function
+  @abstract     Integer comparison function
+ */
+#define kh_int8_hash_equal(a, b) ((a) == (b))
 /*! @function
   @abstract     Integer hash function
   @param  key   The integer [khint16_t]
@@ -680,6 +691,22 @@ static kh_inline khint_t __ac_Wang_hash(khint_t key)
   @abstract     Instantiate a hash set containing integer keys
   @param  name  Name of the hash table [symbol]
  */
+#define KHASH_SET_INIT_INT8(name)										\
+	KHASH_INIT(name, khint8_t, char, 0, kh_int8_hash_func, kh_int8_hash_equal)
+
+/*! @function
+  @abstract     Instantiate a hash map containing integer keys
+  @param  name  Name of the hash table [symbol]
+  @param  khval_t  Type of values [type]
+ */
+#define KHASH_MAP_INIT_INT8(name, khval_t)								\
+	KHASH_INIT(name, khint8_t, khval_t, 1, kh_int8_hash_func, kh_int8_hash_equal)
+
+/*! @function
+  @abstract     Instantiate a hash set containing integer keys
+  @param  name  Name of the hash table [symbol]
+ */
+
 #define KHASH_SET_INIT_INT16(name)										\
 	KHASH_INIT(name, khint16_t, char, 0, kh_int16_hash_func, kh_int16_hash_equal)
 
