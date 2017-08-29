@@ -38,6 +38,15 @@ map:
                         required: true
 
                     expr:
-                        type: str
-                        func: infix
-                        required: true
+                        type: map
+                        map:
+                            type:
+                                type: str
+                                enum:
+                                    - uint8
+                                    - float
+                                required: true
+                            val:
+                                type: str
+                                func: infix
+                                required: true
