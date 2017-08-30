@@ -1,14 +1,14 @@
 /**
- * @file      yolobd.h
- * @brief     YolOBD public header.
+ * @file      yobd.h
+ * @brief     YOBD public header.
  * @author    Martin Kelly <mkelly@xevo.com>
  * @copyright Copyright (C) 2017 Xevo Inc. All Rights Reserved.
  */
 
-#ifndef YOLOBD_H_
-#define YOLOBD_H_
+#ifndef YOBD_H_
+#define YOBD_H_
 
 /* Forward declaration. */
-struct yolobd_ctx;
+struct yobd_ctx;
 
-#endif /* YOLOBD_H_ */
+#endif /* YOBD_H_ */
