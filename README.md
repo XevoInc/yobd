@@ -1,14 +1,14 @@
-# YoloBD
-Pardon the silly name! YoloBD is a standalone library for schema-driven data
-translation from CAN to OBD II.  The reason this is necessary is that the OBD II
-protocol is highly bitpacked, so each message is interpreted a little bit
-differently. In addition, only a subset of the possible OBD II data (PIDs) are
-publicly available, so each car make/model can have other PIDs, each intepreted
-differently. This calls for a generalized schema for describing such messages,
-and a generalized runtime for evaluating such messages and passing them on in
-easily consumable form (e.g. JSON or similar hierarchical, string-based format).
-Without such a schema, one needs to either hardcode or do code generation (such
-as what `OpenXC` does), both of which have significant issues.
+# yobd
+yobd is a standalone library for schema-driven data translation from CAN to OBD
+II.  The reason this is necessary is that the OBD II protocol is highly
+bitpacked, so each message is interpreted a little bit differently. In addition,
+only a subset of the possible OBD II data (PIDs) are publicly available, so each
+car make/model can have other PIDs, each intepreted differently. This calls for
+a generalized schema for describing such messages, and a generalized runtime for
+evaluating such messages and passing them on in easily consumable form (e.g.
+JSON or similar hierarchical, string-based format).  Without such a schema, one
+needs to either hardcode or do code generation (such as what `OpenXC` does),
+both of which have significant issues.
 
 There are a few parts to YoloBD:
 

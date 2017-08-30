@@ -1,5 +1,5 @@
 # Summary.
-project('yolobd', 'c',
+project('yobd', 'c',
     version: '0.1',
     license: 'proprietary',
     default_options: [
@@ -15,7 +15,7 @@ pkg = import('pkgconfig')
 
 # Includes.
 include = include_directories('include')
-install_subdir('include/yolobd', install_dir : 'include/yolobd')
+install_subdir('include/yobd', install_dir : 'include/yobd')
 
 # Library.
 src = [
@@ -28,17 +28,17 @@ deps = [
 ]
 
 lib = library(
-    'yolobd',
+    'yobd',
     src,
     include_directories: include,
     install: true,
     dependencies: deps,
     version: meson.project_version())
 pkg.generate(
-    name: 'yolobd',
+    name: 'yobd',
     description: 'A standalone library for schema-driven data translation from CAN to OBD II',
     libraries: [lib],
-    subdirs: 'yolobd',
+    subdirs: 'yobd',
     version: meson.project_version())
 
 # Documentation.
