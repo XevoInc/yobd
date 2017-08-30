@@ -15,7 +15,7 @@ pkg = import('pkgconfig')
 
 # Includes.
 include = include_directories('include')
-install_subdir('include/yobd', install_dir : 'include/yobd')
+install_subdir('include/yobd', install_dir : 'include')
 
 # Library.
 src = [
