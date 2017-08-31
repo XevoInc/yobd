@@ -13,7 +13,7 @@ cd "$MESON_BUILD_ROOT"
 wrap meson test
 
 cd "$MESON_SOURCE_ROOT"
-wrap meson/clang-tidy
+wrap meson/schema-check
 
 cd "$MESON_SOURCE_ROOT"
-wrap meson/schema-check
+wrap meson/clang-tidy

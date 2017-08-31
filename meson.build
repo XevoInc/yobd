@@ -19,11 +19,13 @@ install_subdir('include/yobd', install_dir : 'include')
 
 # Library.
 src = [
+    'src/expr.c',
     'src/parser.c'
 ]
 
+thread_deps = dependency('threads')
 deps = [
-    dependency('threads'),
+    thread_deps,
     dependency('yaml-0.1')
 ]
 
@@ -40,6 +42,22 @@ pkg.generate(
     libraries: [lib],
     subdirs: 'yobd',
     version: meson.project_version())
+
+# Tests.
+add_test_setup('valgrind', exe_wrapper: ['valgrind', '-v'])
+tests = [
+    ['parser', ['test/parser.c'], files('data/min-pids.yaml') ],
+]
+foreach t : tests
+    exe = executable(
+        t.get(0),
+        t.get(1),
+        include_directories: include,
+        link_with: lib,
+        dependencies: [thread_deps])
+    test(t.get(0), exe, args: t.get(2))
+endforeach
+
 
 # Documentation.
 run_target('docs', command: 'meson/makedoc')
