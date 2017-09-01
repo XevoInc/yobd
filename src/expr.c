@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 #include <yobd/yobd.h>
 #include <yobd_private/expr.h>
 #include <yobd_private/stack.h>
@@ -22,8 +23,7 @@ typedef enum {
     TOK_B,
     TOK_C,
     TOK_D,
-    TOK_INT,
-    TOK_FLOAT,
+    TOK_NUMERIC,
     TOK_LPAREN,
     TOK_RPAREN,
     TOK_OP_ADD,
@@ -56,6 +56,7 @@ void next_token(
 
     /* Numbers are the only multi-character tokens. */
     if (isdigit(*pos)) {
+        *type = TOK_NUMERIC;
         if (*start == NULL) {
             *start = pos;
         }
@@ -67,14 +68,10 @@ void next_token(
 
         /* Check for float. */
         if (*pos == '.') {
-            *type = TOK_FLOAT;
             /* Read the fractional part. */
             do {
                 ++pos;
             } while (isdigit(*pos));
-        }
-        else {
-            *type = TOK_INT;
         }
 
         *end = pos;
@@ -168,7 +165,7 @@ void handle_op(
         PUSH_STACK(EXPR_STACK, out_stack, op_to_expr(op_tok));
     }
     /* Now push the lower precedence operator. */
-    PUSH_STACK(EXPR_STACK, out_stack, op_to_expr(tok));
+    PUSH_STACK(OP_STACK, op_stack, tok);
 }
 
 void shunting_yard(
@@ -201,19 +198,18 @@ void shunting_yard(
 
         pos = end;
         switch (tok) {
-            case TOK_INT:
+            case TOK_NUMERIC:
                 errno = 0;
-                expr_tok.as_int32 = strtol((const char *) start, NULL, 10);
-                assert(errno == 0);
-                expr_tok.type = EXPR_INT32;
-                PUSH_STACK(EXPR_STACK, out_stack, expr_tok);
-                break;
-
-            case TOK_FLOAT:
-                assert(type == YOBD_PID_DATA_TYPE_FLOAT);
-                errno = 0;
-                expr_tok.type = EXPR_FLOAT;
-                expr_tok.as_float = strtof((const char *) start, NULL);
+                switch (type) {
+                    case YOBD_PID_DATA_TYPE_UINT8:
+                        expr_tok.as_int32_t = strtol((const char *) start, NULL, 10);
+                        expr_tok.type = EXPR_INT32;
+                        break;
+                    case YOBD_PID_DATA_TYPE_FLOAT:
+                        expr_tok.as_float = strtof((const char *) start, NULL);
+                        expr_tok.type = EXPR_FLOAT;
+                        break;
+                }
                 assert(errno == 0);
                 PUSH_STACK(EXPR_STACK, out_stack, expr_tok);
                 break;
@@ -283,7 +279,6 @@ yobd_err parse_expr(
 {
     struct expr_token *data;
     size_t expr_bytes;
-    size_t i;
     parse_token op_data[OP_STACK_SIZE];
     struct OP_STACK op_stack;
     struct expr_token out_data[OUT_STACK_SIZE];
@@ -304,14 +299,11 @@ yobd_err parse_expr(
 
     /*
      * Note that in the original Shunting Yard algorithm, we use an output queue
-     * instead of an output stack. Since we need to copy out_stack anyway, we
-     * can just reverse the stack as we copy, which has the same effect as if we
-     * had just used a queue. This prevents us from having to have both a stack
-     * and a queue data structure, without efficiency loss.
+     * instead of an output stack. By copying from the stack bottom to the stack
+     * top, we effectively reverse the stack order and turn it into a queue so
+     * that it will be correctly evaluated.
      */
-    for (i = 0; i < expr->size; ++i) {
-        expr->data[expr->size-i-1] = STACK_DATA(EXPR_STACK, &out_stack)[i];
-    }
+    memcpy(expr->data, STACK_DATA(EXPR_STACK, &out_stack), expr_bytes);
 
     /*
      * Alloc an evaluation stack for the expression. Note that we give the
