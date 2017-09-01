@@ -24,7 +24,7 @@ typedef enum eval_type {
 } eval_type;
 
 struct parse_pid_ctx {
-    struct yobd_pid_ctx pid_ctx;
+    struct pid_ctx pid_ctx;
     /* The byte count of the CAN response, not of the OBD II response. */
     uint_fast8_t can_bytes;
     eval_type type;
@@ -33,15 +33,8 @@ struct parse_pid_ctx {
     };
 };
 
-/*
- * Bitpacked mode-pid combination:
- * MMPPPP
- */
-typedef uint_fast32_t modepid;
-
 KHASH_MAP_INIT_INT8(UNIT_MAP, const char *)
 KHASH_MAP_INIT_INT(MODEPID_MAP, struct parse_pid_ctx)
-
 KHASH_SET_INIT_STR(STR_SET)
 
 struct yobd_ctx {
@@ -51,7 +44,13 @@ struct yobd_ctx {
     khash_t(MODEPID_MAP) *modepid_map;
 };
 
-struct yobd_pid_ctx *get_mode_pid(
+/*
+ * Bitpacked mode-pid combination:
+ * MMPPPP
+ */
+typedef uint_fast32_t modepid;
+
+struct pid_ctx *get_mode_pid(
     const struct yobd_ctx *ctx,
     yobd_mode mode,
     yobd_pid pid)

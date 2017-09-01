@@ -43,13 +43,6 @@ typedef enum {
     YOBD_PID_DATA_TYPE_MAX
 } yobd_pid_data_type;
 
-struct yobd_pid_ctx {
-    const char *name;
-    yobd_unit unit;
-    uint_fast8_t bytes;
-    yobd_pid_data_type type;
-};
-
 /**
  * Parses a schema, returning a context.
  *
