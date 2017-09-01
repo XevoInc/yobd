@@ -1,5 +1,8 @@
 ---
+# TODO: Need to enforce that standard-mode PIDs (mode <= 0xA) occupy only one
+# byte, not two.
 mode: 0x1
+endian: big
 pids:
     0x0C:
         name: Engine RPM
