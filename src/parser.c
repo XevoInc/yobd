@@ -19,7 +19,7 @@
 #define ARRAYLEN(a) (sizeof(a) / sizeof(a[0]))
 #define PUBLIC_API __attribute__ ((visibility ("default")))
 
-typedef enum eval_type {
+typedef enum {
     EVAL_TYPE_EXPR
 } eval_type;
 
