@@ -8,50 +8,17 @@
 #define _POSIX_C_SOURCE 200809L
 #include <assert.h>
 #include <errno.h>
-#include <klib/khash.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 #include <yaml.h>
+#include <yobd_private/api.h>
 #include <yobd_private/expr.h>
 #include <yobd_private/parser.h>
 
 #define ARRAYLEN(a) (sizeof(a) / sizeof(a[0]))
-#define PUBLIC_API __attribute__ ((visibility ("default")))
 
-typedef enum {
-    EVAL_TYPE_EXPR
-} eval_type;
-
-struct parse_pid_ctx {
-    struct pid_ctx pid_ctx;
-    /* The byte count of the CAN response, not of the OBD II response. */
-    uint_fast8_t can_bytes;
-    eval_type type;
-    union {
-        struct expr expr;
-    };
-};
-
-KHASH_MAP_INIT_INT8(UNIT_MAP, const char *)
-KHASH_MAP_INIT_INT(MODEPID_MAP, struct parse_pid_ctx)
-KHASH_SET_INIT_STR(STR_SET)
-
-struct yobd_ctx {
-    yobd_alloc *alloc;
-    bool big_endian;
-    yobd_unit next_unit_id;
-    khash_t(UNIT_MAP) *unit_map;
-    khash_t(MODEPID_MAP) *modepid_map;
-};
-
-/*
- * Bitpacked mode-pid combination:
- * MMPPPP
- */
-typedef uint_fast32_t modepid;
-
-struct pid_ctx *get_mode_pid(
+struct parse_pid_ctx *get_parse_ctx(
     const struct yobd_ctx *ctx,
     yobd_mode mode,
     yobd_pid pid)
@@ -63,7 +30,7 @@ struct pid_ctx *get_mode_pid(
         return NULL;
     }
 
-    return &kh_val(ctx->modepid_map, iter).pid_ctx;
+    return &kh_val(ctx->modepid_map, iter);
 }
 
 static
@@ -106,7 +73,7 @@ void yobd_free_ctx(struct yobd_ctx *ctx)
     kh_iter(ctx->modepid_map, iter,
         parse_ctx = &kh_val(ctx->modepid_map, iter);
 
-        free((char *) parse_ctx->pid_ctx.name);
+        free((char *) parse_ctx->pid_desc.name);
         switch (parse_ctx->type) {
             case EVAL_TYPE_EXPR:
                 destroy_expr(&parse_ctx->expr);
@@ -118,20 +85,24 @@ void yobd_free_ctx(struct yobd_ctx *ctx)
 }
 
 PUBLIC_API
-const char *yobd_get_unit_str(const struct yobd_ctx *ctx, yobd_unit id)
+yobd_err yobd_get_unit_str(
+    const struct yobd_ctx *ctx,
+    yobd_unit id,
+    const char **unit_str)
 {
     khiter_t iter;
 
-    if (ctx == NULL) {
-        return NULL;
+    if (ctx == NULL || unit_str == NULL) {
+        return YOBD_INVALID_PARAMETER;
     }
 
     iter = kh_get(UNIT_MAP, ctx->unit_map, id);
     if (iter == kh_end(ctx->unit_map)) {
-        return NULL;
+        return YOBD_UNKNOWN_UNIT;
     }
+    *unit_str = kh_val(ctx->unit_map, iter);
 
-    return kh_val(ctx->unit_map, iter);
+    return YOBD_OK;
 }
 
 typedef enum {
@@ -291,7 +262,7 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
                             err = YOBD_OOM;
                             done = true;
                         }
-                        parse_ctx->pid_ctx.name = NULL;
+                        parse_ctx->pid_desc.name = NULL;
 
                         break;
                     case MAP_SPECIFIC_PID:
@@ -372,9 +343,9 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
                         state.key = KEY_NONE;
 
                         assert(parse_ctx != NULL);
-                        assert(parse_ctx->pid_ctx.name == NULL);
-                        parse_ctx->pid_ctx.name = strdup(val);
-                        if (parse_ctx->pid_ctx.name == NULL) {
+                        assert(parse_ctx->pid_desc.name == NULL);
+                        parse_ctx->pid_desc.name = strdup(val);
+                        if (parse_ctx->pid_desc.name == NULL) {
                             err = YOBD_OOM;
                             done = true;
                         }
@@ -412,14 +383,14 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
                         }
 
                         /* Get a new unit ID. */
-                        parse_ctx->pid_ctx.unit = ctx->next_unit_id;
+                        parse_ctx->pid_desc.unit = ctx->next_unit_id;
                         ++ctx->next_unit_id;
 
                         /* Finally put the unit into our maps. */
                         iter = kh_put(
                             UNIT_MAP,
                             ctx->unit_map,
-                            parse_ctx->pid_ctx.unit,
+                            parse_ctx->pid_desc.unit,
                             &ret);
                         if (ret == -1) {
                             err = YOBD_OOM;
@@ -444,8 +415,8 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
                         assert(parse_ctx != NULL);
                         find_type(
                             val,
-                            &parse_ctx->pid_ctx.bytes,
-                            &parse_ctx->pid_ctx.type);
+                            &parse_ctx->pid_desc.bytes,
+                            &parse_ctx->pid_desc.type);
 
                         break;
 
@@ -464,7 +435,7 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
                         err = parse_expr(
                             val,
                             &parse_ctx->expr,
-                            parse_ctx->pid_ctx.type);
+                            parse_ctx->pid_desc.type);
                         if (err != YOBD_OK) {
                             done = true;
                         }
@@ -494,21 +465,13 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
 }
 
 PUBLIC_API
-yobd_err yobd_get_ctx(
-    const char *filepath,
-    yobd_alloc *alloc,
-    struct yobd_ctx **out_ctx)
+yobd_err yobd_parse_schema(const char *filepath, struct yobd_ctx **out_ctx)
 {
     struct yobd_ctx *ctx;
     yobd_err err;
     FILE *file;
 
     if (filepath == NULL) {
-        err = YOBD_INVALID_PARAMETER;
-        goto out;
-    }
-
-    if (alloc == NULL) {
         err = YOBD_INVALID_PARAMETER;
         goto out;
     }
@@ -537,7 +500,6 @@ yobd_err yobd_get_ctx(
         goto error_modepid_map_init;
     }
 
-    ctx->alloc = alloc;
     ctx->next_unit_id = 0;
 
     err = parse(ctx, file);

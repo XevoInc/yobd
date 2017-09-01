@@ -19,6 +19,7 @@ install_subdir('include/yobd', install_dir : 'include')
 
 # Library.
 src = [
+    'src/eval.c',
     'src/expr.c',
     'src/parser.c'
 ]
@@ -46,7 +47,7 @@ pkg.generate(
 # Tests.
 add_test_setup('valgrind', exe_wrapper: ['valgrind', '-v'])
 tests = [
-    ['parser', ['test/parser.c'], files('data/min-pids.yaml') ],
+    ['can', ['test/can.c'], files('data/min-pids.yaml') ],
 ]
 foreach t : tests
     exe = executable(

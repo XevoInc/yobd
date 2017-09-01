@@ -8,6 +8,7 @@
 #ifndef YOBD_PRIVATE_EXPR_H_
 #define YOBD_PRIVATE_EXPR_H_
 
+#include <stddef.h>
 #include <stdint.h>
 #include <yobd/yobd.h>
 #include <yobd_private/stack.h>
@@ -30,7 +31,7 @@ struct expr_token {
             EXPR_OP_DIV
         } as_op;
         float as_float;
-        int_fast32_t as_int32;
+        int_fast32_t as_int32_t;
     };
 };
 
@@ -39,8 +40,6 @@ DEFINE_STACK(EXPR_STACK, struct expr_token)
 struct expr {
     size_t size;
     struct expr_token *data;
-
-    yobd_pid_data_type output_type;
     struct EXPR_STACK stack;
 };
 
