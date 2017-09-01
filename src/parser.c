@@ -39,6 +39,7 @@ KHASH_SET_INIT_STR(STR_SET)
 
 struct yobd_ctx {
     yobd_alloc *alloc;
+    bool big_endian;
     yobd_unit next_unit_id;
     khash_t(UNIT_MAP) *unit_map;
     khash_t(MODEPID_MAP) *modepid_map;
@@ -143,6 +144,7 @@ typedef enum {
 
 typedef enum {
     KEY_MODE,
+    KEY_ENDIAN,
     KEY_PIDS,
     KEY_NAME,
     KEY_BYTES,
@@ -165,6 +167,7 @@ parse_key find_key(const char *str)
     /* Make sure this stays in sync with the parse_key enum! */
     static const char *keys[] = {
         [KEY_MODE] = "mode",
+        [KEY_ENDIAN] = "endian",
         [KEY_PIDS] = "pids",
         [KEY_NAME] = "name",
         [KEY_BYTES] = "bytes",
@@ -340,6 +343,19 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
                         errno = 0;
                         mode = strtol(val, NULL, 0);
                         assert(errno == 0);
+                        break;
+
+                    case KEY_ENDIAN:
+                        assert(state.map == MAP_ROOT);
+                        state.key = KEY_NONE;
+
+                        if (strcmp(val, "big") == 0) {
+                            ctx->big_endian = true;
+                        }
+                        else {
+                            assert(strcmp(val, "little") == 0);
+                            ctx->big_endian = false;
+                        }
                         break;
 
                     case KEY_PIDS:

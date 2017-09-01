@@ -9,6 +9,13 @@ map:
             min: 0
         required: true
 
+    endian:
+        type: str
+        enum:
+            - big
+            - little
+        required: true
+
     pids:
         type: map
         required: true
