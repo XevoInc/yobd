@@ -4,7 +4,14 @@
 #include <stdint.h>
 #include <yobd/yobd.h>
 
-struct yobd_pid_ctx *get_mode_pid(
+struct pid_ctx {
+    const char *name;
+    yobd_unit unit;
+    uint_fast8_t bytes;
+    yobd_pid_data_type type;
+};
+
+struct pid_ctx *get_mode_pid(
     const struct yobd_ctx *ctx,
     yobd_mode mode,
     yobd_pid pid);
