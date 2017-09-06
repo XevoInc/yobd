@@ -41,7 +41,6 @@ pkg.generate(
     name: 'yobd',
     description: 'A standalone library for schema-driven data translation from CAN to OBD II',
     libraries: [lib],
-    subdirs: 'yobd',
     version: meson.project_version())
 
 # Tests.
