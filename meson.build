@@ -42,6 +42,7 @@ pkg.generate(
     description: 'A standalone library for schema-driven data translation from CAN to OBD II',
     libraries: [lib],
     version: meson.project_version())
+yobd_dep = declare_dependency(link_with: lib, include_directories: include)
 
 # Tests.
 add_test_setup('valgrind', exe_wrapper: ['valgrind', '-v'])
