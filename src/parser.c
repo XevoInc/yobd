@@ -23,14 +23,14 @@ struct parse_pid_ctx *get_parse_ctx(
     yobd_mode mode,
     yobd_pid pid)
 {
-    khiter_t iter;
+    xhiter_t iter;
 
-    iter = kh_get(MODEPID_MAP, ctx->modepid_map, (mode << 16) | pid);
-    if (iter == kh_end(ctx->modepid_map)) {
+    iter = xh_get(MODEPID_MAP, ctx->modepid_map, (mode << 16) | pid);
+    if (iter == xh_end(ctx->modepid_map)) {
         return NULL;
     }
 
-    return &kh_val(ctx->modepid_map, iter);
+    return &xh_val(ctx->modepid_map, iter);
 }
 
 static
@@ -39,21 +39,21 @@ struct parse_pid_ctx *put_mode_pid(
     yobd_mode mode,
     yobd_pid pid)
 {
-    khiter_t iter;
+    xhiter_t iter;
     int ret;
 
-    iter = kh_put(MODEPID_MAP, ctx->modepid_map, (mode << 16) | pid, &ret);
+    iter = xh_put(MODEPID_MAP, ctx->modepid_map, (mode << 16) | pid, &ret);
     if (ret == -1) {
         return NULL;
     }
 
-    return &kh_val(ctx->modepid_map, iter);
+    return &xh_val(ctx->modepid_map, iter);
 }
 
 PUBLIC_API
 void yobd_free_ctx(struct yobd_ctx *ctx)
 {
-    khiter_t iter;
+    xhiter_t iter;
     struct parse_pid_ctx *parse_ctx;
     char *unit_str;
 
@@ -64,14 +64,14 @@ void yobd_free_ctx(struct yobd_ctx *ctx)
     assert(ctx->unit_map != NULL);
     assert(ctx->modepid_map != NULL);
 
-    kh_iter(ctx->unit_map, iter,
-        unit_str = (char *) kh_val(ctx->unit_map, iter);
+    xh_iter(ctx->unit_map, iter,
+        unit_str = (char *) xh_val(ctx->unit_map, iter);
         free(unit_str);
     );
-    kh_destroy(UNIT_MAP, ctx->unit_map);
+    xh_destroy(UNIT_MAP, ctx->unit_map);
 
-    kh_iter(ctx->modepid_map, iter,
-        parse_ctx = &kh_val(ctx->modepid_map, iter);
+    xh_iter(ctx->modepid_map, iter,
+        parse_ctx = &xh_val(ctx->modepid_map, iter);
 
         free((char *) parse_ctx->pid_desc.name);
         switch (parse_ctx->type) {
@@ -79,7 +79,7 @@ void yobd_free_ctx(struct yobd_ctx *ctx)
                 destroy_expr(&parse_ctx->expr);
         }
     );
-    kh_destroy(MODEPID_MAP, ctx->modepid_map);
+    xh_destroy(MODEPID_MAP, ctx->modepid_map);
 
     free(ctx);
 }
@@ -90,17 +90,17 @@ yobd_err yobd_get_unit_str(
     yobd_unit id,
     const char **unit_str)
 {
-    khiter_t iter;
+    xhiter_t iter;
 
     if (ctx == NULL || unit_str == NULL) {
         return YOBD_INVALID_PARAMETER;
     }
 
-    iter = kh_get(UNIT_MAP, ctx->unit_map, id);
-    if (iter == kh_end(ctx->unit_map)) {
+    iter = xh_get(UNIT_MAP, ctx->unit_map, id);
+    if (iter == xh_end(ctx->unit_map)) {
         return YOBD_UNKNOWN_UNIT;
     }
-    *unit_str = kh_val(ctx->unit_map, iter);
+    *unit_str = xh_val(ctx->unit_map, iter);
 
     return YOBD_OK;
 }
@@ -192,20 +192,20 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
     bool done;
     yobd_err err;
     yaml_event_t event;
-    khiter_t iter;
+    xhiter_t iter;
     yobd_mode mode;
     yaml_parser_t parser;
     yobd_pid pid;
     struct parse_pid_ctx *parse_ctx;
     int ret;
     struct parse_state state;
-    khash_t(STR_SET) *unit_set;
+    xhash_t(STR_SET) *unit_set;
     const char *unit_str;
     const char *val;
 
     err = YOBD_OK;
 
-    unit_set = kh_init(STR_SET);
+    unit_set = xh_init(STR_SET);
     if (unit_set == NULL) {
         return YOBD_OOM;
     }
@@ -369,8 +369,8 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
                         assert(parse_ctx != NULL);
 
                         /* Check if we have seen this unit before. */
-                        iter = kh_get(STR_SET, unit_set, val);
-                        if (iter != kh_end(unit_set)) {
+                        iter = xh_get(STR_SET, unit_set, val);
+                        if (iter != xh_end(unit_set)) {
                             break;
                         }
 
@@ -387,7 +387,7 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
                         ++ctx->next_unit_id;
 
                         /* Finally put the unit into our maps. */
-                        iter = kh_put(
+                        iter = xh_put(
                             UNIT_MAP,
                             ctx->unit_map,
                             parse_ctx->pid_desc.unit,
@@ -397,9 +397,9 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
                             done = true;
                             break;
                         }
-                        kh_val(ctx->unit_map, iter) = unit_str;
+                        xh_val(ctx->unit_map, iter) = unit_str;
 
-                        kh_put(STR_SET, unit_set, unit_str, &ret);
+                        xh_put(STR_SET, unit_set, unit_str, &ret);
                         if (ret == -1) {
                             err = YOBD_OOM;
                             done = true;
@@ -448,15 +448,15 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
 
     } while (!done);
 
-    kh_destroy(STR_SET, unit_set);
+    xh_destroy(STR_SET, unit_set);
     yaml_parser_delete(&parser);
 
-    ret = kh_trim(UNIT_MAP, ctx->unit_map);
+    ret = xh_trim(UNIT_MAP, ctx->unit_map);
     if (ret == -1 && err == YOBD_OK) {
         err = YOBD_OOM;
     }
 
-    ret = kh_trim(MODEPID_MAP, ctx->modepid_map);
+    ret = xh_trim(MODEPID_MAP, ctx->modepid_map);
     if (ret == -1 && err == YOBD_OK) {
         err = YOBD_OOM;
     }
@@ -488,13 +488,13 @@ yobd_err yobd_parse_schema(const char *filepath, struct yobd_ctx **out_ctx)
         goto error_malloc;
     }
 
-    ctx->unit_map = kh_init(UNIT_MAP);
+    ctx->unit_map = xh_init(UNIT_MAP);
     if (ctx->unit_map == NULL) {
         err = YOBD_OOM;
         goto error_unit_map_init;
     }
 
-    ctx->modepid_map = kh_init(MODEPID_MAP);
+    ctx->modepid_map = xh_init(MODEPID_MAP);
     if (ctx->modepid_map == NULL) {
         err = YOBD_OOM;
         goto error_modepid_map_init;
@@ -514,9 +514,9 @@ yobd_err yobd_parse_schema(const char *filepath, struct yobd_ctx **out_ctx)
     goto out;
 
 error_parse:
-    kh_destroy(MODEPID_MAP, ctx->modepid_map);
+    xh_destroy(MODEPID_MAP, ctx->modepid_map);
 error_modepid_map_init:
-    kh_destroy(UNIT_MAP, ctx->unit_map);
+    xh_destroy(UNIT_MAP, ctx->unit_map);
 error_unit_map_init:
     free(ctx);
 error_malloc:

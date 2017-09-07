@@ -27,7 +27,8 @@ src = [
 thread_deps = dependency('threads')
 deps = [
     thread_deps,
-    dependency('yaml-0.1')
+    dependency('yaml-0.1'),
+    dependency('xlib', fallback: ['xlib', 'xlib_dep'])
 ]
 
 lib = library(
