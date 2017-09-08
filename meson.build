@@ -19,16 +19,19 @@ install_subdir('include/yobd', install_dir : 'include')
 
 # Library.
 src = [
+    'src/assert.c',
+    'src/entrypoint.c',
     'src/eval.c',
     'src/expr.c',
     'src/parser.c'
 ]
 
-thread_deps = dependency('threads')
+thread_dep = dependency('threads')
+xlib_dep = dependency('xlib', fallback: ['xlib', 'xlib_dep'])
 deps = [
-    thread_deps,
+    thread_dep,
+    xlib_dep,
     dependency('yaml-0.1'),
-    dependency('xlib', fallback: ['xlib', 'xlib_dep'])
 ]
 
 lib = library(
@@ -50,13 +53,14 @@ add_test_setup('valgrind', exe_wrapper: ['valgrind', '-v'])
 tests = [
     ['can', ['test/can.c'], files('data/min-pids.yaml') ],
 ]
+test_deps = [yobd_dep] + [xlib_dep]
 foreach t : tests
     exe = executable(
         t.get(0),
         t.get(1),
         include_directories: include,
         link_with: lib,
-        dependencies: [thread_deps])
+        dependencies: test_deps)
     test(t.get(0), exe, args: t.get(2))
 endforeach
 
