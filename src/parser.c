@@ -6,13 +6,13 @@
  */
 
 #define _POSIX_C_SOURCE 200809L
-#include <assert.h>
 #include <errno.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 #include <yaml.h>
 #include <yobd_private/api.h>
+#include <yobd_private/assert.h>
 #include <yobd_private/expr.h>
 #include <yobd_private/parser.h>
 
@@ -61,8 +61,8 @@ void yobd_free_ctx(struct yobd_ctx *ctx)
         return;
     }
 
-    assert(ctx->unit_map != NULL);
-    assert(ctx->modepid_map != NULL);
+    XASSERT_NOT_NULL(ctx->unit_map);
+    XASSERT_NOT_NULL(ctx->modepid_map);
 
     xh_iter(ctx->unit_map, iter,
         unit_str = (char *) xh_val(ctx->unit_map, iter);
@@ -154,7 +154,7 @@ parse_key find_key(const char *str)
         }
     }
 
-    assert(false);
+    XASSERT_ERROR;
 }
 
 struct type_desc {
@@ -183,7 +183,7 @@ void find_type(const char *str, uint_fast8_t *bytes, yobd_pid_data_type *type)
         }
     }
 
-    assert(false);
+    XASSERT_ERROR;
 }
 
 static
@@ -232,7 +232,7 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
             case YAML_ALIAS_EVENT:
             case YAML_SEQUENCE_START_EVENT:
             case YAML_SEQUENCE_END_EVENT:
-                assert(false);
+                XASSERT_ERROR;
                 break;
 
             case YAML_STREAM_START_EVENT:
@@ -271,19 +271,19 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
                                 state.map = MAP_EXPR;
                                 break;
                             default:
-                                assert(false);
+                                XASSERT_ERROR;
                         }
                         state.key = KEY_NONE;
                         break;
                     case MAP_EXPR:
-                        assert(false);
+                        XASSERT_ERROR;
                         break;
                 }
                 break;
             case YAML_MAPPING_END_EVENT:
                 switch (state.map) {
                     case MAP_NONE:
-                        assert(false);
+                        XASSERT_ERROR;
                         break;
                     case MAP_ROOT:
                         break;
@@ -308,42 +308,42 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
                         break;
 
                     case KEY_MODE:
-                        assert(state.map == MAP_ROOT);
+                        XASSERT_EQ(state.map, MAP_ROOT);
                         state.key = KEY_NONE;
 
                         errno = 0;
                         mode = strtol(val, NULL, 0);
-                        assert(errno == 0);
+                        XASSERT_EQ(errno, 0);
                         break;
 
                     case KEY_ENDIAN:
-                        assert(state.map == MAP_ROOT);
+                        XASSERT_EQ(state.map, MAP_ROOT);
                         state.key = KEY_NONE;
 
                         if (strcmp(val, "big") == 0) {
                             ctx->big_endian = true;
                         }
                         else {
-                            assert(strcmp(val, "little") == 0);
+                            XASSERT_EQ(strcmp(val, "little"), 0);
                             ctx->big_endian = false;
                         }
                         break;
 
                     case KEY_PIDS:
-                        assert(state.map == MAP_PIDS);
+                        XASSERT_EQ(state.map, MAP_PIDS);
                         state.key = KEY_NONE;
 
                         errno = 0;
                         pid = strtol(val, NULL, 0);
-                        assert(errno == 0);
+                        XASSERT_EQ(errno, 0);
                         break;
 
                     case KEY_NAME:
-                        assert(state.map == MAP_SPECIFIC_PID);
+                        XASSERT_EQ(state.map, MAP_SPECIFIC_PID);
                         state.key = KEY_NONE;
 
-                        assert(parse_ctx != NULL);
-                        assert(parse_ctx->pid_desc.name == NULL);
+                        XASSERT_NOT_NULL(parse_ctx);
+                        XASSERT_NULL(parse_ctx->pid_desc.name);
                         parse_ctx->pid_desc.name = strdup(val);
                         if (parse_ctx->pid_desc.name == NULL) {
                             err = YOBD_OOM;
@@ -353,20 +353,20 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
                         break;
 
                     case KEY_BYTES:
-                        assert(state.map == MAP_SPECIFIC_PID);
+                        XASSERT_EQ(state.map, MAP_SPECIFIC_PID);
                         state.key = KEY_NONE;
 
-                        assert(parse_ctx != NULL);
+                        XASSERT_NOT_NULL(parse_ctx);
                         errno = 0;
                         parse_ctx->can_bytes = strtol(val, NULL, 0);
-                        assert(errno == 0);
+                        XASSERT_EQ(errno, 0);
                         break;
 
                     case KEY_UNIT:
-                        assert(state.map == MAP_SPECIFIC_PID);
+                        XASSERT_EQ(state.map, MAP_SPECIFIC_PID);
                         state.key = KEY_NONE;
 
-                        assert(parse_ctx != NULL);
+                        XASSERT_NOT_NULL(parse_ctx);
 
                         /* Check if we have seen this unit before. */
                         iter = xh_get(STR_SET, unit_set, val);
@@ -409,10 +409,10 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
                         break;
 
                     case KEY_TYPE:
-                        assert(state.map == MAP_EXPR);
+                        XASSERT_EQ(state.map, MAP_EXPR);
                         state.key = KEY_NONE;
 
-                        assert(parse_ctx != NULL);
+                        XASSERT_NOT_NULL(parse_ctx);
                         find_type(
                             val,
                             &parse_ctx->pid_desc.bytes,
@@ -421,16 +421,16 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
                         break;
 
                     case KEY_EXPR:
-                        assert(state.map == MAP_SPECIFIC_PID);
+                        XASSERT_EQ(state.map, MAP_SPECIFIC_PID);
                         state.map = MAP_EXPR;
                         state.key = KEY_NONE;
                         break;
 
                     case KEY_VAL:
-                        assert(state.map == MAP_EXPR);
+                        XASSERT_EQ(state.map, MAP_EXPR);
                         state.key = KEY_NONE;
 
-                        assert(parse_ctx != NULL);
+                        XASSERT_NOT_NULL(parse_ctx);
                         parse_ctx->type = EVAL_TYPE_EXPR;
                         err = parse_expr(
                             val,
