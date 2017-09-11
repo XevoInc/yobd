@@ -1,2 +1,4 @@
+meson
+ninja
 pykwalify
 simpleeval
