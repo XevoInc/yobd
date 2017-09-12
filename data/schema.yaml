@@ -3,12 +3,6 @@ type: map
 required: true
 
 map:
-    mode:
-        type: int
-        range:
-            min: 0
-        required: true
-
     endian:
         type: str
         enum:
@@ -16,44 +10,48 @@ map:
             - little
         required: true
 
-    pids:
+    modepid:
         type: map
         required: true
         func: non_negative_int_keys
-
         map:
             =:
                 type: map
                 required: true
-
+                func: non_negative_int_keys
                 map:
-                    name:
-                        type: str
-                        required: true
-
-                    bytes:
-                        type: any
-                        func: bytes
-                        required: true
-
-                    unit:
-                        type: str
-                        enum:
-                            - rpm
-                            - km/h
-                            - g/s
-                        required: true
-
-                    expr:
+                    =:
                         type: map
+                        required: true
+
                         map:
-                            type:
+                            name:
+                                type: str
+                                required: true
+
+                            bytes:
+                                type: any
+                                func: bytes
+                                required: true
+
+                            unit:
                                 type: str
                                 enum:
-                                    - uint8
-                                    - float
+                                    - rpm
+                                    - km/h
+                                    - g/s
                                 required: true
-                            val:
-                                type: str
-                                func: infix
-                                required: true
+
+                            expr:
+                                type: map
+                                map:
+                                    type:
+                                        type: str
+                                        enum:
+                                            - uint8
+                                            - float
+                                        required: true
+                                    val:
+                                        type: str
+                                        func: infix
+                                        required: true

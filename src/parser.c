@@ -108,15 +108,15 @@ yobd_err yobd_get_unit_str(
 typedef enum {
     MAP_NONE,
     MAP_ROOT,
-    MAP_PIDS,
+    MAP_MODEPID,
+    MAP_SPECIFIC_MODE,
     MAP_SPECIFIC_PID,
     MAP_EXPR
 } parse_map;
 
 typedef enum {
-    KEY_MODE,
     KEY_ENDIAN,
-    KEY_PIDS,
+    KEY_MODEPID,
     KEY_NAME,
     KEY_BYTES,
     KEY_UNIT,
@@ -137,9 +137,8 @@ parse_key find_key(const char *str)
     size_t i;
     /* Make sure this stays in sync with the parse_key enum! */
     static const char *keys[] = {
-        [KEY_MODE] = "mode",
         [KEY_ENDIAN] = "endian",
-        [KEY_PIDS] = "pids",
+        [KEY_MODEPID] = "modepid",
         [KEY_NAME] = "name",
         [KEY_BYTES] = "bytes",
         [KEY_UNIT] = "unit",
@@ -250,49 +249,52 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
             case YAML_MAPPING_START_EVENT:
                 switch (state.map) {
                     case MAP_NONE:
+                        XASSERT_EQ(state.key, KEY_NONE);
                         state.map = MAP_ROOT;
                         break;
                     case MAP_ROOT:
-                        state.map = MAP_PIDS;
-                        break;
-                    case MAP_PIDS:
-                        state.map = MAP_SPECIFIC_PID;
-                        parse_ctx = put_mode_pid(ctx, mode, pid);
-                        if (parse_ctx == NULL) {
-                            err = YOBD_OOM;
-                            done = true;
-                        }
-                        parse_ctx->pid_desc.name = NULL;
-
-                        break;
-                    case MAP_SPECIFIC_PID:
                         switch (state.key) {
-                            case KEY_EXPR:
-                                state.map = MAP_EXPR;
+                            case KEY_MODEPID:
+                                state.map = MAP_MODEPID;
                                 break;
                             default:
                                 XASSERT_ERROR;
                         }
-                        state.key = KEY_NONE;
+                        break;
+                    case MAP_MODEPID:
+                        XASSERT_EQ(state.key, KEY_NONE);
+                        state.map = MAP_SPECIFIC_MODE;
+                        break;
+                    case MAP_SPECIFIC_MODE:
+                        XASSERT_EQ(state.key, KEY_NONE);
+                        state.map = MAP_SPECIFIC_PID;
+                        break;
+                    case MAP_SPECIFIC_PID:
+                        XASSERT_EQ(state.key, KEY_EXPR);
+                        state.map = MAP_EXPR;
                         break;
                     case MAP_EXPR:
                         XASSERT_ERROR;
-                        break;
                 }
+                state.key = KEY_NONE;
                 break;
             case YAML_MAPPING_END_EVENT:
+                XASSERT_EQ(state.key, KEY_NONE);
                 switch (state.map) {
                     case MAP_NONE:
                         XASSERT_ERROR;
                         break;
                     case MAP_ROOT:
+                        state.map = MAP_NONE;
                         break;
-                    case MAP_PIDS:
+                    case MAP_MODEPID:
                         state.map = MAP_ROOT;
                         break;
+                    case MAP_SPECIFIC_MODE:
+                        state.map = MAP_MODEPID;
+                        break;
                     case MAP_SPECIFIC_PID:
-                        state.map = MAP_PIDS;
-                        state.key = KEY_PIDS;
+                        state.map = MAP_SPECIFIC_MODE;
                         break;
                     case MAP_EXPR:
                         state.map = MAP_SPECIFIC_PID;
@@ -304,17 +306,41 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
                 val = (const char *) event.data.scalar.value;
                 switch (state.key) {
                     case KEY_NONE:
-                        state.key = find_key(val);
+                        switch (state.map) {
+                            case MAP_NONE:
+                                XASSERT_ERROR;
+                            case MAP_MODEPID:
+                                errno = 0;
+                                mode = strtol(val, NULL, 0);
+                                XASSERT_EQ(errno, 0);
+                                break;
+                            case MAP_SPECIFIC_MODE:
+                                /* Get PID. */
+                                errno = 0;
+                                pid = strtol(val, NULL, 0);
+                                XASSERT_EQ(errno, 0);
+
+                                /* Make a mode-pid ctx. */
+                                parse_ctx = put_mode_pid(ctx, mode, pid);
+                                if (parse_ctx == NULL) {
+                                    err = YOBD_OOM;
+                                    done = true;
+                                }
+                                else {
+                                    parse_ctx->pid_desc.name = NULL;
+                                }
+                                break;
+                            case MAP_SPECIFIC_PID:
+                            case MAP_ROOT:
+                            case MAP_EXPR:
+                                state.key = find_key(val);
+                                break;
+                        }
                         break;
 
-                    case KEY_MODE:
-                        XASSERT_EQ(state.map, MAP_ROOT);
-                        state.key = KEY_NONE;
-
-                        errno = 0;
-                        mode = strtol(val, NULL, 0);
-                        XASSERT_EQ(errno, 0);
-                        break;
+                    case KEY_MODEPID:
+                        /* modepid should contain only maps, not scalars. */
+                        XASSERT_ERROR;
 
                     case KEY_ENDIAN:
                         XASSERT_EQ(state.map, MAP_ROOT);
@@ -327,15 +353,6 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
                             XASSERT_EQ(strcmp(val, "little"), 0);
                             ctx->big_endian = false;
                         }
-                        break;
-
-                    case KEY_PIDS:
-                        XASSERT_EQ(state.map, MAP_PIDS);
-                        state.key = KEY_NONE;
-
-                        errno = 0;
-                        pid = strtol(val, NULL, 0);
-                        XASSERT_EQ(errno, 0);
                         break;
 
                     case KEY_NAME:
