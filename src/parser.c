@@ -215,6 +215,9 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
     }
     yaml_parser_set_input_file(&parser, file);
 
+    /* Quiet the compiler about uninitialized warnings. */
+    mode = 0;
+
     state.map = MAP_NONE;
     state.key = KEY_NONE;
     done = false;
