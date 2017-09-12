@@ -1,29 +1,29 @@
 ---
 # TODO: Need to enforce that standard-mode PIDs (mode <= 0xA) occupy only one
 # byte, not two.
-mode: 0x1
 endian: big
-pids:
-    0x0C:
-        name: Engine RPM
-        bytes: 2
-        unit: rpm
-        expr:
-            type: float
-            val: (256*A + B) / 4
+modepid:
+    0x1:
+        0x0C:
+            name: Engine RPM
+            bytes: 2
+            unit: rpm
+            expr:
+                type: float
+                val: (256*A + B) / 4
 
-    0x0D:
-        name: Vehicle speed
-        bytes: 1
-        unit: km/h
-        expr:
-            type: uint8
-            val: A
+        0x0D:
+            name: Vehicle speed
+            bytes: 1
+            unit: km/h
+            expr:
+                type: uint8
+                val: A
 
-    0x10:
-        name: MAF air flow rate
-        bytes: 2
-        unit: g/s
-        expr:
-            type: float
-            val: (256*A + B) / 100
+        0x10:
+            name: MAF air flow rate
+            bytes: 2
+            unit: g/s
+            expr:
+                type: float
+                val: (256*A + B) / 100
