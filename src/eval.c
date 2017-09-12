@@ -35,22 +35,22 @@ out_type eval_expr_##out_type( \
             case EXPR_A: \
                 result.type = enum_type; \
                 result.as_##stack_type = data[0]; \
-                PUSH_STACK(EXPR_STACK, &expr->stack, result); \
+                PUSH_STACK(EXPR_STACK, &expr->stack, &result); \
                 break; \
             case EXPR_B: \
                 result.type = enum_type; \
                 result.as_##stack_type = data[1]; \
-                PUSH_STACK(EXPR_STACK, &expr->stack, result); \
+                PUSH_STACK(EXPR_STACK, &expr->stack, &result); \
                 break; \
             case EXPR_C: \
                 result.type = enum_type; \
                 result.as_##stack_type = data[2]; \
-                PUSH_STACK(EXPR_STACK, &expr->stack, result); \
+                PUSH_STACK(EXPR_STACK, &expr->stack, &result); \
                 break; \
             case EXPR_D: \
                 result.type = enum_type; \
                 result.as_##stack_type = data[3]; \
-                PUSH_STACK(EXPR_STACK, &expr->stack, result); \
+                PUSH_STACK(EXPR_STACK, &expr->stack, &result); \
                 break; \
             case EXPR_OP: \
                 tok1 = POP_STACK(EXPR_STACK, &expr->stack); \
@@ -72,10 +72,10 @@ out_type eval_expr_##out_type( \
                         result.as_##stack_type = tok2.as_##stack_type / tok1.as_##stack_type; \
                         break; \
                 } \
-                PUSH_STACK(EXPR_STACK, &expr->stack, result); \
+                PUSH_STACK(EXPR_STACK, &expr->stack, &result); \
                 break; \
             case enum_type: \
-                PUSH_STACK(EXPR_STACK, &expr->stack, expr->data[i]); \
+                PUSH_STACK(EXPR_STACK, &expr->stack, &expr->data[i]); \
                 break; \
             default: \
                 /*
