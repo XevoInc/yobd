@@ -123,29 +123,25 @@ void next_token(
 }
 
 static
-struct expr_token op_to_expr(parse_token tok)
+void op_to_expr(parse_token tok, struct expr_token *expr_tok)
 {
-    struct expr_token expr_tok;
-
-    expr_tok.type = EXPR_OP;
+    expr_tok->type = EXPR_OP;
     switch (tok) {
         case TOK_OP_ADD:
-            expr_tok.as_op = EXPR_OP_ADD;
+            expr_tok->as_op = EXPR_OP_ADD;
             break;
         case TOK_OP_SUB:
-            expr_tok.as_op = EXPR_OP_SUB;
+            expr_tok->as_op = EXPR_OP_SUB;
             break;
         case TOK_OP_MUL:
-            expr_tok.as_op = EXPR_OP_MUL;
+            expr_tok->as_op = EXPR_OP_MUL;
             break;
         case TOK_OP_DIV:
-            expr_tok.as_op = EXPR_OP_DIV;
+            expr_tok->as_op = EXPR_OP_DIV;
             break;
         default:
             XASSERT_ERROR;
     }
-
-    return expr_tok;
 }
 
 void handle_op(
@@ -153,6 +149,7 @@ void handle_op(
     struct OP_STACK *op_stack,
     struct EXPR_STACK *out_stack)
 {
+    struct expr_token expr_tok;
     parse_token op_tok;
     int ret;
 
@@ -163,10 +160,11 @@ void handle_op(
             break;
         }
         op_tok = POP_STACK(OP_STACK, op_stack);
-        PUSH_STACK(EXPR_STACK, out_stack, op_to_expr(op_tok));
+        op_to_expr(op_tok, &expr_tok);
+        PUSH_STACK(EXPR_STACK, out_stack, &expr_tok);
     }
     /* Now push the lower precedence operator. */
-    PUSH_STACK(OP_STACK, op_stack, tok);
+    PUSH_STACK(OP_STACK, op_stack, &tok);
 }
 
 void shunting_yard(
@@ -212,24 +210,24 @@ void shunting_yard(
                         break;
                 }
                 XASSERT_EQ(errno, 0);
-                PUSH_STACK(EXPR_STACK, out_stack, expr_tok);
+                PUSH_STACK(EXPR_STACK, out_stack, &expr_tok);
                 break;
 
             case TOK_A:
                 expr_tok.type = EXPR_A;
-                PUSH_STACK(EXPR_STACK, out_stack, expr_tok);
+                PUSH_STACK(EXPR_STACK, out_stack, &expr_tok);
                 break;
             case TOK_B:
                 expr_tok.type = EXPR_B;
-                PUSH_STACK(EXPR_STACK, out_stack, expr_tok);
+                PUSH_STACK(EXPR_STACK, out_stack, &expr_tok);
                 break;
             case TOK_C:
                 expr_tok.type = EXPR_C;
-                PUSH_STACK(EXPR_STACK, out_stack, expr_tok);
+                PUSH_STACK(EXPR_STACK, out_stack, &expr_tok);
                 break;
             case TOK_D:
                 expr_tok.type = EXPR_D;
-                PUSH_STACK(EXPR_STACK, out_stack, expr_tok);
+                PUSH_STACK(EXPR_STACK, out_stack, &expr_tok);
                 break;
 
             case TOK_OP_ADD:
@@ -240,11 +238,11 @@ void shunting_yard(
             case TOK_OP_MUL:
             case TOK_OP_DIV:
                 /* This operator is high precedence, so just push it. */
-                PUSH_STACK(OP_STACK, op_stack, tok);
+                PUSH_STACK(OP_STACK, op_stack, &tok);
                 break;
 
             case TOK_LPAREN:
-                PUSH_STACK(OP_STACK, op_stack, TOK_LPAREN);
+                PUSH_STACK(OP_STACK, op_stack, &tok);
                 break;
 
             case TOK_RPAREN:
@@ -256,7 +254,8 @@ void shunting_yard(
                         break;
                     }
                     op_tok = POP_STACK(OP_STACK, op_stack);
-                    PUSH_STACK(EXPR_STACK, out_stack, op_to_expr(op_tok));
+                    op_to_expr(op_tok, &expr_tok);
+                    PUSH_STACK(EXPR_STACK, out_stack, &expr_tok);
                 }
                 /* Pop the left bracket. */
                 POP_STACK(OP_STACK, op_stack);
@@ -267,7 +266,8 @@ void shunting_yard(
     /* Push all remaining operators onto the output. */
     while (STACK_SIZE(OP_STACK, op_stack) > 0) {
         op_tok = POP_STACK(OP_STACK, op_stack);
-        PUSH_STACK(EXPR_STACK, out_stack, op_to_expr(op_tok));
+        op_to_expr(op_tok, &expr_tok);
+        PUSH_STACK(EXPR_STACK, out_stack, &expr_tok);
     }
 
     XASSERT_GT(STACK_SIZE(EXPR_STACK, out_stack), 0);

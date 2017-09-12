@@ -8,6 +8,7 @@
 #ifndef YOBD_PRIVATE_STACK_H_
 #define YOBD_PRIVATE_STACK_H_
 
+#include <string.h>
 #include <yobd_private/assert.h>
 
 #define DEFINE_STACK(stack_type, item_type) \
@@ -47,11 +48,11 @@
     } \
     \
     static inline __attribute__ ((__unused__)) \
-    void stack_type##_push(struct stack_type *stack, item_type item) \
+    void stack_type##_push(struct stack_type *stack, item_type *item) \
     { \
         XASSERT_LT(stack_type##_size(stack), stack_type##_max_size(stack)); \
         \
-        *stack->top = item; \
+        memcpy(stack->top, item, sizeof(*stack->top)); \
         ++stack->top; \
     } \
     static inline __attribute__ ((__unused__)) \
@@ -62,7 +63,7 @@
         XASSERT_GT(stack_type##_size(stack), 0); \
         \
         --stack->top; \
-        item = *stack->top; \
+        memcpy(&item, stack->top, sizeof(item)); \
         return item; \
     } \
     static inline __attribute__ ((__unused__)) \
@@ -71,7 +72,7 @@
         if (stack_type##_size(stack) == 0) { \
             return -1; \
         } \
-        *item = *(stack->top-1); \
+        memcpy(item, stack->top-1, sizeof(*item)); \
         return 0; \
     }
 
