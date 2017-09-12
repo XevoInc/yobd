@@ -8,7 +8,7 @@
 #ifndef YOBD_PRIVATE_STACK_H_
 #define YOBD_PRIVATE_STACK_H_
 
-#include <assert.h>
+#include <yobd_private/assert.h>
 
 #define DEFINE_STACK(stack_type, item_type) \
     struct stack_type { \
@@ -49,7 +49,7 @@
     static inline __attribute__ ((__unused__)) \
     void stack_type##_push(struct stack_type *stack, item_type item) \
     { \
-        assert(stack_type##_size(stack) < stack_type##_max_size(stack)); \
+        XASSERT_LT(stack_type##_size(stack), stack_type##_max_size(stack)); \
         \
         *stack->top = item; \
         ++stack->top; \
@@ -59,7 +59,7 @@
     { \
         item_type item; \
         \
-        assert(stack_type##_size(stack) > 0); \
+        XASSERT_GT(stack_type##_size(stack), 0); \
         \
         --stack->top; \
         item = *stack->top; \

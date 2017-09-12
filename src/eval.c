@@ -55,8 +55,8 @@ out_type eval_expr_##out_type( \
             case EXPR_OP: \
                 tok1 = POP_STACK(EXPR_STACK, &expr->stack); \
                 tok2 = POP_STACK(EXPR_STACK, &expr->stack); \
-                assert(tok1.type == enum_type); \
-                assert(tok2.type == enum_type); \
+                XASSERT_EQ(tok1.type, enum_type); \
+                XASSERT_EQ(tok2.type, enum_type); \
                 result.type = enum_type; \
                 switch (expr->data[i].as_op) { \
                     case EXPR_OP_ADD: \
@@ -82,17 +82,17 @@ out_type eval_expr_##out_type( \
                  * All tokens should be of the same numeric type (float or int),
                  * to avoid issues converting between types.
                  */ \
-                assert(false); \
+                XASSERT_ERROR; \
         } \
     } \
     \
-    assert(STACK_SIZE(EXPR_STACK, &expr->stack) == 1); \
+    XASSERT_EQ(STACK_SIZE(EXPR_STACK, &expr->stack), 1); \
     result = POP_STACK(EXPR_STACK, &expr->stack); \
-    assert(result.type == enum_type); \
+    XASSERT_EQ(result.type, enum_type); \
     \
     val = result.as_##stack_type; \
-    assert(val >= min_val); \
-    assert(val <= max_val); \
+    XASSERT_GTE(val, min_val); \
+    XASSERT_LTE(val, max_val); \
     \
     return (out_type) val; \
 }
