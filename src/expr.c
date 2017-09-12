@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <yobd/yobd.h>
+#include <yobd_private/assert.h>
 #include <yobd_private/expr.h>
 #include <yobd_private/stack.h>
 
@@ -113,7 +114,7 @@ void next_token(
                 break;
             default:
                 /* Unrecognized token, should have failed schema checking. */
-                assert(false);
+                XASSERT_ERROR;
         }
 
         *start = pos;
@@ -141,7 +142,7 @@ struct expr_token op_to_expr(parse_token tok)
             expr_tok.as_op = EXPR_OP_DIV;
             break;
         default:
-            assert(false);
+            XASSERT_ERROR;
     }
 
     return expr_tok;
@@ -210,7 +211,7 @@ void shunting_yard(
                         expr_tok.type = EXPR_FLOAT;
                         break;
                 }
-                assert(errno == 0);
+                XASSERT_EQ(errno, 0);
                 PUSH_STACK(EXPR_STACK, out_stack, expr_tok);
                 break;
 
@@ -250,7 +251,7 @@ void shunting_yard(
                 while (true) {
                     ret = PEEK_STACK(OP_STACK, op_stack, &tok);
                     /* We should not see a ) without a ( before it. */
-                    assert(ret != -1);
+                    XASSERT_NEQ(ret, -1);
                     if (tok == TOK_LPAREN) {
                         break;
                     }
@@ -269,7 +270,7 @@ void shunting_yard(
         PUSH_STACK(EXPR_STACK, out_stack, op_to_expr(op_tok));
     }
 
-    assert(STACK_SIZE(EXPR_STACK, out_stack) > 0);
+    XASSERT_GT(STACK_SIZE(EXPR_STACK, out_stack), 0);
 }
 
 yobd_err parse_expr(
