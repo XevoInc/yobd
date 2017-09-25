@@ -1,3 +1,4 @@
+- A yobd_strerror function
 - A generic function to go from PID descriptor to JSON or YAML
 - A more reliable schema checker than pykwalify
 - Support for all standard mode 1 OBD II PIDs instead of a small subset
