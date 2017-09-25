@@ -18,11 +18,6 @@
 
 void print_err(const char *msg)
 {
-    /*
-     * Override the -Wformat-security warning here regarding untrusted input
-     * because msg comes from a limited set of compile-time XASSERT_ macros,
-     * which are all safe.
-     */
     fputs(msg, stderr);
 }
 
