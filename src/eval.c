@@ -12,8 +12,8 @@
 #include <yobd_private/parser.h>
 #include <yobd/yobd.h>
 
-#define OBD_II_REQUEST_ADDRESS (0x7df)
-#define OBD_II_RESPONSE_ADDRESS (OBD_II_REQUEST_ADDRESS + 8)
+#define OBD_II_QUERY_ADDRESS (0x7df)
+#define OBD_II_RESPONSE_ADDRESS (OBD_II_QUERY_ADDRESS + 8)
 
 /* ISO 15765-2:2016 page 43 suggests but does not require 0xcc for padding. */
 #define OBD_II_PAD_VALUE (0xcc)
@@ -120,7 +120,7 @@ yobd_err yobd_make_can_request(
     }
 
     /* These are standard for all OBD II. */
-    frame->can_id = OBD_II_REQUEST_ADDRESS;
+    frame->can_id = OBD_II_QUERY_ADDRESS;
     frame->can_dlc = 8;
 
     /* These vary per request. */
@@ -180,6 +180,72 @@ void eval_expr(
     }
 }
 
+static
+yobd_err parse_mode_pid(
+    struct yobd_ctx *ctx,
+    const struct can_frame *frame,
+    yobd_mode *mode,
+    yobd_pid *pid,
+    const uint8_t **data_start)
+{
+    /*
+     * The response mode is request mode + 0x40, so less than 0x41 implies a
+     * response mode of less than 1, which is invalid.
+     */
+    *mode = frame->data[1];
+    if (*mode < 0x41) {
+        return YOBD_INVALID_MODE;
+    }
+    *mode -= 0x40;
+
+    if (mode_is_sae_standard(*mode)) {
+        *pid = frame->data[2];
+        *data_start = &frame->data[3];
+    }
+    else {
+        if (ctx->big_endian) {
+            *pid = (frame->data[2] << 8) | frame->data[3];
+        }
+        else {
+            *pid = (frame->data[3] << 8) | frame->data[2];
+        }
+        *data_start = &frame->data[4];
+    }
+
+    return YOBD_OK;
+}
+
+PUBLIC_API
+yobd_err yobd_parse_headers(
+    struct yobd_ctx *ctx,
+    const struct can_frame *frame,
+    yobd_mode *mode,
+    yobd_pid *pid)
+{
+    const uint8_t *data_start;
+    yobd_err err;
+
+    if (ctx == NULL || frame == NULL || mode == NULL || pid == NULL) {
+        return YOBD_INVALID_PARAMETER;
+    }
+
+    if (frame->can_id != OBD_II_QUERY_ADDRESS &&
+        frame->can_id != OBD_II_RESPONSE_ADDRESS) {
+        return YOBD_UNKNOWN_ID;
+    }
+
+    if (frame->can_dlc != 8) {
+        return YOBD_INVALID_DLC;
+    }
+
+    err = parse_mode_pid(ctx, frame, mode, pid, &data_start);
+    if (err != YOBD_OK) {
+        return err;
+    }
+
+    return YOBD_OK;
+}
+
 PUBLIC_API
 yobd_err yobd_parse_can_response(
     struct yobd_ctx *ctx,
@@ -187,6 +253,7 @@ yobd_err yobd_parse_can_response(
     uint8_t *buf)
 {
     const uint8_t *data_start;
+    yobd_err err;
     yobd_mode mode;
     yobd_pid pid;
     struct parse_pid_ctx *parse_ctx;
@@ -203,28 +270,9 @@ yobd_err yobd_parse_can_response(
         return YOBD_INVALID_DLC;
     }
 
-    /*
-     * The response mode is request mode + 0x40, so less than 0x41 implies a
-     * response mode of less than 1, which is invalid.
-     */
-    mode = frame->data[1];
-    if (mode < 0x41) {
-        return YOBD_INVALID_MODE;
-    }
-    mode -= 0x40;
-
-    if (mode_is_sae_standard(mode)) {
-        pid = frame->data[2];
-        data_start = &frame->data[3];
-    }
-    else {
-        if (ctx->big_endian) {
-            pid = (frame->data[2] << 8) | frame->data[3];
-        }
-        else {
-            pid = (frame->data[3] << 8) | frame->data[2];
-        }
-        data_start = &frame->data[4];
+    err = parse_mode_pid(ctx, frame, &mode, &pid, &data_start);
+    if (err != YOBD_OK) {
+        return err;
     }
 
     parse_ctx = get_parse_ctx(ctx, mode, pid);

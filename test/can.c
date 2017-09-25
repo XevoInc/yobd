@@ -33,6 +33,8 @@ int main(int argc, const char **argv)
     struct yobd_ctx *ctx;
     yobd_err err;
     struct can_frame frame;
+    yobd_mode mode;
+    yobd_pid pid;
     const struct yobd_pid_desc *pid_desc;
     const char *schema_file;
     const char *str;
@@ -80,6 +82,17 @@ int main(int argc, const char **argv)
     XASSERT_EQ(frame.data[5], 0xcc);
     XASSERT_EQ(frame.data[6], 0xcc);
     XASSERT_EQ(frame.data[7], 0xcc);
+
+    frame.can_id = 0x7df;
+    frame.can_dlc = 8;
+    frame.data[0] = 1;
+    frame.data[1] = 0x1 + 0x40;
+    frame.data[2] = 0x0d;
+    frame.data[3] = 60;
+    err = yobd_parse_headers(ctx, &frame, &mode, &pid);
+    XASSERT_EQ(err, YOBD_OK);
+    XASSERT_EQ(mode, 0x1);
+    XASSERT_EQ(pid, 0x0d);
 
     frame.can_id = 0x7df + 8;
     frame.can_dlc = 8;
