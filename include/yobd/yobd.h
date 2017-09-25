@@ -121,6 +121,23 @@ yobd_err yobd_make_can_request(
     yobd_pid pid,
     struct can_frame *frame);
 
+
+/**
+ * Parses a given CAN frame, returning basic header information about the frame.
+ *
+ * @param ctx a yobd context
+ * @param frame a CAN frame to be parsed
+ * @param mode filled in with the mode of the given CAN frame
+ * @param pid filled in with the pid of the given CAN frame
+ *
+ * @return an error code
+ */
+yobd_err yobd_parse_headers(
+    struct yobd_ctx *ctx,
+    const struct can_frame *frame,
+    yobd_mode *mode,
+    yobd_pid *pid);
+
 /**
  * Interprets a CAN frame, yielding an output buffer containing resource IDs.
  *
