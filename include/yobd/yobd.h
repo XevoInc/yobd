@@ -79,8 +79,8 @@ void yobd_free_ctx(struct yobd_ctx *ctx);
  * @param ctx a yobd context
  * @param mode an OBD II mode
  * @param pid an OBD II PID
- * @param pid_ctx filled in with a pointer to a PID context describing the
- *                bitpacked data, with memory owned by yobd
+ * @param desc filled in with a pointer to a PID descriptor describing the
+ *             bitpacked data, with memory owned by yobd
  *
  * @return an error code
  */
@@ -88,7 +88,7 @@ yobd_err yobd_get_pid_descriptor(
     struct yobd_ctx *ctx,
     yobd_mode mode,
     yobd_pid pid,
-    const struct yobd_pid_desc **pid_ctx);
+    const struct yobd_pid_desc **desc);
 
 /**
  * Translates a unit to a unit string.
