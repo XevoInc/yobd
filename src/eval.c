@@ -107,7 +107,7 @@ bool mode_is_sae_standard(yobd_mode mode)
 }
 
 PUBLIC_API
-yobd_err yobd_make_can_request(
+yobd_err yobd_make_can_query(
     struct yobd_ctx *ctx,
     yobd_mode mode,
     yobd_pid pid,
@@ -123,7 +123,7 @@ yobd_err yobd_make_can_request(
     frame->can_id = OBD_II_QUERY_ADDRESS;
     frame->can_dlc = 8;
 
-    /* These vary per request. */
+    /* These vary per query. */
     if (mode_is_sae_standard(mode)) {
         frame->data[0] = 2;
         /*
@@ -189,7 +189,7 @@ yobd_err parse_mode_pid(
     const uint8_t **data_start)
 {
     /*
-     * The response mode is request mode + 0x40, so less than 0x41 implies a
+     * The response mode is query mode + 0x40, so less than 0x41 implies a
      * response mode of less than 1, which is invalid.
      */
     *mode = frame->data[1];
