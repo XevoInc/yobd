@@ -115,7 +115,7 @@ yobd_err yobd_get_unit_str(
  *
  * @return an error code
  */
-yobd_err yobd_make_can_request(
+yobd_err yobd_make_can_query(
     struct yobd_ctx *ctx,
     yobd_mode mode,
     yobd_pid pid,

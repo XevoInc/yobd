@@ -70,7 +70,7 @@ int main(int argc, const char **argv)
     XASSERT_EQ(err, YOBD_OK);
     XASSERT_EQ(strcmp(str, "rpm"), 0);
 
-    err = yobd_make_can_request(ctx, 0x1, 0x0c, &frame);
+    err = yobd_make_can_query(ctx, 0x1, 0x0c, &frame);
     XASSERT_EQ(err, YOBD_OK);
     XASSERT_EQ(frame.can_id, 0x7df);
     XASSERT_EQ(frame.can_dlc, 8);
