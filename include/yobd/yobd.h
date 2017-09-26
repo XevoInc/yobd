@@ -106,7 +106,7 @@ yobd_err yobd_get_unit_str(
     const char **unit_str);
 
 /**
- * Creates a CAN frame representing a given OBD II request.
+ * Creates a CAN frame representing a given OBD II query.
  *
  * @param ctx a yobd context
  * @param mode an OBD II mode
@@ -121,6 +121,28 @@ yobd_err yobd_make_can_query(
     yobd_pid pid,
     struct can_frame *frame);
 
+/**
+ * Creates a CAN frame representing a given OBD II response.
+ *
+ * @param ctx a yobd context
+ * @param mode an OBD II mode
+ * @param pid an OBD II PID
+ * @param data the data payload for the CAN frame
+ * @param data_size the size of the data payload (must be between 1 and 5 by the
+ *                  OBD II spec). This is specified so that yobd does not have
+ *                  to know about the mode-pid in its schema or incur the
+ *                  overhead of a schema lookup.
+ * @param frame the CAN frame to be filled in
+ *
+ * @return an error code
+ */
+yobd_err yobd_make_can_response(
+    struct yobd_ctx *ctx,
+    yobd_mode mode,
+    yobd_pid pid,
+    const uint8_t *data,
+    uint8_t data_size,
+    struct can_frame *frame);
 
 /**
  * Parses a given CAN frame, returning basic header information about the frame.

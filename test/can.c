@@ -31,6 +31,10 @@ bool float_eq(float a, float b)
 int main(int argc, const char **argv)
 {
     struct yobd_ctx *ctx;
+    union {
+        uint16_t as_uint16_t;
+        uint8_t as_uint8_t;
+    } engine_rpm;
     yobd_err err;
     struct can_frame frame;
     yobd_mode mode;
@@ -70,6 +74,7 @@ int main(int argc, const char **argv)
     XASSERT_EQ(err, YOBD_OK);
     XASSERT_EQ(strcmp(str, "rpm"), 0);
 
+    memset(&frame, 0, sizeof(frame));
     err = yobd_make_can_query(ctx, 0x1, 0x0c, &frame);
     XASSERT_EQ(err, YOBD_OK);
     XASSERT_EQ(frame.can_id, 0x7df);
@@ -83,10 +88,32 @@ int main(int argc, const char **argv)
     XASSERT_EQ(frame.data[6], 0xcc);
     XASSERT_EQ(frame.data[7], 0xcc);
 
+    memset(&frame, 0, sizeof(frame));
+    engine_rpm.as_uint16_t = 0xabcd;
+    err = yobd_make_can_response(
+        ctx,
+        0x1,
+        0x0c,
+        &engine_rpm.as_uint8_t,
+        sizeof(engine_rpm),
+        &frame);
+    XASSERT_EQ(err, YOBD_OK);
+    XASSERT_EQ(frame.can_id, 0x7df + 8);
+    XASSERT_EQ(frame.can_dlc, 8);
+    XASSERT_EQ(frame.data[0], 4);
+    XASSERT_EQ(frame.data[1], 0x1 + 0x40);
+    XASSERT_EQ(frame.data[2], 0x0c);
+    XASSERT_EQ(frame.data[3], 0xcd);
+    XASSERT_EQ(frame.data[4], 0xab);
+    XASSERT_EQ(frame.data[5], 0xcc);
+    XASSERT_EQ(frame.data[6], 0xcc);
+    XASSERT_EQ(frame.data[7], 0xcc);
+
+    memset(&frame, 0, sizeof(frame));
     frame.can_id = 0x7df;
     frame.can_dlc = 8;
     frame.data[0] = 1;
-    frame.data[1] = 0x1 + 0x40;
+    frame.data[1] = 0x1;
     frame.data[2] = 0x0d;
     frame.data[3] = 60;
     err = yobd_parse_headers(ctx, &frame, &mode, &pid);
@@ -94,6 +121,7 @@ int main(int argc, const char **argv)
     XASSERT_EQ(mode, 0x1);
     XASSERT_EQ(pid, 0x0d);
 
+    memset(&frame, 0, sizeof(frame));
     frame.can_id = 0x7df + 8;
     frame.can_dlc = 8;
     /* (256*77 + 130) / 4 == 4960.50 RPM */
@@ -106,6 +134,7 @@ int main(int argc, const char **argv)
     XASSERT_EQ(err, YOBD_OK);
     XASSERT(float_eq(u.as_float, 4960.500));
 
+    memset(&frame, 0, sizeof(frame));
     frame.can_id = 0x7df + 8;
     frame.can_dlc = 8;
     frame.data[0] = 1;
