@@ -113,7 +113,7 @@ yobd_err yobd_make_can_query(
     yobd_pid pid,
     struct can_frame *frame)
 {
-    const __u8 *data_end;
+    const uint8_t *data_start;
 
     if (ctx == NULL || frame == NULL) {
         return YOBD_INVALID_PARAMETER;
@@ -126,15 +126,12 @@ yobd_err yobd_make_can_query(
     /* These vary per query. */
     if (mode_is_sae_standard(mode)) {
         frame->data[0] = 2;
-        /*
-         * Standard-mode PIDs must use only one byte, which the schema should
-         * verify.
-         */
-        if (pid > 0x0f) {
+        /* Standard-mode PIDs must use only one byte. */
+        if (pid > 0xff) {
             return YOBD_INVALID_PID;
         }
         frame->data[2] = pid;
-        data_end = &frame->data[3];
+        data_start = &frame->data[3];
     }
     else {
         frame->data[0] = 3;
@@ -146,15 +143,73 @@ yobd_err yobd_make_can_query(
             frame->data[2] = pid & 0x00ff;
             frame->data[3] = pid & 0xff00;
         }
-        data_end = &frame->data[4];
+        data_start = &frame->data[4];
     }
     frame->data[1] = mode;
 
     /* Pad the rest of the message. */
     memset(
-        (void *) data_end,
+        (void *) data_start,
         OBD_II_PAD_VALUE,
-        frame->data + sizeof(frame->data) - data_end);
+        sizeof(frame->data) - (data_start - frame->data));
+
+    return YOBD_OK;
+}
+
+PUBLIC_API
+yobd_err yobd_make_can_response(
+    struct yobd_ctx *ctx,
+    yobd_mode mode,
+    yobd_pid pid,
+    const uint8_t *data,
+    uint8_t data_size,
+    struct can_frame *frame)
+{
+    const uint8_t *data_start;
+
+    if (ctx == NULL || data == NULL || frame == NULL) {
+        return YOBD_INVALID_PARAMETER;
+    }
+
+    if (data_size < 1 || data_size > 5) {
+        return YOBD_INVALID_PARAMETER;
+    }
+
+    /* These are standard for all OBD II. */
+    frame->can_id = OBD_II_RESPONSE_ADDRESS;
+    frame->can_dlc = 8;
+
+    /* These vary per query. */
+    if (mode_is_sae_standard(mode)) {
+        frame->data[0] = 2 + data_size;
+        if (pid > 0xff) {
+            /* Standard-mode PIDs must use only one byte. */
+            return YOBD_INVALID_PID;
+        }
+        frame->data[2] = pid;
+        data_start = &frame->data[3];
+    }
+    else {
+        frame->data[0] = 3 + data_size;
+        if (ctx->big_endian) {
+            frame->data[2] = pid & 0xff00;
+            frame->data[3] = pid & 0x00ff;
+        }
+        else {
+            frame->data[2] = pid & 0x00ff;
+            frame->data[3] = pid & 0xff00;
+        }
+        data_start = &frame->data[4];
+    }
+    frame->data[1] = 0x40 + mode;
+
+    memcpy((void *) data_start, data, data_size);
+
+    /* Pad the rest of the message. */
+    memset(
+        (void *) (data_start + data_size),
+        OBD_II_PAD_VALUE,
+        sizeof(frame->data) - ((data_start - frame->data) + data_size));
 
     return YOBD_OK;
 }
@@ -193,10 +248,12 @@ yobd_err parse_mode_pid(
      * response mode of less than 1, which is invalid.
      */
     *mode = frame->data[1];
-    if (*mode < 0x41) {
-        return YOBD_INVALID_MODE;
+    if (frame->can_id == OBD_II_RESPONSE_ADDRESS) {
+        if (*mode < 0x41) {
+            return YOBD_INVALID_MODE;
+        }
+        *mode -= 0x40;
     }
-    *mode -= 0x40;
 
     if (mode_is_sae_standard(*mode)) {
         *pid = frame->data[2];
