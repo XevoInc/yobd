@@ -66,7 +66,7 @@ endforeach
 
 
 # Documentation.
-run_target('docs', command: 'meson/makedoc')
+run_target('yobd-docs', command: 'meson/makedoc')
 
 # Static analysis.
 run_target('check', command: 'meson/check')
