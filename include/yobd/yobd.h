@@ -76,6 +76,11 @@ void yobd_free_ctx(struct yobd_ctx *ctx);
  * Gets the descriptor corresponding to the given mode and PID, containing
  * information about how to interpret the bitpacked data for this PID.
  *
+ * Note that this call is relatively cheap (it amounts to a hash table lookup),
+ * so it is OK for callers to call it for every incoming CAN frame. In other
+ * words, there is no need to separately cache PID descriptors, and caller
+ * should just look them up on-demand.
+ *
  * @param ctx a yobd context
  * @param mode an OBD II mode
  * @param pid an OBD II PID
