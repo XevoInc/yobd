@@ -16,6 +16,8 @@
 #include <yobd_private/expr.h>
 #include <yobd_private/parser.h>
 
+#include "config.h"
+
 #define ARRAYLEN(a) (sizeof(a) / sizeof(a[0]))
 
 struct parse_pid_ctx *get_parse_ctx(
@@ -487,16 +489,49 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
 PUBLIC_API
 yobd_err yobd_parse_schema(const char *filepath, struct yobd_ctx **out_ctx)
 {
+    char *abspath;
     struct yobd_ctx *ctx;
     yobd_err err;
     FILE *file;
+    size_t len;
 
     if (filepath == NULL) {
         err = YOBD_INVALID_PARAMETER;
         goto out;
     }
 
-    file = fopen(filepath, "r");
+    len = strnlen(filepath, PATH_MAX);
+    if (len == PATH_MAX) {
+        err = YOBD_INVALID_PATH;
+        goto out;
+    }
+
+    if (filepath[0] != '/') {
+        /* Path is relative to the schema directory. */
+        /*
+         * ARRAYLEN(CONFIG_YOBD_SCHEMADIR)-1 --> schema dir length - '\0'
+         * + 1 --> '/' to join paths
+         * len --> length of path relative to schema dir
+         * + 1 --> '\0'
+         */
+        len = ARRAYLEN(CONFIG_YOBD_SCHEMADIR)-1 + 1 + len + 1;
+        if (len >= PATH_MAX) {
+            err = YOBD_INVALID_PATH;
+            goto out;
+        }
+        abspath = malloc(len);
+        if (abspath == NULL) {
+            err = YOBD_OOM;
+            goto out;
+        }
+        sprintf(abspath, "%s/%s", CONFIG_YOBD_SCHEMADIR, filepath);
+
+        file = fopen(abspath, "r");
+        free(abspath);
+    }
+    else {
+        file = fopen(filepath, "r");
+    }
     if (file == NULL) {
         err = YOBD_CANNOT_OPEN_FILE;
         goto out;

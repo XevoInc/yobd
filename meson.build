@@ -17,6 +17,20 @@ pkg = import('pkgconfig')
 include = include_directories('include')
 install_subdir('include/yobd', install_dir : 'include')
 
+# Config header generation.
+conf = configuration_data()
+yobd_confdir = join_paths(
+    get_option('prefix'),
+    get_option('sysconfdir'),
+    'yobd')
+yobd_schemadir = join_paths(yobd_confdir, 'schema')
+conf.set_quoted('CONFIG_YOBD_CONFDIR', yobd_confdir)
+conf.set_quoted('CONFIG_YOBD_SCHEMADIR', yobd_schemadir)
+configure_file(
+    input: 'include/yobd_private/config.h.in',
+    output: 'config.h',
+    configuration : conf)
+
 # Library.
 src = [
     'src/assert.c',
@@ -47,6 +61,10 @@ pkg.generate(
     libraries: [lib],
     version: meson.project_version())
 yobd_dep = declare_dependency(link_with: lib, include_directories: include)
+
+# Install schemas.
+schema_files = ['data/schema/deploy/min-pids.yaml']
+install_data(schema_files, install_dir: yobd_schemadir)
 
 # Tests.
 add_test_setup('valgrind', exe_wrapper: ['valgrind', '-v'])
