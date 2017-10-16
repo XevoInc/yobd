@@ -51,7 +51,7 @@ yobd_dep = declare_dependency(link_with: lib, include_directories: include)
 # Tests.
 add_test_setup('valgrind', exe_wrapper: ['valgrind', '-v'])
 tests = [
-    ['can', ['test/can.c'], files('data/min-pids.yaml') ],
+    ['can', ['test/can.c'], files('data/schema/deploy/min-pids.yaml') ],
 ]
 test_deps = [yobd_dep] + [xlib_dep]
 foreach t : tests
