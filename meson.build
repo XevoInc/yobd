@@ -27,7 +27,7 @@ src = [
 ]
 
 thread_dep = dependency('threads')
-xlib_dep = dependency('xlib', fallback: ['xlib', 'xlib_dep'])
+xlib_dep = dependency('xlib')
 deps = [
     thread_dep,
     xlib_dep,
@@ -66,7 +66,7 @@ endforeach
 
 
 # Documentation.
-run_target('yobd-docs', command: 'meson/makedoc')
+run_target('docs', command: 'meson/makedoc')
 
 # Static analysis.
 run_target('check', command: 'meson/check')
