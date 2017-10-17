@@ -487,26 +487,41 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
 }
 
 PUBLIC_API
-yobd_err yobd_parse_schema(const char *filepath, struct yobd_ctx **out_ctx)
+yobd_err yobd_parse_schema(const char *schema, struct yobd_ctx **out_ctx)
 {
     char *abspath;
     struct yobd_ctx *ctx;
     yobd_err err;
     FILE *file;
+    size_t i;
+    bool is_path;
     size_t len;
 
-    if (filepath == NULL) {
+    if (schema == NULL) {
         err = YOBD_INVALID_PARAMETER;
         goto out;
     }
 
-    len = strnlen(filepath, PATH_MAX);
+    is_path = false;
+    for (i = 0; i < PATH_MAX; ++i) {
+        if (schema[i] == '\0') {
+            break;
+        }
+
+        if (schema[i] == '/') {
+            is_path = true;
+        }
+    }
+    len = i;
     if (len == PATH_MAX) {
         err = YOBD_INVALID_PATH;
         goto out;
     }
 
-    if (filepath[0] != '/') {
+    if (is_path) {
+        file = fopen(schema, "r");
+    }
+    else {
         /* Path is relative to the schema directory. */
         /*
          * ARRAYLEN(CONFIG_YOBD_SCHEMADIR)-1 --> schema dir length - '\0'
@@ -524,13 +539,11 @@ yobd_err yobd_parse_schema(const char *filepath, struct yobd_ctx **out_ctx)
             err = YOBD_OOM;
             goto out;
         }
-        sprintf(abspath, "%s/%s", CONFIG_YOBD_SCHEMADIR, filepath);
+        sprintf(abspath, "%s/%s", CONFIG_YOBD_SCHEMADIR, schema);
 
         file = fopen(abspath, "r");
         free(abspath);
-    }
-    else {
-        file = fopen(filepath, "r");
+
     }
     if (file == NULL) {
         err = YOBD_CANNOT_OPEN_FILE;
