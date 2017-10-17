@@ -60,11 +60,12 @@ struct yobd_pid_desc {
 /**
  * Parses a schema, returning a context.
  *
- * @param filepath the path to a schema file
+ * @param file a schema file (either by name, in which case it must be in the
+ *             yobd schema directory, or by path, either relative or absolute)
  *
  * @return a yobd context
  */
-yobd_err yobd_parse_schema(const char *filepath, struct yobd_ctx **ctx);
+yobd_err yobd_parse_schema(const char *file, struct yobd_ctx **ctx);
 
 /**
  * Frees a yobd context.
