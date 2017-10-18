@@ -110,6 +110,22 @@ int main(int argc, const char **argv)
     XASSERT_EQ(frame.data[6], 0xcc);
     XASSERT_EQ(frame.data[7], 0xcc);
 
+    /* Make sure we can parse the response we made. */
+    err = yobd_parse_headers(ctx, &frame, &mode, &pid);
+    XASSERT_EQ(err, YOBD_OK);
+    XASSERT_EQ(mode, 0x1);
+    XASSERT_EQ(pid, 0x0c);
+
+    err = yobd_parse_can_response(ctx, &frame, u.as_bytes);
+    XASSERT_EQ(err, YOBD_OK);
+    /*
+     * 0xab == 171
+     * 0xcd == 205
+     * (256*205 + 171) / 4 == 13162.75
+     * Note that we flip byte order from 0xabcd as this is big-endian.
+     */
+    XASSERT(float_eq(u.as_float, 13162.75));
+
     memset(&frame, 0, sizeof(frame));
     frame.can_id = 0x7df;
     frame.can_dlc = 8;
