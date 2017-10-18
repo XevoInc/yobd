@@ -53,7 +53,7 @@ struct yobd_pid_desc {
     const char *name;
     yobd_unit unit;
     uint_fast8_t can_bytes;
-    uint_fast8_t bitpacked_bytes;
+    uint_fast8_t interpreted_bytes;
     yobd_pid_data_type type;
 };
 

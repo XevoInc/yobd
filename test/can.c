@@ -68,7 +68,7 @@ int main(int argc, const char **argv)
     XASSERT_NOT_NULL(pid_desc)
     XASSERT_EQ(strcmp(pid_desc->name, "Engine RPM"), 0);
     XASSERT_EQ(pid_desc->can_bytes, 2);
-    XASSERT_EQ(pid_desc->bitpacked_bytes, sizeof(float));
+    XASSERT_EQ(pid_desc->interpreted_bytes, sizeof(float));
     XASSERT_EQ(pid_desc->type, YOBD_PID_DATA_TYPE_FLOAT);
 
     err = yobd_get_unit_str(ctx, pid_desc->unit, &str);
