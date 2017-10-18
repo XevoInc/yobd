@@ -106,6 +106,17 @@ bool mode_is_sae_standard(yobd_mode mode)
     return mode <= 0x0a;
 }
 
+static inline
+size_t mode_data_offset(yobd_mode mode)
+{
+    if (mode_is_sae_standard(mode)) {
+        return 2;
+    }
+    else {
+        return 3;
+    }
+}
+
 PUBLIC_API
 yobd_err yobd_make_can_query(
     struct yobd_ctx *ctx,
@@ -181,7 +192,6 @@ yobd_err yobd_make_can_response(
 
     /* These vary per query. */
     if (mode_is_sae_standard(mode)) {
-        frame->data[0] = 2 + data_size;
         if (pid > 0xff) {
             /* Standard-mode PIDs must use only one byte. */
             return YOBD_INVALID_PID;
@@ -190,7 +200,6 @@ yobd_err yobd_make_can_response(
         data_start = &frame->data[3];
     }
     else {
-        frame->data[0] = 3 + data_size;
         if (ctx->big_endian) {
             frame->data[2] = pid & 0xff00;
             frame->data[3] = pid & 0x00ff;
@@ -201,6 +210,7 @@ yobd_err yobd_make_can_response(
         }
         data_start = &frame->data[4];
     }
+    frame->data[0] = mode_data_offset(mode) + data_size;
     frame->data[1] = 0x40 + mode;
 
     memcpy((void *) data_start, data, data_size);
