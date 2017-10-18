@@ -438,7 +438,7 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
                         XASSERT_NOT_NULL(parse_ctx);
                         find_type(
                             val,
-                            &parse_ctx->pid_desc.bitpacked_bytes,
+                            &parse_ctx->pid_desc.interpreted_bytes,
                             &parse_ctx->pid_desc.type);
 
                         break;
