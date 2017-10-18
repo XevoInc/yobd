@@ -133,7 +133,7 @@ int main(int argc, const char **argv)
     frame.data[4] = 130;
     err = yobd_parse_can_response(ctx, &frame, u.as_bytes);
     XASSERT_EQ(err, YOBD_OK);
-    XASSERT(float_eq(u.as_float, 4960.500));
+    XASSERT(float_eq(u.as_float, 4960.50));
 
     memset(&frame, 0, sizeof(frame));
     frame.can_id = 0x7df + 8;
