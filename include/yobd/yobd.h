@@ -31,8 +31,7 @@ typedef enum {
     YOBD_INVALID_PID = -9,
     YOBD_UNKNOWN_MODE_PID = -10,
     YOBD_UNKNOWN_UNIT = -11,
-    YOBD_INVALID_DATA_BYTES = -12,
-    YOBD_TOO_MANY_DATA_BYTES = -13
+    YOBD_INVALID_DATA_BYTES = -12
 } yobd_err;
 
 /** OBD II mode. */
@@ -53,7 +52,8 @@ typedef enum {
 struct yobd_pid_desc {
     const char *name;
     yobd_unit unit;
-    uint_fast8_t bytes;
+    uint_fast8_t can_bytes;
+    uint_fast8_t bitpacked_bytes;
     yobd_pid_data_type type;
 };
 
