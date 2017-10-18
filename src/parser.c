@@ -382,6 +382,7 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
                         errno = 0;
                         parse_ctx->can_bytes = strtol(val, NULL, 0);
                         XASSERT_EQ(errno, 0);
+                        parse_ctx->pid_desc.can_bytes = parse_ctx->can_bytes;
                         break;
 
                     case KEY_UNIT:
@@ -437,7 +438,7 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
                         XASSERT_NOT_NULL(parse_ctx);
                         find_type(
                             val,
-                            &parse_ctx->pid_desc.bytes,
+                            &parse_ctx->pid_desc.bitpacked_bytes,
                             &parse_ctx->pid_desc.type);
 
                         break;

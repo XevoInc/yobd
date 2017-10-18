@@ -67,7 +67,8 @@ int main(int argc, const char **argv)
     XASSERT_EQ(err, YOBD_OK);
     XASSERT_NOT_NULL(pid_desc)
     XASSERT_EQ(strcmp(pid_desc->name, "Engine RPM"), 0);
-    XASSERT_EQ(pid_desc->bytes, sizeof(float));
+    XASSERT_EQ(pid_desc->can_bytes, 2);
+    XASSERT_EQ(pid_desc->bitpacked_bytes, sizeof(float));
     XASSERT_EQ(pid_desc->type, YOBD_PID_DATA_TYPE_FLOAT);
 
     err = yobd_get_unit_str(ctx, pid_desc->unit, &str);
@@ -125,7 +126,7 @@ int main(int argc, const char **argv)
     frame.can_id = 0x7df + 8;
     frame.can_dlc = 8;
     /* (256*77 + 130) / 4 == 4960.50 RPM */
-    frame.data[0] = 2;
+    frame.data[0] = 4;
     frame.data[1] = 0x1 + 0x40;
     frame.data[2] = 0x0c;
     frame.data[3] = 77;
@@ -137,7 +138,7 @@ int main(int argc, const char **argv)
     memset(&frame, 0, sizeof(frame));
     frame.can_id = 0x7df + 8;
     frame.can_dlc = 8;
-    frame.data[0] = 1;
+    frame.data[0] = 3;
     frame.data[1] = 0x1 + 0x40;
     frame.data[2] = 0x0d;
     frame.data[3] = 60;

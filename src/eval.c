@@ -311,8 +311,10 @@ yobd_err yobd_parse_can_response(
 {
     const uint8_t *data_start;
     yobd_err err;
+    size_t expected_bytes;
     yobd_mode mode;
     yobd_pid pid;
+    size_t offset;
     struct parse_pid_ctx *parse_ctx;
 
     if (ctx == NULL || frame == NULL || buf == NULL) {
@@ -338,19 +340,22 @@ yobd_err yobd_parse_can_response(
         return YOBD_UNKNOWN_MODE_PID;
     }
 
-    if (frame->data[0] != parse_ctx->can_bytes) {
-        return YOBD_INVALID_DATA_BYTES;
+    if (mode_is_sae_standard(mode)) {
+        /* One byte for mode, one byte for PID. */
+        offset = 2;
     }
+    else {
+        /* One byte for mode, two bytes for PID. */
+        offset = 3;
+    }
+    expected_bytes = offset + parse_ctx->can_bytes;
 
-    if (parse_ctx->can_bytes > 7) {
-        return YOBD_TOO_MANY_DATA_BYTES;
+    if (frame->data[0] != expected_bytes) {
+        return YOBD_INVALID_DATA_BYTES;
     }
 
     switch (parse_ctx->type) {
         case EVAL_TYPE_EXPR:
-            if (parse_ctx->can_bytes > 4) {
-                return YOBD_TOO_MANY_DATA_BYTES;
-            }
             eval_expr(
                 parse_ctx->pid_desc.type,
                 &parse_ctx->expr,
