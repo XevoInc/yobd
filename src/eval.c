@@ -118,15 +118,15 @@ size_t mode_data_offset(yobd_mode mode)
 }
 
 PUBLIC_API
-yobd_err yobd_make_can_query(
-    struct yobd_ctx *ctx,
+yobd_err yobd_make_can_query_noctx(
+    bool big_endian,
     yobd_mode mode,
     yobd_pid pid,
     struct can_frame *frame)
 {
     const uint8_t *data_start;
 
-    if (ctx == NULL || frame == NULL) {
+    if (frame == NULL) {
         return YOBD_INVALID_PARAMETER;
     }
 
@@ -146,7 +146,7 @@ yobd_err yobd_make_can_query(
     }
     else {
         frame->data[0] = 3;
-        if (ctx->big_endian) {
+        if (big_endian) {
             frame->data[2] = pid & 0xff00;
             frame->data[3] = pid & 0x00ff;
         }
@@ -168,8 +168,22 @@ yobd_err yobd_make_can_query(
 }
 
 PUBLIC_API
-yobd_err yobd_make_can_response(
+yobd_err yobd_make_can_query(
     struct yobd_ctx *ctx,
+    yobd_mode mode,
+    yobd_pid pid,
+    struct can_frame *frame)
+{
+    if (ctx == NULL) {
+        return YOBD_INVALID_PARAMETER;
+    }
+
+    return yobd_make_can_query_noctx(ctx->big_endian, mode, pid, frame);
+}
+
+PUBLIC_API
+yobd_err yobd_make_can_response_noctx(
+    bool big_endian,
     yobd_mode mode,
     yobd_pid pid,
     const uint8_t *data,
@@ -178,7 +192,7 @@ yobd_err yobd_make_can_response(
 {
     const uint8_t *data_start;
 
-    if (ctx == NULL || data == NULL || frame == NULL) {
+    if (data == NULL || frame == NULL) {
         return YOBD_INVALID_PARAMETER;
     }
 
@@ -200,7 +214,7 @@ yobd_err yobd_make_can_response(
         data_start = &frame->data[3];
     }
     else {
-        if (ctx->big_endian) {
+        if (big_endian) {
             frame->data[2] = pid & 0xff00;
             frame->data[3] = pid & 0x00ff;
         }
@@ -222,6 +236,28 @@ yobd_err yobd_make_can_response(
         sizeof(frame->data) - ((data_start - frame->data) + data_size));
 
     return YOBD_OK;
+}
+
+PUBLIC_API
+yobd_err yobd_make_can_response(
+    struct yobd_ctx *ctx,
+    yobd_mode mode,
+    yobd_pid pid,
+    const uint8_t *data,
+    uint8_t data_size,
+    struct can_frame *frame)
+{
+    if (ctx == NULL) {
+        return YOBD_INVALID_PARAMETER;
+    }
+
+    return yobd_make_can_response_noctx(
+        ctx->big_endian,
+        mode,
+        pid,
+        data,
+        data_size,
+        frame);
 }
 
 static
