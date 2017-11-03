@@ -39,7 +39,9 @@ int main(int argc, const char **argv)
     struct can_frame frame;
     struct can_frame frame2;
     yobd_mode mode;
+    yobd_mode mode2;
     yobd_pid pid;
+    yobd_pid pid2;
     const struct yobd_pid_desc *pid_desc;
     const char *schema_file;
     const char *str;
@@ -132,6 +134,11 @@ int main(int argc, const char **argv)
     XASSERT_EQ(err, YOBD_OK);
     XASSERT_EQ(mode, 0x1);
     XASSERT_EQ(pid, 0x0c);
+    mode2 = pid2 = 0;
+    err = yobd_parse_headers_noctx(ctx, &frame, &mode2, &pid2);
+    XASSERT_EQ(err, YOBD_OK);
+    XASSERT_EQ(mode, mode2);
+    XASSERT_EQ(pid, pid2);
 
     err = yobd_parse_can_response(ctx, &frame, u.as_bytes);
     XASSERT_EQ(err, YOBD_OK);

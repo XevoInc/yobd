@@ -130,7 +130,7 @@ yobd_err yobd_make_can_query(
 
 /**
  * Creates a CAN frame representing a given OBD II query without requiring a
- * full yobd context.
+ * yobd context.
  *
  * @param big_endian whether or not the CAN bus is big-endian
  * @param mode an OBD II mode
@@ -170,7 +170,7 @@ yobd_err yobd_make_can_response(
 
 /**
  * Creates a CAN frame representing a given OBD II response, without requiring a
- * full yobd context.
+ * yobd context.
  *
  * @param big_endian whether or not the CAN bus is big-endian
  * @param mode an OBD II mode
@@ -204,6 +204,23 @@ yobd_err yobd_make_can_response_noctx(
  */
 yobd_err yobd_parse_headers(
     struct yobd_ctx *ctx,
+    const struct can_frame *frame,
+    yobd_mode *mode,
+    yobd_pid *pid);
+
+/**
+ * Parses a given CAN frame, returning basic header information about the
+ * frame, without requiring a yobd context.
+ *
+ * @param ctx a yobd context
+ * @param frame a CAN frame to be parsed
+ * @param mode filled in with the mode of the given CAN frame
+ * @param pid filled in with the pid of the given CAN frame
+ *
+ * @return an error code
+ */
+yobd_err yobd_parse_headers_noctx(
+    bool big_endian,
     const struct can_frame *frame,
     yobd_mode *mode,
     yobd_pid *pid);

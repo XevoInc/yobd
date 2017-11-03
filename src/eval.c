@@ -283,7 +283,7 @@ void eval_expr(
 
 static
 yobd_err parse_mode_pid(
-    struct yobd_ctx *ctx,
+    bool big_endian,
     const struct can_frame *frame,
     yobd_mode *mode,
     yobd_pid *pid,
@@ -306,7 +306,7 @@ yobd_err parse_mode_pid(
         *data_start = &frame->data[3];
     }
     else {
-        if (ctx->big_endian) {
+        if (big_endian) {
             *pid = (frame->data[2] << 8) | frame->data[3];
         }
         else {
@@ -319,8 +319,8 @@ yobd_err parse_mode_pid(
 }
 
 PUBLIC_API
-yobd_err yobd_parse_headers(
-    struct yobd_ctx *ctx,
+yobd_err yobd_parse_headers_noctx(
+    bool big_endian,
     const struct can_frame *frame,
     yobd_mode *mode,
     yobd_pid *pid)
@@ -328,7 +328,7 @@ yobd_err yobd_parse_headers(
     const uint8_t *data_start;
     yobd_err err;
 
-    if (ctx == NULL || frame == NULL || mode == NULL || pid == NULL) {
+    if (frame == NULL || mode == NULL || pid == NULL) {
         return YOBD_INVALID_PARAMETER;
     }
 
@@ -341,12 +341,26 @@ yobd_err yobd_parse_headers(
         return YOBD_INVALID_DLC;
     }
 
-    err = parse_mode_pid(ctx, frame, mode, pid, &data_start);
+    err = parse_mode_pid(big_endian, frame, mode, pid, &data_start);
     if (err != YOBD_OK) {
         return err;
     }
 
     return YOBD_OK;
+}
+
+PUBLIC_API
+yobd_err yobd_parse_headers(
+    struct yobd_ctx *ctx,
+    const struct can_frame *frame,
+    yobd_mode *mode,
+    yobd_pid *pid)
+{
+    if (ctx == NULL) {
+        return YOBD_INVALID_PARAMETER;
+    }
+
+    return yobd_parse_headers_noctx(ctx->big_endian, frame, mode, pid);
 }
 
 PUBLIC_API
@@ -375,7 +389,7 @@ yobd_err yobd_parse_can_response(
         return YOBD_INVALID_DLC;
     }
 
-    err = parse_mode_pid(ctx, frame, &mode, &pid, &data_start);
+    err = parse_mode_pid(ctx->big_endian, frame, &mode, &pid, &data_start);
     if (err != YOBD_OK) {
         return err;
     }
