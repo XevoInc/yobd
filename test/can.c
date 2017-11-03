@@ -37,6 +37,7 @@ int main(int argc, const char **argv)
     } engine_rpm;
     yobd_err err;
     struct can_frame frame;
+    struct can_frame frame2;
     yobd_mode mode;
     yobd_pid pid;
     const struct yobd_pid_desc *pid_desc;
@@ -76,8 +77,13 @@ int main(int argc, const char **argv)
     XASSERT_EQ(strcmp(str, "rpm"), 0);
 
     memset(&frame, 0, sizeof(frame));
+    memset(&frame2, 0, sizeof(frame2));
     err = yobd_make_can_query(ctx, 0x1, 0x0c, &frame);
     XASSERT_EQ(err, YOBD_OK);
+    err = yobd_make_can_query_noctx(true, 0x1, 0x0c, &frame2);
+    XASSERT_EQ(err, YOBD_OK);
+    XASSERT_EQ(memcmp(&frame, &frame2, sizeof(frame)), 0);
+
     XASSERT_EQ(frame.can_id, 0x7df);
     XASSERT_EQ(frame.can_dlc, 8);
     XASSERT_EQ(frame.data[0], 2);
@@ -90,6 +96,7 @@ int main(int argc, const char **argv)
     XASSERT_EQ(frame.data[7], 0xcc);
 
     memset(&frame, 0, sizeof(frame));
+    memset(&frame2, 0, sizeof(frame2));
     engine_rpm.as_uint16_t = 0xabcd;
     err = yobd_make_can_response(
         ctx,
@@ -99,6 +106,16 @@ int main(int argc, const char **argv)
         sizeof(engine_rpm),
         &frame);
     XASSERT_EQ(err, YOBD_OK);
+    err = yobd_make_can_response_noctx(
+        true,
+        0x1,
+        0x0c,
+        &engine_rpm.as_uint8_t,
+        sizeof(engine_rpm),
+        &frame2);
+    XASSERT_EQ(err, YOBD_OK);
+    XASSERT_EQ(memcmp(&frame, &frame2, sizeof(frame)), 0);
+
     XASSERT_EQ(frame.can_id, 0x7df + 8);
     XASSERT_EQ(frame.can_dlc, 8);
     XASSERT_EQ(frame.data[0], 4);
