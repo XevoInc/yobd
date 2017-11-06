@@ -172,6 +172,12 @@ void find_type(const char *str, uint_fast8_t *bytes, yobd_pid_data_type *type)
     static struct type_desc types[] = {
         [YOBD_PID_DATA_TYPE_UINT8] =
             { .name = "uint8", .bytes = sizeof(uint8_t) },
+        [YOBD_PID_DATA_TYPE_UINT16] =
+            { .name = "uint16", .bytes = sizeof(uint16_t) },
+        [YOBD_PID_DATA_TYPE_INT8] =
+            { .name = "int8", .bytes = sizeof(int8_t) },
+        [YOBD_PID_DATA_TYPE_INT16] =
+            { .name = "int16", .bytes = sizeof(int16_t) },
         [YOBD_PID_DATA_TYPE_FLOAT] =
             { .name = "float", .bytes = sizeof(float) }
     };
