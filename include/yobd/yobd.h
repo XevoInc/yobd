@@ -45,7 +45,10 @@ typedef uint_fast8_t yobd_unit;
 
 typedef enum {
     YOBD_PID_DATA_TYPE_UINT8 = 0,
-    YOBD_PID_DATA_TYPE_FLOAT = 1
+    YOBD_PID_DATA_TYPE_UINT16 = 1,
+    YOBD_PID_DATA_TYPE_INT8 = 2,
+    YOBD_PID_DATA_TYPE_INT16 = 3,
+    YOBD_PID_DATA_TYPE_FLOAT = 4
 } yobd_pid_data_type;
 
 /** The details about how to interpret a PID from bitpacked yobd output. */

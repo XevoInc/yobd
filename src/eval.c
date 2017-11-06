@@ -97,8 +97,11 @@ out_type eval_expr_##out_type( \
     return (out_type) val; \
 }
 
-DEFINE_EVAL_FUNC(float, EXPR_FLOAT, float, FLT_MIN, FLT_MAX)
 DEFINE_EVAL_FUNC(int32_t, EXPR_INT32, uint8_t, 0, UINT8_MAX)
+DEFINE_EVAL_FUNC(int32_t, EXPR_INT32, uint16_t, 0, UINT16_MAX)
+DEFINE_EVAL_FUNC(int32_t, EXPR_INT32, int8_t, 0, INT8_MAX)
+DEFINE_EVAL_FUNC(int32_t, EXPR_INT32, int16_t, 0, INT16_MAX)
+DEFINE_EVAL_FUNC(float, EXPR_FLOAT, float, FLT_MIN, FLT_MAX)
 
 static inline
 bool mode_is_sae_standard(yobd_mode mode)
@@ -277,6 +280,15 @@ void eval_expr(
             break;
         case YOBD_PID_DATA_TYPE_UINT8:
             *buf = eval_expr_uint8_t(expr, data);
+            break;
+        case YOBD_PID_DATA_TYPE_UINT16:
+            *buf = eval_expr_uint16_t(expr, data);
+            break;
+        case YOBD_PID_DATA_TYPE_INT8:
+            *buf = eval_expr_int8_t(expr, data);
+            break;
+        case YOBD_PID_DATA_TYPE_INT16:
+            *buf = eval_expr_int16_t(expr, data);
             break;
     }
 }
