@@ -118,7 +118,7 @@ int main(int argc, const char **argv)
     XASSERT_EQ(err, YOBD_OK);
     XASSERT_EQ(memcmp(&frame, &frame2, sizeof(frame)), 0);
 
-    XASSERT_EQ(frame.can_id, 0x7df + 8);
+    XASSERT_EQ(frame.can_id, 0x7e8);
     XASSERT_EQ(frame.can_dlc, 8);
     XASSERT_EQ(frame.data[0], 4);
     XASSERT_EQ(frame.data[1], 0x1 + 0x40);
@@ -163,7 +163,7 @@ int main(int argc, const char **argv)
     XASSERT_EQ(pid, 0x0d);
 
     memset(&frame, 0, sizeof(frame));
-    frame.can_id = 0x7df + 8;
+    frame.can_id = 0x7e8;
     frame.can_dlc = 8;
     /* (256*77 + 130) / 4 == 4960.50 RPM */
     frame.data[0] = 4;
@@ -176,7 +176,7 @@ int main(int argc, const char **argv)
     XASSERT(float_eq(u.as_float, 4960.50));
 
     memset(&frame, 0, sizeof(frame));
-    frame.can_id = 0x7df + 8;
+    frame.can_id = 0x7e8;
     frame.can_dlc = 8;
     frame.data[0] = 3;
     frame.data[1] = 0x1 + 0x40;
