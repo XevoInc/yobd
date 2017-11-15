@@ -13,7 +13,7 @@
 #include <yobd/yobd.h>
 
 #define OBD_II_QUERY_ADDRESS (0x7df)
-#define OBD_II_RESPONSE_ADDRESS (OBD_II_QUERY_ADDRESS + 8)
+#define OBD_II_RESPONSE_ADDRESS (0x7e8)
 
 /* ISO 15765-2:2016 page 43 suggests but does not require 0xcc for padding. */
 #define OBD_II_PAD_VALUE (0xcc)
