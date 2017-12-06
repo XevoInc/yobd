@@ -188,5 +188,5 @@ int main(int argc, const char **argv)
 
     yobd_free_ctx(ctx);
 
-    return 0;
+    return EXIT_SUCCESS;
 }
