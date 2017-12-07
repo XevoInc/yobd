@@ -13,6 +13,7 @@ extern "C" {
 #endif
 
 #include <linux/can.h>
+#include <stdbool.h>
 #include <stdint.h>
 
 /** Forward declaration for opaque pointer. */
