@@ -91,9 +91,10 @@ out_type eval_expr_##out_type( \
     XASSERT_EQ(result.type, enum_type); \
     \
     val = result.as_##stack_type; \
-    XASSERT_GTE(val, min_val); \
-    XASSERT_LTE(val, max_val); \
-    \
+    /*
+     * TODO: Ideally we would assert here that everything is in range. We can do
+     * this once ranges are added to the schema.
+     */ \
     return (out_type) val; \
 }
 
