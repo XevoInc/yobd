@@ -37,9 +37,16 @@ map:
                             unit:
                                 type: str
                                 enum:
+                                    - percent
+                                    - celcius
+                                    - kpa
                                     - rpm
                                     - km/h
                                     - g/s
+                                    - km
+                                    - nm
+                                    - pa
+                                    - seconds
                                 required: true
 
                             expr:
@@ -48,7 +55,9 @@ map:
                                     type:
                                         type: str
                                         enum:
+                                            - int8
                                             - uint8
+                                            - uint16
                                             - float
                                         required: true
                                     val:
