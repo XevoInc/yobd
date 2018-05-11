@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/python3
 #
 # This utility does YAML schema verification. Given a schema and a YAML data
 # file, it returns 0 if the data matches the schema and non-0 otherwise.
@@ -33,7 +33,7 @@ _operators = {
     ast.Add: operator.add,
     ast.Sub: operator.sub,
     ast.Mult: operator.mul,
-    ast.Div: operator.div,
+    ast.Div: operator.floordiv,
 }
 # We don't actually care what the names evaluate to, as we're not using
 # SimpleEval() to actually evaluate anything; we're just using it as a shortcut
