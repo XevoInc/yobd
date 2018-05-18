@@ -9,12 +9,12 @@ import ast
 import pykwalify.core
 import simpleeval
 import operator
-import os
 import sys
-import yaml
+
 
 class SchemaError(Exception):
     pass
+
 
 def non_negative_int_keys(val, rules_obj, path):
     '''Returns True if val is a map containing keys that are all non-negative
@@ -28,6 +28,7 @@ def non_negative_int_keys(val, rules_obj, path):
         if key < 0:
             raise SchemaError('Map key is negative: %d' % key)
     return True
+
 
 _operators = {
     ast.Add: operator.add,
@@ -46,15 +47,19 @@ _names = {
     'D': 0,
 }
 _infix_eval = simpleeval.SimpleEval(operators=_operators, names=_names)
-def infix(val, rules_obj, path):
+def infix(val, rules_obj, path):  # noqa: E302
     '''Returns True if val is a valid infix expression and False otherwise.'''
 
     try:
         _infix_eval.eval(val)
-    except:
+    except:  # noqa: E722
+        # eval can throw anything the Python parser can throw, so it's hard to
+        # catch every possible item. So, exempt ourselves from this particular
+        # flake8 warning.
         raise SchemaError(
             'The following expression is not valid infix:\n%s' % val)
     return True
+
 
 def bytes(val, rules_obj, path):
     if isinstance(val, int) and val > 0:
@@ -63,6 +68,7 @@ def bytes(val, rules_obj, path):
         return True
 
     raise SchemaError('bytes must be a positive integer or the string unknown')
+
 
 def get_arg_parser():
     parser = argparse.ArgumentParser()
@@ -85,12 +91,13 @@ def get_arg_parser():
 
     return parser
 
+
 def main():
     parser = get_arg_parser()
     args = parser.parse_args()
 
     # Stop pykwalify from writing an annoying "schema-checkc" bytecode file.
-    sys.dont_write_bytecode=True
+    sys.dont_write_bytecode = True
 
     core = pykwalify.core.Core(
         source_file=args.datafile,
@@ -98,13 +105,16 @@ def main():
         extensions=[__file__])
     try:
         core.validate(raise_exception=True)
-    except:
+    except:  # noqa: E722
+        # Exempt ourselves from the no-except flake8 error because we re-raise
+        # the exception in most cases.
         if args.quiet:
             return 1
         else:
             raise
 
     return 0
+
 
 if __name__ == '__main__':
     sys.exit(main())
