@@ -7,8 +7,8 @@
 import argparse
 import ast
 import pykwalify.core
-import simpleeval
 import operator
+import simpleeval
 import sys
 
 
