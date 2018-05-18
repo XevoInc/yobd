@@ -11,7 +11,7 @@ for datafile in "$MESON_SOURCE_ROOT"/data/schema/deploy/*; do
         continue
     fi
 
-    CMD=""$MESON_SOURCE_ROOT/bin/schema-check" -s "$SCHEMA_FILE" "$datafile""
+    CMD=""$MESON_SOURCE_ROOT/scripts/schema-check" -s "$SCHEMA_FILE" "$datafile""
     $CMD
     if [[ $? != 0 ]]; then
         echo "FAILED: $CMD" >&2
