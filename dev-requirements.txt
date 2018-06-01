@@ -1,4 +1,4 @@
 meson
 ninja
-pykwalify
+jsonschema
 simpleeval

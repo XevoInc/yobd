@@ -1,66 +1,114 @@
 ---
-type: map
-required: true
+$schema: http://json-schema.org/draft-06/schema#
+title: OBD-II PIDs
+description: An assortment of OBD-II PIDs
+type: object
 
-map:
-    endian:
-        type: str
+defs:
+  one-byte-hex:
+    description: A PID from mode 0x1 (1 byte)
+    type: string
+    pattern: ^0x([0-9]|[a-f]){1,2}$
+
+  two-byte-hex:
+    description: A mode (2 bytes)
+    type: string
+    pattern: ^0x([0-9]|[a-f]){1,4}$
+
+  name:
+    description: A friendly name for the PID
+    type: string
+    minLength: 1
+
+  bytes:
+    description: The number of bytes the unparsed PID occupies
+    type: integer
+    minimum: 1
+    maximum: 4
+
+  unit:
+    description: The unit this PID represents
+    type: string
+    enum:
+      # Please keep this list sorted to avoid duplicates.
+      - celcius
+      - g/s
+      - km
+      - km/h
+      - kpa
+      - nm
+      - pa
+      - percent
+      - rpm
+      - seconds
+
+  expr:
+    description: How to unpack this PID to get its real value
+    type: object
+    properties:
+      type:
+        type: string
         enum:
-            - big
-            - little
-        required: true
+          - int8
+          - uint8
+          - uint16
+          - float
+      val:
+        type: string
+        format: infix
+    requiredProperties:
+      - type
+      - val
+    additionalProperties: false
 
-    modepid:
-        type: map
-        required: true
-        func: non_negative_int_keys
-        map:
-            =:
-                type: map
-                required: true
-                func: non_negative_int_keys
-                map:
-                    =:
-                        type: map
-                        required: true
+  pid:
+    description: An OBD-II PID
+    type: object
+    properties:
+      name:
+        $ref: "#/defs/name"
+      bytes:
+        $ref: "#/defs/bytes"
+      unit:
+        $ref: "#/defs/unit"
+      expr:
+        $ref: "#/defs/expr"
+    requiredProperties:
+      - name
+      - bytes
+      - unit
+      - expr
+    additionalProperties: false
 
-                        map:
-                            name:
-                                type: str
-                                required: true
+properties:
+  endian:
+    description: The endianness of the OBD-II data
+    type: string
+    enum:
+      - big
+      - little
+  modepid:
+    description: A map from mode to all pids in the mode
+    type: object
+    minProperties: 1
+    properties:
+      0x1:
+        type: object
+        minProperties: 1
+        propertyNames:
+          $ref: "#/defs/one-byte-hex"
+        additionalProperties:
+          $ref: "#/defs/pid"
+    propertyNames:
+      $ref: "#/defs/two-byte-hex"
+    additionalProperties:
+      type: object
+      minProperties: 1
+      propertyNames:
+        $ref: "#/defs/two-byte-hex"
+      additionalProperties:
+        $ref: "#/defs/pid"
 
-                            bytes:
-                                type: any
-                                func: bytes
-                                required: true
-
-                            unit:
-                                type: str
-                                enum:
-                                    - percent
-                                    - celcius
-                                    - kpa
-                                    - rpm
-                                    - km/h
-                                    - g/s
-                                    - km
-                                    - nm
-                                    - pa
-                                    - seconds
-                                required: true
-
-                            expr:
-                                type: map
-                                map:
-                                    type:
-                                        type: str
-                                        enum:
-                                            - int8
-                                            - uint8
-                                            - uint16
-                                            - float
-                                        required: true
-                                    val:
-                                        type: str
-                                        func: infix
-                                        required: true
+required:
+  - endian
+  - modepid
