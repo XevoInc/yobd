@@ -11,7 +11,11 @@ for datafile in "$MESON_SOURCE_ROOT"/schema/deploy/*; do
         continue
     fi
 
-    CMD=""$MESON_SOURCE_ROOT/scripts/schema-check" -s "$SCHEMA_FILE" "$datafile""
+    SCHEMA_DIR="$(pkg-config sensor-schema --variable=schemadir)"
+    CMD=""$MESON_SOURCE_ROOT/scripts/schema-check" \
+             -s "$SCHEMA_FILE" \
+             -i "$SCHEMA_DIR" \
+             "$datafile""
     $CMD
     if [[ $? != 0 ]]; then
         echo "FAILED: $CMD" >&2

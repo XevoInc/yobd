@@ -14,15 +14,34 @@ import argparse
 import ast
 import jsonschema
 import operator
+import os
 import simpleeval
 import sys
 import yaml
 
 
+_include_paths = None
+def handle_include(uri):  # noqa: E302
+    base = 'include://'
+    assert(uri.startswith(base))
+    uri = uri[len(base):]
+
+    data = None
+    for path in _include_paths:
+        uri = os.path.join(path, uri)
+        try:
+            f = open(uri, 'r')
+        except FileNotFoundError:
+            continue
+        else:
+            with f:
+                data = yaml.load(f)
+                break
+    return data
+
+
 _format_checker = jsonschema.FormatChecker()
-
-
-@_format_checker.checks('infix')
+@_format_checker.checks('infix')  # noqa: E302
 def _infix(val):
     '''Returns True if val is a valid infix expression and False otherwise.'''
     operators = {
@@ -68,6 +87,12 @@ def get_arg_parser():
         required=True,
         help='The schema to check against')
     parser.add_argument(
+        '-i',
+        '--include',
+        action='append',
+        required=True,
+        help='The include directory(ies) to search for referenced schemas')
+    parser.add_argument(
         '-q',
         '--quiet',
         action='store_true',
@@ -87,7 +112,15 @@ def main():
     with open(args.datafile, 'r') as f:
         data = yaml.load(f)
 
-    errors = list(jsonschema.Draft6Validator(schema, format_checker=_format_checker).iter_errors(data))
+    global _include_paths
+    _include_paths = args.include
+
+    resolver = jsonschema.RefResolver.from_schema(
+        schema, handlers={'include': handle_include})
+    errors = list(jsonschema.Draft6Validator(
+                      schema,
+                      format_checker=_format_checker,
+                      resolver=resolver).iter_errors(data))
     count = len(errors)
     if count > 0:
         ret = 1
