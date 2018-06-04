@@ -20,6 +20,8 @@ import yaml
 
 
 _format_checker = jsonschema.FormatChecker()
+
+
 @_format_checker.checks('infix')
 def _infix(val):
     '''Returns True if val is a valid infix expression and False otherwise.'''
@@ -31,9 +33,9 @@ def _infix(val):
     }
 
     # We don't actually care what the names evaluate to, as we're not using
-    # SimpleEval() to actually evaluate anything; we're just using it as a shortcut
-    # to check whether or not the expression is valid in-fix. So, all the values
-    # given here are just dummy placeholders.
+    # SimpleEval() to actually evaluate anything; we're just using it as a
+    # shortcut to check whether or not the expression is valid in-fix. So, all
+    # the values given here are just dummy placeholders.
     names = {
         'A': 0,
         'B': 0,
