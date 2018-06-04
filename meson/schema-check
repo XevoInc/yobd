@@ -2,8 +2,8 @@
 
 set -uo pipefail
 
-SCHEMA_FILE="$MESON_SOURCE_ROOT/data/schema/meta/master-schema.yaml"
-for datafile in "$MESON_SOURCE_ROOT"/data/schema/deploy/*; do
+SCHEMA_FILE="$MESON_SOURCE_ROOT/schema/meta/master-schema.yaml"
+for datafile in "$MESON_SOURCE_ROOT"/schema/deploy/*; do
     if [[ ! -f $datafile ]]; then
         continue
     fi
