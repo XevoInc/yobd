@@ -55,10 +55,6 @@ def _infix(val):
     return True
 
 
-def print_error(*args, **kwargs):
-    print(*args, file=sys.stderr, **kwargs)
-
-
 def get_arg_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -97,11 +93,11 @@ def main():
         ret = 1
         if not args.quiet:
             errors.sort(key=jsonschema.exceptions.relevance)
-            print_error('Schema validation failed with %d errors:' % count)
+            print('Schema validation failed with %d errors:' % count)
             for error in errors:
-                print_error('-')
+                print('-')
                 s = str(error).replace('\n', '\n    ')
-                print_error('    %s' % s)
+                print('    %s' % s)
     else:
         ret = 0
 
