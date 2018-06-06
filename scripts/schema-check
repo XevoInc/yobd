@@ -11,67 +11,14 @@
 #
 
 import argparse
-import ast
-import jsonschema
-import operator
-import os
-import simpleeval
 import sys
 import yaml
 
+import jsonschema
 
-_include_paths = None
-def handle_include(uri):  # noqa: E302
-    base = 'include://'
-    assert(uri.startswith(base))
-    uri = uri[len(base):]
-
-    data = None
-    for path in _include_paths:
-        uri = os.path.join(path, uri)
-        try:
-            f = open(uri, 'r')
-        except FileNotFoundError:
-            continue
-        else:
-            with f:
-                data = yaml.load(f)
-                break
-    return data
-
-
-_format_checker = jsonschema.FormatChecker()
-@_format_checker.checks('infix')  # noqa: E302
-def _infix(val):
-    '''Returns True if val is a valid infix expression and False otherwise.'''
-    operators = {
-        ast.Add: operator.add,
-        ast.Sub: operator.sub,
-        ast.Mult: operator.mul,
-        ast.Div: operator.floordiv,
-    }
-
-    # We don't actually care what the names evaluate to, as we're not using
-    # SimpleEval() to actually evaluate anything; we're just using it as a
-    # shortcut to check whether or not the expression is valid in-fix. So, all
-    # the values given here are just dummy placeholders.
-    names = {
-        'A': 0,
-        'B': 0,
-        'C': 0,
-        'D': 0,
-    }
-    infix_eval = simpleeval.SimpleEval(operators=operators, names=names)
-
-    try:
-        infix_eval.eval(val)
-    except:  # noqa: E722
-        # eval can throw anything the Python parser can throw, so it's hard to
-        # catch every possible item. So, exempt ourselves from this particular
-        # flake8 warning.
-        return False
-
-    return True
+import sschema
+import sschema.formatchecker.infix
+import sschema.handler.include
 
 
 def get_arg_parser():
@@ -86,12 +33,6 @@ def get_arg_parser():
         action='store',
         required=True,
         help='The schema to check against')
-    parser.add_argument(
-        '-i',
-        '--include',
-        action='append',
-        required=True,
-        help='The include directory(ies) to search for referenced schemas')
     parser.add_argument(
         '-q',
         '--quiet',
@@ -112,14 +53,12 @@ def main():
     with open(args.datafile, 'r') as f:
         data = yaml.load(f)
 
-    global _include_paths
-    _include_paths = args.include
-
-    resolver = jsonschema.RefResolver.from_schema(
-        schema, handlers={'include': handle_include})
+    handler = sschema.handler.include.make_default_handler()
+    resolver = sschema.make_resolver(schema, [handler])
+    format_checker = sschema.make_format_checker([sschema.formatchecker.infix])
     errors = list(jsonschema.Draft6Validator(
                       schema,
-                      format_checker=_format_checker,
+                      format_checker=format_checker,
                       resolver=resolver).iter_errors(data))
     count = len(errors)
     if count > 0:

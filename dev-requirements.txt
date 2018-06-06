@@ -1,4 +1,4 @@
 meson
 ninja
 jsonschema
-simpleeval
+sschema
