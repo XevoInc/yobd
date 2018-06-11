@@ -1,7 +1,9 @@
+---
+#
 # This is the "master" schema, which validates the format of the runtime
 # schemas. Its purpose is to turn a runtime schema syntax error into a
 # compile-time one.
----
+#
 $schema: http://json-schema.org/draft-06/schema#
 title: OBD-II PIDs
 description: An assortment of OBD-II PIDs
