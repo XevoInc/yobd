@@ -509,6 +509,7 @@ yobd_err yobd_parse_schema(const char *schema, struct yobd_ctx **out_ctx)
         goto out;
     }
 
+    /* Determine if path is absolute or relative. */
     is_path = false;
     for (i = 0; i < PATH_MAX; ++i) {
         if (schema[i] == '\0') {
