@@ -15,6 +15,7 @@
 #include <yobd_private/assert.h>
 #include <yobd_private/expr.h>
 #include <yobd_private/parser.h>
+#include <yobd_private/unit.h>
 
 #include "config.h"
 
@@ -55,9 +56,9 @@ struct parse_pid_ctx *put_mode_pid(
 PUBLIC_API
 void yobd_free_ctx(struct yobd_ctx *ctx)
 {
+    struct unit_desc *desc;
     xhiter_t iter;
     struct parse_pid_ctx *parse_ctx;
-    char *unit_str;
 
     if (ctx == NULL) {
         return;
@@ -67,16 +68,16 @@ void yobd_free_ctx(struct yobd_ctx *ctx)
     XASSERT_NOT_NULL(ctx->modepid_map);
 
     xh_iter(ctx->unit_map, iter,
-        unit_str = (char *) xh_val(ctx->unit_map, iter);
-        free(unit_str);
+        desc = &xh_val(ctx->unit_map, iter);
+        free((char *) desc->name);
     );
     xh_destroy(UNIT_MAP, ctx->unit_map);
 
     xh_iter(ctx->modepid_map, iter,
         parse_ctx = &xh_val(ctx->modepid_map, iter);
 
-        free((char *) parse_ctx->pid_desc.name);
-        switch (parse_ctx->type) {
+        free((char *) parse_ctx->desc.name);
+        switch (parse_ctx->eval_type) {
             case EVAL_TYPE_EXPR:
                 destroy_expr(&parse_ctx->expr);
         }
@@ -92,6 +93,7 @@ yobd_err yobd_get_unit_str(
     yobd_unit id,
     const char **unit_str)
 {
+    const struct unit_desc *desc;
     xhiter_t iter;
 
     if (ctx == NULL || unit_str == NULL) {
@@ -102,9 +104,24 @@ yobd_err yobd_get_unit_str(
     if (iter == xh_end(ctx->unit_map)) {
         return YOBD_UNKNOWN_UNIT;
     }
-    *unit_str = xh_val(ctx->unit_map, iter);
+    desc = &xh_val(ctx->unit_map, iter);
+    *unit_str = desc->name;
 
     return YOBD_OK;
+}
+
+to_si get_convert_func(const struct yobd_ctx *ctx, yobd_unit unit)
+{
+    const struct unit_desc *desc;
+    xhiter_t iter;
+
+    XASSERT_NOT_NULL(ctx);
+
+    iter = xh_get(UNIT_MAP, ctx->unit_map, unit);
+    XASSERT_NEQ(iter, xh_end(ctx->unit_map));
+    desc = &xh_val(ctx->unit_map, iter);
+
+    return desc->convert;
 }
 
 typedef enum {
@@ -121,7 +138,8 @@ typedef enum {
     KEY_MODEPID,
     KEY_NAME,
     KEY_BYTES,
-    KEY_UNIT,
+    KEY_RAW_UNIT,
+    KEY_SI_UNIT,
     KEY_TYPE,
     KEY_EXPR,
     KEY_VAL,
@@ -143,7 +161,8 @@ parse_key find_key(const char *str)
         [KEY_MODEPID] = "modepid",
         [KEY_NAME] = "name",
         [KEY_BYTES] = "bytes",
-        [KEY_UNIT] = "unit",
+        [KEY_RAW_UNIT] = "raw-unit",
+        [KEY_SI_UNIT] = "si-unit",
         [KEY_TYPE] = "type",
         [KEY_EXPR] = "expr",
         [KEY_VAL] = "val"
@@ -158,33 +177,22 @@ parse_key find_key(const char *str)
     XASSERT_ERROR;
 }
 
-struct type_desc {
-    const char *name;
-    uint_fast8_t bytes;
-};
-
 static
-void find_type(const char *str, uint_fast8_t *bytes, yobd_pid_data_type *type)
+void find_type(const char *str, pid_data_type *type)
 {
     size_t i;
 
-    /* Make sure this stays in sync with the yobd_pid_data_type enum! */
-    static struct type_desc types[] = {
-        [YOBD_PID_DATA_TYPE_UINT8] =
-            { .name = "uint8", .bytes = sizeof(uint8_t) },
-        [YOBD_PID_DATA_TYPE_UINT16] =
-            { .name = "uint16", .bytes = sizeof(uint16_t) },
-        [YOBD_PID_DATA_TYPE_INT8] =
-            { .name = "int8", .bytes = sizeof(int8_t) },
-        [YOBD_PID_DATA_TYPE_INT16] =
-            { .name = "int16", .bytes = sizeof(int16_t) },
-        [YOBD_PID_DATA_TYPE_FLOAT] =
-            { .name = "float", .bytes = sizeof(float) }
+    /* Make sure this stays in sync with the pid_data_type enum! */
+    static const char *types[] = {
+        [PID_DATA_TYPE_UINT8] = "uint8",
+        [PID_DATA_TYPE_UINT16] = "uint16",
+        [PID_DATA_TYPE_INT8] = "int8",
+        [PID_DATA_TYPE_INT16] = "int16",
+        [PID_DATA_TYPE_FLOAT] = "float"
     };
 
     for (i = 0; i < ARRAYLEN(types); ++i) {
-        if (strcmp(types[i].name, str) == 0) {
-            *bytes = types[i].bytes;
+        if (strcmp(types[i], str) == 0) {
             *type = i;
             return;
         }
@@ -196,16 +204,20 @@ void find_type(const char *str, uint_fast8_t *bytes, yobd_pid_data_type *type)
 static
 yobd_err parse(struct yobd_ctx *ctx, FILE *file)
 {
+    struct unit_desc *desc;
     bool done;
     yobd_err err;
     yaml_event_t event;
     xhiter_t iter;
+    int key;
     yobd_mode mode;
     yaml_parser_t parser;
     yobd_pid pid;
     struct parse_pid_ctx *parse_ctx;
     int ret;
     struct parse_state state;
+    struct unit_tuple *tuple;
+    yobd_unit unit_id;
     xhash_t(UNIT_NAME_MAP) *unit_name_map;
     const char *unit_str;
     const char *val;
@@ -338,7 +350,7 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
                                     done = true;
                                 }
                                 else {
-                                    parse_ctx->pid_desc.name = NULL;
+                                    parse_ctx->desc.name = NULL;
                                 }
                                 break;
                             case MAP_SPECIFIC_PID:
@@ -371,9 +383,9 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
                         state.key = KEY_NONE;
 
                         XASSERT_NOT_NULL(parse_ctx);
-                        XASSERT_NULL(parse_ctx->pid_desc.name);
-                        parse_ctx->pid_desc.name = strdup(val);
-                        if (parse_ctx->pid_desc.name == NULL) {
+                        XASSERT_NULL(parse_ctx->desc.name);
+                        parse_ctx->desc.name = strdup(val);
+                        if (parse_ctx->desc.name == NULL) {
                             err = YOBD_OOM;
                             done = true;
                         }
@@ -386,13 +398,14 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
 
                         XASSERT_NOT_NULL(parse_ctx);
                         errno = 0;
-                        parse_ctx->can_bytes = strtol(val, NULL, 0);
+                        parse_ctx->desc.can_bytes = strtol(val, NULL, 0);
                         XASSERT_EQ(errno, 0);
-                        parse_ctx->pid_desc.can_bytes = parse_ctx->can_bytes;
                         break;
 
-                    case KEY_UNIT:
+                    case KEY_RAW_UNIT:
+                    case KEY_SI_UNIT:
                         XASSERT_EQ(state.map, MAP_SPECIFIC_PID);
+                        key = state.key;
                         state.key = KEY_NONE;
 
                         XASSERT_NOT_NULL(parse_ctx);
@@ -401,8 +414,9 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
                         iter = xh_get(UNIT_NAME_MAP, unit_name_map, val);
                         if (iter != xh_end(unit_name_map)) {
                             /* We've seen this unit before; just set the ID. */
-                            parse_ctx->pid_desc.unit = xh_val(
-                                unit_name_map, iter);
+                            tuple = &xh_val(unit_name_map, iter);
+                            parse_ctx->raw_unit = tuple->raw_unit;
+                            parse_ctx->desc.unit = tuple->si_unit;
                             break;
                         }
 
@@ -415,21 +429,28 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
                         }
 
                         /* Get a new unit ID. */
-                        parse_ctx->pid_desc.unit = ctx->next_unit_id;
+                        unit_id = ctx->next_unit_id;
                         ++ctx->next_unit_id;
 
                         /* Finally put the unit into our maps. */
                         iter = xh_put(
                             UNIT_MAP,
                             ctx->unit_map,
-                            parse_ctx->pid_desc.unit,
+                            unit_id,
                             &ret);
                         if (ret == -1) {
                             err = YOBD_OOM;
                             done = true;
                             break;
                         }
-                        xh_val(ctx->unit_map, iter) = unit_str;
+                        desc = &xh_val(ctx->unit_map, iter);
+                        desc->name = unit_str;
+                        desc->convert = get_conversion(unit_str);
+                        /*
+                         * If this asserts, we need to add a conversion routine.
+                         */
+                        XASSERT_NOT_NULL(desc->convert);
+
 
                         iter = xh_put(UNIT_NAME_MAP, unit_name_map, unit_str, &ret);
                         if (ret == -1) {
@@ -437,7 +458,17 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
                             done = true;
                             break;
                         }
-                        xh_val(unit_name_map, iter) = parse_ctx->pid_desc.unit;
+                        tuple = &xh_val(unit_name_map, iter);
+
+                        if (key == KEY_RAW_UNIT) {
+                            tuple->raw_unit = unit_id;
+                            parse_ctx->raw_unit = unit_id;
+                        }
+                        else {
+                            /* key == KEY_SI_UNIT */
+                            tuple->si_unit = unit_id;
+                            parse_ctx->desc.unit = unit_id;
+                        }
 
                         break;
 
@@ -446,10 +477,7 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
                         state.key = KEY_NONE;
 
                         XASSERT_NOT_NULL(parse_ctx);
-                        find_type(
-                            val,
-                            &parse_ctx->pid_desc.interpreted_bytes,
-                            &parse_ctx->pid_desc.type);
+                        find_type(val, &parse_ctx->pid_type);
 
                         break;
 
@@ -464,11 +492,11 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
                         state.key = KEY_NONE;
 
                         XASSERT_NOT_NULL(parse_ctx);
-                        parse_ctx->type = EVAL_TYPE_EXPR;
+                        parse_ctx->eval_type = EVAL_TYPE_EXPR;
                         err = parse_expr(
                             val,
                             &parse_ctx->expr,
-                            parse_ctx->pid_desc.type);
+                            parse_ctx->eval_type);
                         if (err != YOBD_OK) {
                             done = true;
                         }

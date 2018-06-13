@@ -11,19 +11,23 @@
 #include <stdint.h>
 #include <xlib/xhash.h>
 #include <yobd/yobd.h>
+#include <yobd_private/unit.h>
 
 typedef enum {
     EVAL_TYPE_EXPR
 } eval_type;
 
 struct parse_pid_ctx {
-    struct yobd_pid_desc pid_desc;
+    /* The raw OBD II unit, not yet converted to SI. */
+    yobd_unit raw_unit;
+    pid_data_type pid_type;
     /* The byte count of the CAN response, not of the OBD II response. */
-    uint_fast8_t can_bytes;
-    eval_type type;
+    eval_type eval_type;
     union {
         struct expr expr;
     };
+    /* Public PID descriptor. */
+    struct yobd_pid_desc desc;
 };
 
 struct parse_pid_ctx *get_parse_ctx(
@@ -31,10 +35,17 @@ struct parse_pid_ctx *get_parse_ctx(
     yobd_mode mode,
     yobd_pid pid);
 
-XHASH_MAP_INIT_INT8(UNIT_MAP, const char *)
+struct unit_tuple {
+    yobd_unit raw_unit;
+    yobd_unit si_unit;
+};
+
+to_si get_convert_func(const struct yobd_ctx *ctx, yobd_unit unit);
+
+XHASH_MAP_INIT_INT8(UNIT_MAP, struct unit_desc)
 XHASH_MAP_INIT_INT(MODEPID_MAP, struct parse_pid_ctx)
 
-XHASH_MAP_INIT_STR(UNIT_NAME_MAP, yobd_unit)
+XHASH_MAP_INIT_STR(UNIT_NAME_MAP, struct unit_tuple)
 
 struct yobd_ctx {
     yobd_unit next_unit_id;

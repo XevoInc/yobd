@@ -53,8 +53,10 @@ defs:
         $ref: "#/defs/name"
       bytes:
         $ref: "#/defs/bytes"
-      unit:
-        $ref: include://unit.yaml
+      raw-unit:
+        $ref: include://raw-unit.yaml
+      si-unit:
+        $ref: include://si-unit.yaml
       expr:
         $ref: "#/defs/expr"
     requiredProperties:

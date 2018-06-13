@@ -36,7 +36,8 @@ src = [
     'src/entrypoint.c',
     'src/eval.c',
     'src/expr.c',
-    'src/parser.c'
+    'src/parser.c',
+    'src/unit.c'
 ]
 
 thread_dep = dependency('threads')
