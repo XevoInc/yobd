@@ -169,7 +169,7 @@ void handle_op(
 
 void shunting_yard(
     const char *str,
-    yobd_pid_data_type type,
+    pid_data_type type,
     struct OP_STACK *op_stack,
     struct EXPR_STACK *out_stack)
 {
@@ -200,14 +200,14 @@ void shunting_yard(
             case TOK_NUMERIC:
                 errno = 0;
                 switch (type) {
-                    case YOBD_PID_DATA_TYPE_UINT8:
-                    case YOBD_PID_DATA_TYPE_UINT16:
-                    case YOBD_PID_DATA_TYPE_INT8:
-                    case YOBD_PID_DATA_TYPE_INT16:
+                    case PID_DATA_TYPE_UINT8:
+                    case PID_DATA_TYPE_UINT16:
+                    case PID_DATA_TYPE_INT8:
+                    case PID_DATA_TYPE_INT16:
                         expr_tok.as_int32_t = strtol((const char *) start, NULL, 10);
                         expr_tok.type = EXPR_INT32;
                         break;
-                    case YOBD_PID_DATA_TYPE_FLOAT:
+                    case PID_DATA_TYPE_FLOAT:
                         expr_tok.as_float = strtof((const char *) start, NULL);
                         expr_tok.type = EXPR_FLOAT;
                         break;
@@ -279,7 +279,7 @@ void shunting_yard(
 yobd_err parse_expr(
     const char *str,
     struct expr *expr,
-    yobd_pid_data_type type)
+    pid_data_type type)
 {
     struct expr_token *data;
     size_t expr_bytes;

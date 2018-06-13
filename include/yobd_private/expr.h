@@ -12,6 +12,7 @@
 #include <stdint.h>
 #include <yobd/yobd.h>
 #include <yobd_private/stack.h>
+#include <yobd_private/types.h>
 
 struct expr_token {
     enum {
@@ -46,7 +47,7 @@ struct expr {
 yobd_err parse_expr(
     const char *str,
     struct expr *expr,
-    yobd_pid_data_type type);
+    pid_data_type type);
 
 void destroy_expr(struct expr *expr);
 

@@ -44,21 +44,11 @@ typedef uint_fast16_t yobd_pid;
 /** An ID for a unit, used to lookup a corresponding string. */
 typedef uint_fast8_t yobd_unit;
 
-typedef enum {
-    YOBD_PID_DATA_TYPE_UINT8 = 0,
-    YOBD_PID_DATA_TYPE_UINT16 = 1,
-    YOBD_PID_DATA_TYPE_INT8 = 2,
-    YOBD_PID_DATA_TYPE_INT16 = 3,
-    YOBD_PID_DATA_TYPE_FLOAT = 4
-} yobd_pid_data_type;
-
 /** The details about how to interpret a PID from bitpacked yobd output. */
 struct yobd_pid_desc {
     const char *name;
-    yobd_unit unit;
     uint_fast8_t can_bytes;
-    uint_fast8_t interpreted_bytes;
-    yobd_pid_data_type type;
+    yobd_unit unit;
 };
 
 /**
@@ -234,17 +224,13 @@ yobd_err yobd_parse_headers_noctx(
  *
  * @param ctx a yobd context
  * @param frame a CAN frame to be interpreted
- * @param buf a buffer allocated to the caller, which will be filled in with
- *            bitpacked OBD II data. The buffer must be large enough to hold the
- *            data, according to the size returned via yobd_get_pid_descriptor.
- *            The buffer being too small will result in "undefined behavior" :).
- *
+ * @param val a float value in SI units
  * @return an error code
  */
 yobd_err yobd_parse_can_response(
     struct yobd_ctx *ctx,
     const struct can_frame *frame,
-    uint8_t *buf);
+    float *val);
 
 #ifdef __cplusplus
 }

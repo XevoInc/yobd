@@ -5,7 +5,8 @@ modepid:
     "0x04":
       name: Calculated engine load
       bytes: 1
-      unit: percent
+      raw-unit: percent
+      si-unit: percent
       expr:
         type: float
         val: A / 2.55
@@ -13,7 +14,8 @@ modepid:
     "0x05":
       name: Engine coolant temperature
       bytes: 1
-      unit: celsius
+      raw-unit: celsius
+      si-unit: percent
       expr:
         type: int8
         val: A - 40
@@ -21,7 +23,8 @@ modepid:
     "0x0a":
       name: Fuel pressure (gauge pressure)
       bytes: 1
-      unit: kpa
+      raw-unit: kPa
+      si-unit: Pa
       expr:
         type: uint16
         val: 3*A
@@ -29,7 +32,8 @@ modepid:
     "0x0c":
       name: Engine RPM
       bytes: 2
-      unit: rpm
+      raw-unit: rpm
+      si-unit: rad/s
       expr:
         type: float
         val: (256*A + B) / 4
@@ -37,7 +41,8 @@ modepid:
     "0x0d":
       name: Vehicle speed
       bytes: 1
-      unit: km/h
+      raw-unit: km/h
+      si-unit: m/s
       expr:
         type: uint8
         val: A
@@ -45,7 +50,8 @@ modepid:
     "0x0f":
       name: Intake air temperature
       bytes: 1
-      unit: celsius
+      raw-unit: celsius
+      si-unit: K
       expr:
         type: int8
         val: A - 40
@@ -53,7 +59,8 @@ modepid:
     "0x10":
       name: MAF air flow rate
       bytes: 2
-      unit: g/s
+      raw-unit: g/s
+      si-unit: kg/s
       expr:
         type: float
         val: (256*A + B) / 100
@@ -61,7 +68,8 @@ modepid:
     "0x11":
       name: Throttle position
       bytes: 1
-      unit: percent
+      raw-unit: percent
+      si-unit: percent
       expr:
         type: float
         val: A / 2.55
@@ -69,7 +77,8 @@ modepid:
     "0x1f":
       name: Runtime since engine start
       bytes: 2
-      unit: seconds
+      raw-unit: s
+      si-unit: s
       expr:
         type: uint16
         val: 256*A + B
@@ -77,7 +86,8 @@ modepid:
     "0x21":
       name: Distance traveled with MIL on
       bytes: 2
-      unit: km
+      raw-unit: km
+      si-unit: m
       expr:
         type: uint16
         val: 256*A + B
@@ -85,7 +95,8 @@ modepid:
     "0x31":
       name: Distance traveled since codes cleared
       bytes: 2
-      unit: km
+      raw-unit: km
+      si-unit: m
       expr:
         type: uint16
         val: 256*A + B
@@ -93,7 +104,8 @@ modepid:
     "0x32":
       name: Evaporative system vapor pressure
       bytes: 2
-      unit: pa
+      raw-unit: Pa
+      si-unit: Pa
       expr:
         type: float
         val: (256*A + B) / 4
@@ -101,7 +113,8 @@ modepid:
     "0x33":
       name: Absolute barometric pressure
       bytes: 1
-      unit: kpa
+      raw-unit: kPa
+      si-unit: Pa
       expr:
         type: uint8
         val: A
@@ -109,7 +122,8 @@ modepid:
     "0x45":
       name: Relative throttle position
       bytes: 1
-      unit: percent
+      raw-unit: percent
+      si-unit: percent
       expr:
         type: float
         val: A / 2.55
@@ -117,7 +131,8 @@ modepid:
     "0x46":
       name: Ambient air temperature
       bytes: 1
-      unit: celsius
+      raw-unit: celsius
+      si-unit: K
       expr:
         type: int8
         val: A - 40
@@ -125,7 +140,8 @@ modepid:
     "0x47":
       name: Absolute throttle position B
       bytes: 1
-      unit: percent
+      raw-unit: percent
+      si-unit: percent
       expr:
         type: float
         val: A / 2.55
@@ -133,7 +149,8 @@ modepid:
     "0x48":
       name: Absolute throttle position C
       bytes: 1
-      unit: percent
+      raw-unit: percent
+      si-unit: percent
       expr:
         type: float
         val: A / 2.55
@@ -141,7 +158,8 @@ modepid:
     "0x49":
       name: Accelerator pedal position D
       bytes: 1
-      unit: percent
+      raw-unit: percent
+      si-unit: percent
       expr:
         type: float
         val: A / 2.55
@@ -149,7 +167,8 @@ modepid:
     "0x4a":
       name: Accelerator pedal position E
       bytes: 1
-      unit: percent
+      raw-unit: percent
+      si-unit: percent
       expr:
         type: float
         val: A / 2.55
@@ -157,7 +176,8 @@ modepid:
     "0x4b":
       name: Accelerator pedal position F
       bytes: 1
-      unit: percent
+      raw-unit: percent
+      si-unit: percent
       expr:
         type: float
         val: A / 2.55
@@ -165,7 +185,8 @@ modepid:
     "0x52":
       name: Ethanol fuel percent
       bytes: 1
-      unit: percent
+      raw-unit: percent
+      si-unit: percent
       expr:
         type: float
         val: A / 2.55
@@ -173,7 +194,8 @@ modepid:
     "0x5a":
       name: Relative accelerator pedal position
       bytes: 1
-      unit: percent
+      raw-unit: percent
+      si-unit: percent
       expr:
         type: float
         val: A / 2.55
@@ -181,7 +203,8 @@ modepid:
     "0x5b":
       name: Hybrid battery pack remaining life
       bytes: 1
-      unit: percent
+      raw-unit: percent
+      si-unit: percent
       expr:
         type: float
         val: A / 2.55
@@ -189,7 +212,8 @@ modepid:
     "0x5c":
       name: Engine oil temperature
       bytes: 1
-      unit: celsius
+      raw-unit: celsius
+      si-unit: K
       expr:
         type: int8
         val: A - 40
@@ -197,7 +221,8 @@ modepid:
     "0x61":
       name: Driver's demand engine torque
       bytes: 1
-      unit: percent
+      raw-unit: percent
+      si-unit: percent
       expr:
         type: int8
         val: A - 125
@@ -205,7 +230,8 @@ modepid:
     "0x62":
       name: Actual engine torque
       bytes: 1
-      unit: percent
+      raw-unit: percent
+      si-unit: percent
       expr:
         type: int8
         val: A - 125
@@ -213,7 +239,8 @@ modepid:
     "0x63":
       name: Engine reference torque
       bytes: 2
-      unit: nm
+      raw-unit: nm
+      si-unit: m
       expr:
         type: int8
         val: 256*A + B

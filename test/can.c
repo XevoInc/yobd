@@ -16,8 +16,6 @@
 #include <xlib/xassert.h>
 #include <yobd/yobd.h>
 
-#include <assert.h>
-
 void print_err(const char *msg)
 {
     fputs(msg, stderr);
@@ -30,34 +28,13 @@ bool float_eq(float a, float b)
     return fabs(a - b) < DBL_EPSILON;
 }
 
-int mystrcmp(const char *s, const char *t)
-{
-    size_t i = 0;
-    while (1) {
-        if (s[i] == '\0' || t[i] == '\0') {
-            if (s[i] == t[i]) {
-                break;
-            }
-            else {
-                return -1;
-            }
-        }
-        if (s[i] != t[i]) {
-            return -1;
-        }
-        i++;
-    }
-
-    return 0;
-}
-
 int main(int argc, const char **argv)
 {
     struct yobd_ctx *ctx;
     union {
         uint16_t as_uint16_t;
         uint8_t as_uint8_t;
-    } engine_rpm;
+    } maf_rate;
     yobd_err err;
     struct can_frame frame;
     struct can_frame frame2;
@@ -68,11 +45,7 @@ int main(int argc, const char **argv)
     const struct yobd_pid_desc *pid_desc;
     const char *schema_file;
     const char *str;
-    union {
-        float as_float;
-        uint8_t as_uint8_t;
-        uint8_t as_bytes[sizeof(float)];
-    } u;
+    float val;
 
     if (argc != 2) {
         fprintf(stderr, "Usage: %s SCHEMA-FILE\n", argv[0]);
@@ -94,18 +67,16 @@ int main(int argc, const char **argv)
     XASSERT_NOT_NULL(pid_desc)
     XASSERT_EQ(strcmp(pid_desc->name, "Intake air temperature"), 0);
     XASSERT_EQ(pid_desc->can_bytes, 1);
-    XASSERT_EQ(pid_desc->interpreted_bytes, sizeof(int8_t));
-    XASSERT_EQ(pid_desc->type, YOBD_PID_DATA_TYPE_INT8);
 
     err = yobd_get_unit_str(ctx, pid_desc->unit, &str);
     XASSERT_EQ(err, YOBD_OK);
-    XASSERT_EQ(strcmp(str, "celsius"), 0);
+    XASSERT_EQ(strcmp(str, "K"), 0);
 
     memset(&frame, 0, sizeof(frame));
     memset(&frame2, 0, sizeof(frame2));
-    err = yobd_make_can_query(ctx, 0x1, 0x0c, &frame);
+    err = yobd_make_can_query(ctx, 0x1, 0x10, &frame);
     XASSERT_EQ(err, YOBD_OK);
-    err = yobd_make_can_query_noctx(true, 0x1, 0x0c, &frame2);
+    err = yobd_make_can_query_noctx(true, 0x1, 0x10, &frame2);
     XASSERT_EQ(err, YOBD_OK);
     XASSERT_EQ(memcmp(&frame, &frame2, sizeof(frame)), 0);
 
@@ -113,7 +84,7 @@ int main(int argc, const char **argv)
     XASSERT_EQ(frame.can_dlc, 8);
     XASSERT_EQ(frame.data[0], 2);
     XASSERT_EQ(frame.data[1], 0x1);
-    XASSERT_EQ(frame.data[2], 0x0c);
+    XASSERT_EQ(frame.data[2], 0x10);
     XASSERT_EQ(frame.data[3], 0xcc);
     XASSERT_EQ(frame.data[4], 0xcc);
     XASSERT_EQ(frame.data[5], 0xcc);
@@ -122,21 +93,21 @@ int main(int argc, const char **argv)
 
     memset(&frame, 0, sizeof(frame));
     memset(&frame2, 0, sizeof(frame2));
-    engine_rpm.as_uint16_t = 0xabcd;
+    maf_rate.as_uint16_t = 0xabcd;
     err = yobd_make_can_response(
         ctx,
         0x1,
-        0x0c,
-        &engine_rpm.as_uint8_t,
-        sizeof(engine_rpm),
+        0x10,
+        &maf_rate.as_uint8_t,
+        sizeof(maf_rate),
         &frame);
     XASSERT_EQ(err, YOBD_OK);
     err = yobd_make_can_response_noctx(
         true,
         0x1,
-        0x0c,
-        &engine_rpm.as_uint8_t,
-        sizeof(engine_rpm),
+        0x10,
+        &maf_rate.as_uint8_t,
+        sizeof(maf_rate),
         &frame2);
     XASSERT_EQ(err, YOBD_OK);
     XASSERT_EQ(memcmp(&frame, &frame2, sizeof(frame)), 0);
@@ -145,7 +116,7 @@ int main(int argc, const char **argv)
     XASSERT_EQ(frame.can_dlc, 8);
     XASSERT_EQ(frame.data[0], 4);
     XASSERT_EQ(frame.data[1], 0x1 + 0x40);
-    XASSERT_EQ(frame.data[2], 0x0c);
+    XASSERT_EQ(frame.data[2], 0x10);
     XASSERT_EQ(frame.data[3], 0xcd);
     XASSERT_EQ(frame.data[4], 0xab);
     XASSERT_EQ(frame.data[5], 0xcc);
@@ -156,22 +127,23 @@ int main(int argc, const char **argv)
     err = yobd_parse_headers(ctx, &frame, &mode, &pid);
     XASSERT_EQ(err, YOBD_OK);
     XASSERT_EQ(mode, 0x1);
-    XASSERT_EQ(pid, 0x0c);
+    XASSERT_EQ(pid, 0x10);
     mode2 = pid2 = 0;
     err = yobd_parse_headers_noctx(ctx, &frame, &mode2, &pid2);
     XASSERT_EQ(err, YOBD_OK);
     XASSERT_EQ(mode, mode2);
     XASSERT_EQ(pid, pid2);
 
-    err = yobd_parse_can_response(ctx, &frame, u.as_bytes);
+    err = yobd_parse_can_response(ctx, &frame, &val);
     XASSERT_EQ(err, YOBD_OK);
     /*
      * 0xab == 171
      * 0xcd == 205
-     * (256*205 + 171) / 4 == 13162.75
+     * (256*205 + 171) / 100 == 526.51
+     * converting from g/s to kg/s, 526.51 --> 0.52651
      * Note that we flip byte order from 0xabcd as this is big-endian.
      */
-    XASSERT(float_eq(u.as_float, 13162.75));
+    XASSERT(float_eq(val, 0.526000));
 
     memset(&frame, 0, sizeof(frame));
     frame.can_id = 0x7df;
@@ -188,15 +160,18 @@ int main(int argc, const char **argv)
     memset(&frame, 0, sizeof(frame));
     frame.can_id = 0x7e8;
     frame.can_dlc = 8;
-    /* (256*77 + 130) / 4 == 4960.50 RPM */
+    /*
+     * (256*77 + 130) / 4 == 4960.50 RPM
+     * 4960.50 RPM --> 519.462345 rad/s
+     */
     frame.data[0] = 4;
     frame.data[1] = 0x1 + 0x40;
     frame.data[2] = 0x0c;
     frame.data[3] = 77;
     frame.data[4] = 130;
-    err = yobd_parse_can_response(ctx, &frame, u.as_bytes);
+    err = yobd_parse_can_response(ctx, &frame, &val);
     XASSERT_EQ(err, YOBD_OK);
-    XASSERT(float_eq(u.as_float, 4960.50));
+    XASSERT(float_eq(val, 519.410034));
 
     memset(&frame, 0, sizeof(frame));
     frame.can_id = 0x7e8;
@@ -205,9 +180,9 @@ int main(int argc, const char **argv)
     frame.data[1] = 0x1 + 0x40;
     frame.data[2] = 0x0d;
     frame.data[3] = 60;
-    err = yobd_parse_can_response(ctx, &frame, u.as_bytes);
+    err = yobd_parse_can_response(ctx, &frame, &val);
     XASSERT_EQ(err, YOBD_OK);
-    XASSERT_EQ(u.as_uint8_t, 60);
+    XASSERT(float_eq(val, 16.666666));
 
     yobd_free_ctx(ctx);
 

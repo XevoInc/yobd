@@ -10,7 +10,10 @@
 #include <yobd_private/api.h>
 #include <yobd_private/expr.h>
 #include <yobd_private/parser.h>
+#include <yobd_private/unit.h>
 #include <yobd/yobd.h>
+
+#include <stdio.h>
 
 #define OBD_II_QUERY_ADDRESS (0x7df)
 #define OBD_II_RESPONSE_ADDRESS (0x7e8)
@@ -18,11 +21,12 @@
 /* ISO 15765-2:2016 page 43 suggests but does not require 0xcc for padding. */
 #define OBD_II_PAD_VALUE (0xcc)
 
-#define DEFINE_EVAL_FUNC(stack_type, enum_type, out_type, min_val, max_val) \
+#define DEFINE_EVAL_FUNC(stack_type, enum_type) \
 static \
-out_type eval_expr_##out_type( \
+float eval_expr_##stack_type( \
     struct expr *expr, \
-    const uint8_t *data) \
+    const uint8_t *data, \
+    to_si convert) \
 { \
     size_t i; \
     struct expr_token tok1; \
@@ -91,18 +95,11 @@ out_type eval_expr_##out_type( \
     XASSERT_EQ(result.type, enum_type); \
     \
     val = result.as_##stack_type; \
-    /*
-     * TODO: Ideally we would assert here that everything is in range. We can do
-     * this once ranges are added to the schema.
-     */ \
-    return (out_type) val; \
+    return convert((float) val); \
 }
 
-DEFINE_EVAL_FUNC(int32_t, EXPR_INT32, uint8_t, 0, UINT8_MAX)
-DEFINE_EVAL_FUNC(int32_t, EXPR_INT32, uint16_t, 0, UINT16_MAX)
-DEFINE_EVAL_FUNC(int32_t, EXPR_INT32, int8_t, 0, INT8_MAX)
-DEFINE_EVAL_FUNC(int32_t, EXPR_INT32, int16_t, 0, INT16_MAX)
-DEFINE_EVAL_FUNC(float, EXPR_FLOAT, float, FLT_MIN, FLT_MAX)
+DEFINE_EVAL_FUNC(int32_t, EXPR_INT32)
+DEFINE_EVAL_FUNC(float, EXPR_FLOAT)
 
 static inline
 bool mode_is_sae_standard(yobd_mode mode)
@@ -266,30 +263,21 @@ yobd_err yobd_make_can_response(
 
 static
 void eval_expr(
-    yobd_pid_data_type pid_type,
+    pid_data_type pid_type,
     struct expr *expr,
     const uint8_t *data,
-    uint8_t *buf)
+    float *val,
+    to_si convert)
 {
-    /* Endianness of floats in buf will be host order. */
-    float val;
-
     switch (pid_type) {
-        case YOBD_PID_DATA_TYPE_FLOAT:
-            val = eval_expr_float(expr, data);
-            memcpy(buf, &val, sizeof(val));
+        case PID_DATA_TYPE_FLOAT:
+            *val = eval_expr_float(expr, data, convert);
             break;
-        case YOBD_PID_DATA_TYPE_UINT8:
-            *buf = eval_expr_uint8_t(expr, data);
-            break;
-        case YOBD_PID_DATA_TYPE_UINT16:
-            *buf = eval_expr_uint16_t(expr, data);
-            break;
-        case YOBD_PID_DATA_TYPE_INT8:
-            *buf = eval_expr_int8_t(expr, data);
-            break;
-        case YOBD_PID_DATA_TYPE_INT16:
-            *buf = eval_expr_int16_t(expr, data);
+        case PID_DATA_TYPE_UINT8:
+        case PID_DATA_TYPE_UINT16:
+        case PID_DATA_TYPE_INT8:
+        case PID_DATA_TYPE_INT16:
+            *val = eval_expr_int32_t(expr, data, convert);
             break;
     }
 }
@@ -380,8 +368,9 @@ PUBLIC_API
 yobd_err yobd_parse_can_response(
     struct yobd_ctx *ctx,
     const struct can_frame *frame,
-    uint8_t *buf)
+    float *val)
 {
+    to_si convert;
     const uint8_t *data_start;
     yobd_err err;
     size_t expected_bytes;
@@ -390,7 +379,7 @@ yobd_err yobd_parse_can_response(
     size_t offset;
     struct parse_pid_ctx *parse_ctx;
 
-    if (ctx == NULL || frame == NULL || buf == NULL) {
+    if (ctx == NULL || frame == NULL || val == NULL) {
         return YOBD_INVALID_PARAMETER;
     }
 
@@ -421,19 +410,21 @@ yobd_err yobd_parse_can_response(
         /* One byte for mode, two bytes for PID. */
         offset = 3;
     }
-    expected_bytes = offset + parse_ctx->can_bytes;
+    expected_bytes = offset + parse_ctx->desc.can_bytes;
 
     if (frame->data[0] != expected_bytes) {
         return YOBD_INVALID_DATA_BYTES;
     }
 
-    switch (parse_ctx->type) {
+    convert = get_convert_func(ctx, parse_ctx->raw_unit);
+    switch (parse_ctx->eval_type) {
         case EVAL_TYPE_EXPR:
             eval_expr(
-                parse_ctx->pid_desc.type,
+                parse_ctx->eval_type,
                 &parse_ctx->expr,
                 data_start,
-                buf);
+                val,
+                convert);
             break;
     }
 
@@ -458,7 +449,7 @@ yobd_err yobd_get_pid_descriptor(
         return YOBD_UNKNOWN_MODE_PID;
     }
 
-    *pid_desc = &parse_ctx->pid_desc;
+    *pid_desc = &parse_ctx->desc;
 
     return YOBD_OK;
 }
