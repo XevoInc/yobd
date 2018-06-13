@@ -1,3 +1,10 @@
+/**
+ * @file      parser.h
+ * @brief     yobd parser header.
+ * @author    Martin Kelly <mkelly@xevo.com>
+ * @copyright Copyright (C) 2017 Xevo Inc. All Rights Reserved.
+ */
+
 #ifndef YOBD_PRIVATE_PARSER_H_
 #define YOBD_PRIVATE_PARSER_H_
 
