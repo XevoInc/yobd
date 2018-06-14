@@ -13,7 +13,7 @@ modepid:
     "0x05":
       name: Engine coolant temperature
       bytes: 1
-      unit: celcius
+      unit: celsius
       expr:
         type: int8
         val: A - 40
@@ -45,7 +45,7 @@ modepid:
     "0x0f":
       name: Intake air temperature
       bytes: 1
-      unit: celcius
+      unit: celsius
       expr:
         type: int8
         val: A - 40
@@ -117,7 +117,7 @@ modepid:
     "0x46":
       name: Ambient air temperature
       bytes: 1
-      unit: celcius
+      unit: celsius
       expr:
         type: int8
         val: A - 40
@@ -189,7 +189,7 @@ modepid:
     "0x5c":
       name: Engine oil temperature
       bytes: 1
-      unit: celcius
+      unit: celsius
       expr:
         type: int8
         val: A - 40

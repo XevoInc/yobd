@@ -99,7 +99,7 @@ int main(int argc, const char **argv)
 
     err = yobd_get_unit_str(ctx, pid_desc->unit, &str);
     XASSERT_EQ(err, YOBD_OK);
-    XASSERT_EQ(strcmp(str, "celcius"), 0);
+    XASSERT_EQ(strcmp(str, "celsius"), 0);
 
     memset(&frame, 0, sizeof(frame));
     memset(&frame2, 0, sizeof(frame2));
