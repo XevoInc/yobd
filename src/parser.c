@@ -206,14 +206,14 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
     struct parse_pid_ctx *parse_ctx;
     int ret;
     struct parse_state state;
-    xhash_t(STR_SET) *unit_set;
+    xhash_t(UNIT_NAME_MAP) *unit_name_map;
     const char *unit_str;
     const char *val;
 
     err = YOBD_OK;
 
-    unit_set = xh_init(STR_SET);
-    if (unit_set == NULL) {
+    unit_name_map = xh_init(UNIT_NAME_MAP);
+    if (unit_name_map == NULL) {
         return YOBD_OOM;
     }
 
@@ -398,8 +398,11 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
                         XASSERT_NOT_NULL(parse_ctx);
 
                         /* Check if we have seen this unit before. */
-                        iter = xh_get(STR_SET, unit_set, val);
-                        if (iter != xh_end(unit_set)) {
+                        iter = xh_get(UNIT_NAME_MAP, unit_name_map, val);
+                        if (iter != xh_end(unit_name_map)) {
+                            /* We've seen this unit before; just set the ID. */
+                            parse_ctx->pid_desc.unit = xh_val(
+                                unit_name_map, iter);
                             break;
                         }
 
@@ -428,12 +431,13 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
                         }
                         xh_val(ctx->unit_map, iter) = unit_str;
 
-                        xh_put(STR_SET, unit_set, unit_str, &ret);
+                        iter = xh_put(UNIT_NAME_MAP, unit_name_map, unit_str, &ret);
                         if (ret == -1) {
                             err = YOBD_OOM;
                             done = true;
                             break;
                         }
+                        xh_val(unit_name_map, iter) = parse_ctx->pid_desc.unit;
 
                         break;
 
@@ -477,7 +481,7 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
 
     } while (!done);
 
-    xh_destroy(STR_SET, unit_set);
+    xh_destroy(UNIT_NAME_MAP, unit_name_map);
     yaml_parser_delete(&parser);
 
     ret = xh_trim(UNIT_MAP, ctx->unit_map);

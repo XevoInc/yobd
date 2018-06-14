@@ -16,6 +16,8 @@
 #include <xlib/xassert.h>
 #include <yobd/yobd.h>
 
+#include <assert.h>
+
 void print_err(const char *msg)
 {
     fputs(msg, stderr);
@@ -26,6 +28,27 @@ XASSERT_DEFINE_ASSERTS(print_err)
 bool float_eq(float a, float b)
 {
     return fabs(a - b) < DBL_EPSILON;
+}
+
+int mystrcmp(const char *s, const char *t)
+{
+    size_t i = 0;
+    while (1) {
+        if (s[i] == '\0' || t[i] == '\0') {
+            if (s[i] == t[i]) {
+                break;
+            }
+            else {
+                return -1;
+            }
+        }
+        if (s[i] != t[i]) {
+            return -1;
+        }
+        i++;
+    }
+
+    return 0;
 }
 
 int main(int argc, const char **argv)
@@ -66,17 +89,17 @@ int main(int argc, const char **argv)
     XASSERT_EQ(err, YOBD_OK);
     XASSERT_NOT_NULL(ctx);
 
-    err = yobd_get_pid_descriptor(ctx, 0x1, 0x0c, &pid_desc);
+    err = yobd_get_pid_descriptor(ctx, 0x1, 0x0f, &pid_desc);
     XASSERT_EQ(err, YOBD_OK);
     XASSERT_NOT_NULL(pid_desc)
-    XASSERT_EQ(strcmp(pid_desc->name, "Engine RPM"), 0);
-    XASSERT_EQ(pid_desc->can_bytes, 2);
-    XASSERT_EQ(pid_desc->interpreted_bytes, sizeof(float));
-    XASSERT_EQ(pid_desc->type, YOBD_PID_DATA_TYPE_FLOAT);
+    XASSERT_EQ(strcmp(pid_desc->name, "Intake air temperature"), 0);
+    XASSERT_EQ(pid_desc->can_bytes, 1);
+    XASSERT_EQ(pid_desc->interpreted_bytes, sizeof(int8_t));
+    XASSERT_EQ(pid_desc->type, YOBD_PID_DATA_TYPE_INT8);
 
     err = yobd_get_unit_str(ctx, pid_desc->unit, &str);
     XASSERT_EQ(err, YOBD_OK);
-    XASSERT_EQ(strcmp(str, "rpm"), 0);
+    XASSERT_EQ(strcmp(str, "celcius"), 0);
 
     memset(&frame, 0, sizeof(frame));
     memset(&frame2, 0, sizeof(frame2));
