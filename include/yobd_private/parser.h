@@ -33,7 +33,8 @@ struct parse_pid_ctx *get_parse_ctx(
 
 XHASH_MAP_INIT_INT8(UNIT_MAP, const char *)
 XHASH_MAP_INIT_INT(MODEPID_MAP, struct parse_pid_ctx)
-XHASH_SET_INIT_STR(STR_SET)
+
+XHASH_MAP_INIT_STR(UNIT_NAME_MAP, yobd_unit)
 
 struct yobd_ctx {
     yobd_unit next_unit_id;
