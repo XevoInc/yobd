@@ -34,6 +34,7 @@ configure_file(
 src = [
     'src/assert.c',
     'src/entrypoint.c',
+    'src/error.c',
     'src/eval.c',
     'src/expr.c',
     'src/parser.c',
@@ -71,12 +72,13 @@ add_test_setup('valgrind', exe_wrapper: ['valgrind', '-v'])
 tests = [
     ['can', ['test/can.c'], files('schema/deploy/standard-pids.yaml') ],
 ]
+test_include = include_directories('test/include')
 test_deps = [yobd_dep] + [xlib_dep]
 foreach t : tests
     exe = executable(
         t.get(0),
         t.get(1),
-        include_directories: include,
+        include_directories: test_include,
         link_with: lib,
         dependencies: test_deps)
     test(t.get(0), exe, args: t.get(2))

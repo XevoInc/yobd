@@ -35,6 +35,13 @@ typedef enum {
     YOBD_INVALID_DATA_BYTES = -12
 } yobd_err;
 
+/**
+ * Returns a human-readable error string. The string must not be modified or
+ * freed, but it may be modified by subsequent calls to yobd_strerror or the
+ * libc strerror class of functions.
+ */
+const char *yobd_strerror(yobd_err err);
+
 /** OBD II mode. */
 typedef uint_fast8_t yobd_mode;
 
