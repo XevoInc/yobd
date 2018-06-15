@@ -6,22 +6,17 @@
  */
 
 #define _POSIX_C_SOURCE 200809L
+#include <errno.h>
 #include <float.h>
+#include <limits.h>
 #include <linux/limits.h>
 #include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <xlib/xassert.h>
 #include <yobd/yobd.h>
-
-void print_err(const char *msg)
-{
-    fputs(msg, stderr);
-}
-
-XASSERT_DEFINE_ASSERTS(print_err)
+#include <yobd_test/assert.h>
 
 int main(int argc, const char **argv)
 {
@@ -52,27 +47,31 @@ int main(int argc, const char **argv)
     }
     schema_file = argv[1];
 
+    XASSERT_STREQ(yobd_strerror(YOBD_OOM), "out of memory!");
+    XASSERT_STREQ(yobd_strerror(EIO), strerror(EIO));
+    XASSERT_NULL(yobd_strerror(INT_MIN));
+
     ctx = NULL;
     err = yobd_parse_schema(schema_file, &ctx);
-    XASSERT_EQ(err, YOBD_OK);
+    XASSERT_OK(err);
     XASSERT_NOT_NULL(ctx);
 
     err = yobd_get_pid_descriptor(ctx, 0x1, 0x0f, &pid_desc);
-    XASSERT_EQ(err, YOBD_OK);
+    XASSERT_OK(err);
     XASSERT_NOT_NULL(pid_desc)
     XASSERT_STREQ(pid_desc->name, "Intake air temperature");
     XASSERT_EQ(pid_desc->can_bytes, 1);
 
     err = yobd_get_unit_str(ctx, pid_desc->unit, &str);
-    XASSERT_EQ(err, YOBD_OK);
+    XASSERT_OK(err);
     XASSERT_STREQ(str, "K");
 
     memset(&frame, 0, sizeof(frame));
     memset(&frame2, 0, sizeof(frame2));
     err = yobd_make_can_query(ctx, 0x1, 0x10, &frame);
-    XASSERT_EQ(err, YOBD_OK);
+    XASSERT_OK(err);
     err = yobd_make_can_query_noctx(true, 0x1, 0x10, &frame2);
-    XASSERT_EQ(err, YOBD_OK);
+    XASSERT_OK(err);
     XASSERT_EQ(memcmp(&frame, &frame2, sizeof(frame)), 0);
 
     XASSERT_EQ(frame.can_id, 0x7df);
@@ -96,7 +95,7 @@ int main(int argc, const char **argv)
         &maf_rate.as_uint8_t,
         sizeof(maf_rate),
         &frame);
-    XASSERT_EQ(err, YOBD_OK);
+    XASSERT_OK(err);
     err = yobd_make_can_response_noctx(
         true,
         0x1,
@@ -104,7 +103,7 @@ int main(int argc, const char **argv)
         &maf_rate.as_uint8_t,
         sizeof(maf_rate),
         &frame2);
-    XASSERT_EQ(err, YOBD_OK);
+    XASSERT_OK(err);
     XASSERT_EQ(memcmp(&frame, &frame2, sizeof(frame)), 0);
 
     XASSERT_EQ(frame.can_id, 0x7e8);
@@ -120,17 +119,17 @@ int main(int argc, const char **argv)
 
     /* Make sure we can parse the response we made. */
     err = yobd_parse_headers(ctx, &frame, &mode, &pid);
-    XASSERT_EQ(err, YOBD_OK);
+    XASSERT_OK(err);
     XASSERT_EQ(mode, 0x1);
     XASSERT_EQ(pid, 0x10);
     mode2 = pid2 = 0;
     err = yobd_parse_headers_noctx(ctx, &frame, &mode2, &pid2);
-    XASSERT_EQ(err, YOBD_OK);
+    XASSERT_OK(err);
     XASSERT_EQ(mode, mode2);
     XASSERT_EQ(pid, pid2);
 
     err = yobd_parse_can_response(ctx, &frame, &val);
-    XASSERT_EQ(err, YOBD_OK);
+    XASSERT_OK(err);
     /*
      * 0xab == 171
      * 0xcd == 205
@@ -148,7 +147,7 @@ int main(int argc, const char **argv)
     frame.data[2] = 0x0d;
     frame.data[3] = 60;
     err = yobd_parse_headers(ctx, &frame, &mode, &pid);
-    XASSERT_EQ(err, YOBD_OK);
+    XASSERT_OK(err);
     XASSERT_EQ(mode, 0x1);
     XASSERT_EQ(pid, 0x0d);
 
@@ -165,7 +164,7 @@ int main(int argc, const char **argv)
     frame.data[3] = 77;
     frame.data[4] = 130;
     err = yobd_parse_can_response(ctx, &frame, &val);
-    XASSERT_EQ(err, YOBD_OK);
+    XASSERT_OK(err);
     XASSERT_FLTEQ(val, 519.410034f);
 
     memset(&frame, 0, sizeof(frame));
@@ -176,7 +175,7 @@ int main(int argc, const char **argv)
     frame.data[2] = 0x0d;
     frame.data[3] = 60;
     err = yobd_parse_can_response(ctx, &frame, &val);
-    XASSERT_EQ(err, YOBD_OK);
+    XASSERT_OK(err);
     XASSERT_FLTEQ(val, 16.666666f);
 
     yobd_free_ctx(ctx);
