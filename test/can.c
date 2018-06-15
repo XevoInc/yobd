@@ -65,12 +65,12 @@ int main(int argc, const char **argv)
     err = yobd_get_pid_descriptor(ctx, 0x1, 0x0f, &pid_desc);
     XASSERT_EQ(err, YOBD_OK);
     XASSERT_NOT_NULL(pid_desc)
-    XASSERT_EQ(strcmp(pid_desc->name, "Intake air temperature"), 0);
+    XASSERT_STREQ(pid_desc->name, "Intake air temperature");
     XASSERT_EQ(pid_desc->can_bytes, 1);
 
     err = yobd_get_unit_str(ctx, pid_desc->unit, &str);
     XASSERT_EQ(err, YOBD_OK);
-    XASSERT_EQ(strcmp(str, "K"), 0);
+    XASSERT_STREQ(str, "K");
 
     memset(&frame, 0, sizeof(frame));
     memset(&frame2, 0, sizeof(frame2));
