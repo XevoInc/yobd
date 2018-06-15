@@ -23,11 +23,6 @@ void print_err(const char *msg)
 
 XASSERT_DEFINE_ASSERTS(print_err)
 
-bool float_eq(float a, float b)
-{
-    return fabs(a - b) < DBL_EPSILON;
-}
-
 int main(int argc, const char **argv)
 {
     struct yobd_ctx *ctx;
@@ -143,7 +138,7 @@ int main(int argc, const char **argv)
      * converting from g/s to kg/s, 526.51 --> 0.52651
      * Note that we flip byte order from 0xabcd as this is big-endian.
      */
-    XASSERT(float_eq(val, 0.526000));
+    XASSERT_FLTEQ(val, 0.526000000f);
 
     memset(&frame, 0, sizeof(frame));
     frame.can_id = 0x7df;
@@ -171,7 +166,7 @@ int main(int argc, const char **argv)
     frame.data[4] = 130;
     err = yobd_parse_can_response(ctx, &frame, &val);
     XASSERT_EQ(err, YOBD_OK);
-    XASSERT(float_eq(val, 519.410034));
+    XASSERT_FLTEQ(val, 519.410034f);
 
     memset(&frame, 0, sizeof(frame));
     frame.can_id = 0x7e8;
@@ -182,7 +177,7 @@ int main(int argc, const char **argv)
     frame.data[3] = 60;
     err = yobd_parse_can_response(ctx, &frame, &val);
     XASSERT_EQ(err, YOBD_OK);
-    XASSERT(float_eq(val, 16.666666));
+    XASSERT_FLTEQ(val, 16.666666f);
 
     yobd_free_ctx(ctx);
 
