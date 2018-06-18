@@ -266,7 +266,8 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
                 done = true;
                 break;
 
-            /* Start events push us one level down the map stack, while end
+            /*
+             * Start events push us one level down the map stack, while end
              * events pop us one level up the map stack.
              */
             case YAML_MAPPING_START_EVENT:
