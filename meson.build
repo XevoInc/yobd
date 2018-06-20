@@ -64,8 +64,10 @@ pkg.generate(
 yobd_dep = declare_dependency(link_with: lib, include_directories: include)
 
 # Install schemas.
-schema_files = ['schema/deploy/standard-pids.yaml']
-install_data(schema_files, install_dir: yobd_schemadir)
+install_subdir(
+    'schema/deploy',
+    install_dir: yobd_schemadir,
+    strip_directory: true)
 
 # Tests.
 add_test_setup('valgrind', exe_wrapper: ['valgrind', '-v'])
