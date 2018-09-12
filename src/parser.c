@@ -497,7 +497,7 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
                         err = parse_expr(
                             val,
                             &parse_ctx->expr,
-                            parse_ctx->eval_type);
+                            parse_ctx->pid_type);
                         if (err != YOBD_OK) {
                             done = true;
                         }

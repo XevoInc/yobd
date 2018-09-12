@@ -420,7 +420,7 @@ yobd_err yobd_parse_can_response(
     switch (parse_ctx->eval_type) {
         case EVAL_TYPE_EXPR:
             eval_expr(
-                parse_ctx->eval_type,
+                parse_ctx->pid_type,
                 &parse_ctx->expr,
                 data_start,
                 val,
