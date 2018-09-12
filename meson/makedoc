@@ -1,4 +1,4 @@
 #!/bin/sh
 
-cd $MESON_BUILD_ROOT
-doxygen ../Doxyfile
+cd $MESON_SOURCE_ROOT
+doxygen Doxyfile
