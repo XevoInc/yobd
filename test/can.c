@@ -18,6 +18,8 @@
 #include <yobd/yobd.h>
 #include <yobd_test/assert.h>
 
+#define FLOAT_THRESH 0.001
+
 int main(int argc, const char **argv)
 {
     struct yobd_ctx *ctx;
@@ -137,7 +139,7 @@ int main(int argc, const char **argv)
      * converting from g/s to kg/s, 526.51 --> 0.52651
      * Note that we flip byte order from 0xabcd as this is big-endian.
      */
-    XASSERT_FLTEQ(val, 0.526000000f);
+    XASSERT_FLTEQ_THRESH(val, 0.526500000f, FLOAT_THRESH);
 
     memset(&frame, 0, sizeof(frame));
     frame.can_id = 0x7df;
@@ -165,7 +167,7 @@ int main(int argc, const char **argv)
     frame.data[4] = 130;
     err = yobd_parse_can_response(ctx, &frame, &val);
     XASSERT_OK(err);
-    XASSERT_FLTEQ(val, 519.410034f);
+    XASSERT_FLTEQ_THRESH(val, 519.462345f, FLOAT_THRESH);
 
     memset(&frame, 0, sizeof(frame));
     frame.can_id = 0x7e8;
