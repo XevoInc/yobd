@@ -63,6 +63,7 @@ struct yobd_pid_desc {
  *
  * @param file a schema file (either by name, in which case it must be in the
  *             yobd schema directory, or by path, either relative or absolute)
+ * @param ctx a yobd context, to be filled in
  *
  * @return a yobd context
  */
@@ -102,7 +103,7 @@ yobd_err yobd_get_pid_descriptor(
  * Translates a unit to a unit string.
  *
  * @param ctx a yobd context
- * @param id a unit
+ * @param unit a unit
  * @param unit_str filled in with a unit string, with memory owned by yobd
  *
  * @return an error code
@@ -213,7 +214,7 @@ yobd_err yobd_parse_headers(
  * Parses a given CAN frame, returning basic header information about the
  * frame, without requiring a yobd context.
  *
- * @param ctx a yobd context
+ * @param big_endian true if parsing big endian CAN, false otherwise
  * @param frame a CAN frame to be parsed
  * @param mode filled in with the mode of the given CAN frame
  * @param pid filled in with the pid of the given CAN frame

@@ -7,6 +7,9 @@
 
 #include <syslog.h>
 
+/**
+ * Initialize the library. Called when the library is loaded.
+ */
 __attribute__((constructor))
 static void lib_init(void)
 {
@@ -19,6 +22,9 @@ static void lib_init(void)
     openlog("yobd", LOG_NDELAY|LOG_PERROR|LOG_CONS|LOG_PID, LOG_SYSLOG);
 }
 
+/**
+ * Destroy the library. Called before the library is unloaded.
+ */
 __attribute__((destructor))
 static void lib_destroy(void)
 {
