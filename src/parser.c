@@ -146,6 +146,9 @@ typedef enum {
     KEY_NONE
 } parse_key;
 
+/**
+ * A struct to represent the current state of the parser.
+ */
 struct parse_state {
     parse_map map;
     parse_key key;

@@ -8,6 +8,11 @@
 #include <yobd_private/assert.h>
 #include <syslog.h>
 
+/**
+ * Log the given message to syslog.
+ *
+ * @param msg a message to log
+ */
 void log_syslog(const char *msg)
 {
     #pragma GCC diagnostic push

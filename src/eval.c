@@ -15,12 +15,28 @@
 
 #include <stdio.h>
 
+/**
+ * The CAN address to use to query a vehicle.
+ */
 #define OBD_II_QUERY_ADDRESS (0x7df)
+
+/**
+ * The CAN address to listen for when getting a vehicle's response.
+ */
 #define OBD_II_RESPONSE_ADDRESS (0x7e8)
 
-/* ISO 15765-2:2016 page 43 suggests but does not require 0xcc for padding. */
+/**
+ * The value to use to pad OBD II messages. ISO 15765-2:2016 page 43 suggests
+ * but does not require 0xcc for padding.
+ */
 #define OBD_II_PAD_VALUE (0xcc)
 
+/**
+ * Macro to define stack evaluation functions.
+ *
+ * @param stack_type the type of values the stack can handle
+ * @param enum_type the enum type corresponding to the given stack_type
+ */
 #define DEFINE_EVAL_FUNC(stack_type, enum_type) \
 static \
 float eval_expr_##stack_type( \
