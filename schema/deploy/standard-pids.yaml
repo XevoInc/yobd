@@ -1,246 +1,1267 @@
 ---
-endian: big
-modepid:
-  "0x1":
-    "0x04":
-      name: Calculated engine load
-      bytes: 1
-      raw-unit: percent
-      si-unit: percent
-      expr:
-        type: float
-        val: A / 2.55
+mode: 0x1
+pids:
+    0x00:
+        name: PIDs supported (1-20)
+        bytes: 4
+        unit: none
+        bitmap: &pids-supported
+            - bits: 0-31
+              rule: flag
+              flag:
+                  0: disabled
+                  1: enabled
 
-    "0x05":
-      name: Engine coolant temperature
-      bytes: 1
-      raw-unit: celsius
-      si-unit: percent
-      expr:
-        type: int8
-        val: A - 40
+    0x01:
+        name: Monitor status since DTCs cleared
+        bytes: 4
+        unit: none
+        bitmap:
+            - name: DTC count
+              bits: 0-6
+              rule: value
+            - name: MIL status
+              bits: 7
+              rule: flag
+              flag:
+                  0: "off"
+                  1: "on"
+            - &misfire-test-availability
+              bits: 8
+              rule: flag
+              flag:
+                  0: misfire test unavailable
+                  1: misfire test available
+            - &fuel-system-test-availability
+              bits: 9
+              rule: flag
+              flag:
+                  0: fuel system test unavailable
+                  1: fuel system test available
+            - &components-test-availability
+              bits: 10
+              rule: flag
+              flag:
+                  0: components test unavailable
+                  1: components test available
+            - &misfire-test-completeness
+              bits: 12
+              rule: flag
+              flag:
+                  0: misfire test complete
+                  1: misfire test incomplete
+            - &fuel-system-test-completeness
+              bits: 13
+              rule: flag
+              flag:
+                  0: fuel system test complete
+                  1: fuel system test incomplete
+            - &components-test-completeness
+              bits: 14
+              rule: flag
+              flag:
+                  0: components test complete
+                  1: components test incomplete
+            # bit 15 (B7) is reserved
+            - &ignition-monitor-support
+              name: ignition monitor support
+              bits: 11
+              switch:
+                  0:
+                      name: Spark ignition monitor (Otto or Wankel engine)
+                      bits: 16-31
+                      unit: none
+                      bitmap:
+                          - bits: 16
+                            rule: flag
+                            flag:
+                                0: catalyst test unavailable
+                                1: catalyst test available
+                          - bits: 17
+                            rule: flag
+                            flag:
+                                0: heated catalyst test unavailable
+                                1: heated catalyst test available
+                          - bits: 18
+                            rule: flag
+                            flag:
+                                0: evaporative system test unavailable
+                                1: evaporative system test available
+                          - bits: 19
+                            rule: flag
+                            flag:
+                                0: secondary air system test unavailable
+                                1: secondary air system test available
+                          - bits: 20
+                            rule: flag
+                            flag:
+                                0: A/C refrigerant test unavailable
+                                1: A/C refrigerant test available
+                          - bits: 21
+                            rule: flag
+                            flag:
+                                0: oxygen sensor test unavailable
+                                1: oxygen sensor test available
+                          - bits: 22
+                            rule: flag
+                            flag:
+                                0: oxygen sensor heater test unavailable
+                                1: oxygen sensor heater test available
+                          - bits: 23
+                            rule: flag
+                            flag:
+                                0: EGR system test unavailable
+                                1: EGR system test available
+                          - bits: 24
+                            rule: flag
+                            flag:
+                                0: catalyst test complete
+                                1: catalyst test incomplete
+                          - bits: 25
+                            rule: flag
+                            flag:
+                                0: heated catalyst test complete
+                                1: heated catalyst test incomplete
+                          - bits: 26
+                            rule: flag
+                            flag:
+                                0: evaporative system test complete
+                                1: evaporative system test incomplete
+                          - bits: 27
+                            rule: flag
+                            flag:
+                                0: secondary air system test complete
+                                1: secondary air system test incomplete
+                          - bits: 28
+                            rule: flag
+                            flag:
+                                0: A/C refrigerant test complete
+                                1: A/C refrigerant test incomplete
+                          - bits: 29
+                            rule: flag
+                            flag:
+                                0: oxygen sensor test complete
+                                1: oxygen sensor test incomplete
+                          - bits: 30
+                            rule: flag
+                            flag:
+                                0: oxygen sensor heater test complete
+                                1: oxygen sensor heater test incomplete
+                          - bits: 31
+                            rule: flag
+                            flag:
+                                0: EGR system test complete
+                                1: EGR system test incomplete
+                  1:
+                      name: compression ignition monitor (Diesel engine)
+                      bits: 16-31
+                      unit: none
+                      bitmap:
+                          - bits: 16
+                            rule: flag
+                            flag:
+                                0: NMHC catalyst test unavailable
+                                1: NMHC catalyst test available
+                          - bits: 17
+                            rule: flag
+                            flag:
+                                0: NOx/SCR monitor test unavailable
+                                1: NOx/SCR monitor test available
+                            # bit 18 (C2) reserved
+                          - bits: 19
+                            rule: flag
+                            flag:
+                                0: boost pressure test unavailable
+                                1: boost pressure test available
+                            # bit 20 (C4) reserved
+                          - bits: 21
+                            rule: flag
+                            flag:
+                                0: exhaust gas sensor test unavailable
+                                1: exhaust gas sensor test available
+                          - bits: 22
+                            rule: flag
+                            flag:
+                                0: PM filter monitoring heater test unavailable
+                                1: PM filter monitoring heater test available
+                          - bits: 23
+                            rule: flag
+                            flag:
+                                0: EGR and/or VVT system test unavailable
+                                1: EGR and/or VVT system test available
+                          - bits: 24
+                            rule: flag
+                            flag:
+                                0: NMHC catalyst test complete
+                                1: NMHC catalyst test complete
+                          - bits: 25
+                            rule: flag
+                            flag:
+                                0: NOx/SCR monitor test complete
+                                1: NOx/SCR monitor test complete
+                            # bit 26 (D2) reserved
+                          - bits: 27
+                            rule: flag
+                            flag:
+                                0: boost pressure test complete
+                                1: boost pressure test complete
+                            # bit 28 (D4) reserved
+                          - bits: 29
+                            rule: flag
+                            flag:
+                                0: exhaust gas sensor test complete
+                                1: exhaust gas sensor test complete
+                          - bits: 30
+                            rule: flag
+                            flag:
+                                0: PM filter monitoring heater test complete
+                                1: PM filter monitoring heater test complete
+                          - bits: 31
+                            rule: flag
+                            flag:
+                                0: EGR and/or VVT system test complete
+                                1: EGR and/or VVT system test complete
 
-    "0x0a":
-      name: Fuel pressure (gauge pressure)
-      bytes: 1
-      raw-unit: kPa
-      si-unit: Pa
-      expr:
-        type: uint16
-        val: 3*A
+    0x02:
+        name: Freeze DTC
+        bytes: 2
+        unit: none
 
-    "0x0c":
-      name: Engine RPM
-      bytes: 2
-      raw-unit: rpm
-      si-unit: rad/s
-      expr:
-        type: float
-        val: (256*A + B) / 4
+    0x03:
+        name: Fuel system status
+        bytes: 2
+        unit: none
+        bitmap:
+            - bits: 0-7
+              rule: map
+              map: &loop-conditions
+                  0x1: open loop due to insufficient engine temperature
+                  0x2: closed loop, using oxygen sensor feedback to determine fuel mix
+                  0x4: open loop due to engine load OR fuel cut due to deceleration
+                  0x8: open loop due to system failure
+                  0x10: closed loop, using at least one oxygen sensor but there is a fault in the feedback system
+            - bits: 8-15
+              rule: map
+              map: *loop-conditions
 
-    "0x0d":
-      name: Vehicle speed
-      bytes: 1
-      raw-unit: km/h
-      si-unit: m/s
-      expr:
-        type: uint8
-        val: A
+    0x04:
+        name: Calculated engine load
+        bytes: 1
+        unit: percent
+        expr: 100/255*A
 
-    "0x0f":
-      name: Intake air temperature
-      bytes: 1
-      raw-unit: celsius
-      si-unit: K
-      expr:
-        type: int8
-        val: A - 40
+    0x05:
+        name: Engine coolant temperature
+        bytes: 1
+        unit: celsius
+        expr: A - 40
 
-    "0x10":
-      name: MAF air flow rate
-      bytes: 2
-      raw-unit: g/s
-      si-unit: kg/s
-      expr:
-        type: float
-        val: (256*A + B) / 100
+    0x06:
+        name: Short-term fuel trim (bank 1)
+        bytes: 1
+        unit: percent
+        expr: 100/128*A - 100
 
-    "0x11":
-      name: Throttle position
-      bytes: 1
-      raw-unit: percent
-      si-unit: percent
-      expr:
-        type: float
-        val: A / 2.55
+    0x07:
+        name: Long-term fuel trim (bank 1)
+        bytes: 1
+        unit: percent
+        expr: 100/128*A - 100
 
-    "0x1f":
-      name: Runtime since engine start
-      bytes: 2
-      raw-unit: s
-      si-unit: s
-      expr:
-        type: uint16
-        val: 256*A + B
+    0x08:
+        name: Short-term fuel trim (bank 2)
+        bytes: 1
+        unit: percent
+        expr: 100/128*A - 100
 
-    "0x21":
-      name: Distance traveled with MIL on
-      bytes: 2
-      raw-unit: km
-      si-unit: m
-      expr:
-        type: uint16
-        val: 256*A + B
+    0x09:
+        name: Long-term fuel trim (bank 2)
+        bytes: 1
+        unit: percent
+        expr: 100/128*A - 100
 
-    "0x31":
-      name: Distance traveled since codes cleared
-      bytes: 2
-      raw-unit: km
-      si-unit: m
-      expr:
-        type: uint16
-        val: 256*A + B
+    0x0A:
+        name: Fuel pressure
+        bytes: 1
+        unit: kPa
+        expr: 3*A
 
-    "0x32":
-      name: Evaporative system vapor pressure
-      bytes: 2
-      raw-unit: Pa
-      si-unit: Pa
-      expr:
-        type: float
-        val: (256*A + B) / 4
+    0x0B:
+        name: Intake manifold absolute pressure
+        bytes: 1
+        unit: kPa
+        expr: A
 
-    "0x33":
-      name: Absolute barometric pressure
-      bytes: 1
-      raw-unit: kPa
-      si-unit: Pa
-      expr:
-        type: uint8
-        val: A
+    0x0C:
+        name: Engine RPM
+        bytes: 2
+        unit: rpm
+        expr: (256*A + B) / 4
 
-    "0x45":
-      name: Relative throttle position
-      bytes: 1
-      raw-unit: percent
-      si-unit: percent
-      expr:
-        type: float
-        val: A / 2.55
+    0x0D:
+        name: Vehicle speed
+        bytes: 1
+        unit: km/h
+        expr: A
 
-    "0x46":
-      name: Ambient air temperature
-      bytes: 1
-      raw-unit: celsius
-      si-unit: K
-      expr:
-        type: int8
-        val: A - 40
+    0x0E:
+        name: Timing advance
+        bytes: 1
+        unit: celsius
+        expr: A*2 - 64
 
-    "0x47":
-      name: Absolute throttle position B
-      bytes: 1
-      raw-unit: percent
-      si-unit: percent
-      expr:
-        type: float
-        val: A / 2.55
+    0x0F:
+        name: Intake air temperature
+        bytes: 1
+        unit: celsius
+        expr: A - 40
 
-    "0x48":
-      name: Absolute throttle position C
-      bytes: 1
-      raw-unit: percent
-      si-unit: percent
-      expr:
-        type: float
-        val: A / 2.55
+    0x10:
+        name: MAF air flow rate
+        bytes: 2
+        unit: g/s
+        expr: (256*A + B) / 100
 
-    "0x49":
-      name: Accelerator pedal position D
-      bytes: 1
-      raw-unit: percent
-      si-unit: percent
-      expr:
-        type: float
-        val: A / 2.55
+    0x11:
+        name: Throttle position
+        bytes: 1
+        unit: percent
+        expr: 100/255*A
 
-    "0x4a":
-      name: Accelerator pedal position E
-      bytes: 1
-      raw-unit: percent
-      si-unit: percent
-      expr:
-        type: float
-        val: A / 2.55
+    0x12:
+        name: Commanded secondary air status
+        bytes: 1
+        unit: none
+        bitmap:
+            - bits: 0-7
+              rule: map
+              map:
+                  0x1: upstream
+                  0x2: downstream of catalytic converter
+                  0x4: from the outside atmosphere or off
+                  0x8: pump commanded on for diagnostics
 
-    "0x4b":
-      name: Accelerator pedal position F
-      bytes: 1
-      raw-unit: percent
-      si-unit: percent
-      expr:
-        type: float
-        val: A / 2.55
+    0x13:
+        name: Oxygen sensors present (in 2 banks)
+        bytes: 1
+        unit: none
+        bitmap:
+            - name: bank 1
+              bits: 0-3
+              rule: flag
+              flag: &oxygen-sensor-presence
+                0: not present
+                1: present
 
-    "0x52":
-      name: Ethanol fuel percent
-      bytes: 1
-      raw-unit: percent
-      si-unit: percent
-      expr:
-        type: float
-        val: A / 2.55
+            - name: bank 2
+              bits: 4-7
+              rule: flag
+              flag: *oxygen-sensor-presence
 
-    "0x5a":
-      name: Relative accelerator pedal position
-      bytes: 1
-      raw-unit: percent
-      si-unit: percent
-      expr:
-        type: float
-        val: A / 2.55
+    0x14:
+        name: Oxygen sensor 1
+        bytes: 2
+        bitmap: &oxygen-sensor-type-1
+            - name: Voltage
+              bits: 0-7
+              unit: volt
+              rule: value
+            - name: Short-term fuel trim
+              bits: 8-15
+              unit: percent
+              rule: value
 
-    "0x5b":
-      name: Hybrid battery pack remaining life
-      bytes: 1
-      raw-unit: percent
-      si-unit: percent
-      expr:
-        type: float
-        val: A / 2.55
+    0x15:
+        name: Oxygen sensor 2
+        bytes: 2
+        bitmap: *oxygen-sensor-type-1
 
-    "0x5c":
-      name: Engine oil temperature
-      bytes: 1
-      raw-unit: celsius
-      si-unit: K
-      expr:
-        type: int8
-        val: A - 40
+    0x16:
+        name: Oxygen sensor 3
+        bytes: 2
+        bitmap: *oxygen-sensor-type-1
 
-    "0x61":
-      name: Driver's demand engine torque
-      bytes: 1
-      raw-unit: percent
-      si-unit: percent
-      expr:
-        type: int8
-        val: A - 125
+    0x17:
+        name: Oxygen sensor 4
+        bytes: 2
+        bitmap: *oxygen-sensor-type-1
 
-    "0x62":
-      name: Actual engine torque
-      bytes: 1
-      raw-unit: percent
-      si-unit: percent
-      expr:
-        type: int8
-        val: A - 125
+    0x18:
+        name: Oxygen sensor 5
+        bytes: 2
+        bitmap: *oxygen-sensor-type-1
 
-    "0x63":
-      name: Engine reference torque
-      bytes: 2
-      raw-unit: nm
-      si-unit: m
-      expr:
-        type: int8
-        val: 256*A + B
+    0x19:
+        name: Oxygen sensor 6
+        bytes: 2
+        bitmap: *oxygen-sensor-type-1
+
+    0x1A:
+        name: Oxygen sensor 7
+        bytes: 2
+        bitmap: *oxygen-sensor-type-1
+
+    0x1B:
+        name: Oxygen sensor 8
+        bytes: 2
+        bitmap: *oxygen-sensor-type-1
+
+    0x1C:
+        name: OBD standards this vehicle conforms to
+        bytes: 1
+        unit: none
+        bitmap:
+            - bits: 0-7
+              rule: range-map
+              range-map:
+                  1: OBD-II as defined by the CARB
+                  2: OBD as defined by the EPA
+                  3: OBD and OBD-II
+                  4: OBD-I
+                  5: Not OBD compliant
+                  6: EOBD (Europe)
+                  7: EOBD and OBD-II
+                  8: EOBD and OBD
+                  9: EOBD, OBD and OBD II
+                  10: JOBD (Japan)
+                  11: JOBD and OBD II
+                  12: JOBD and EOBD
+                  13: JOBD, EOBD, and OBD II
+                  14: Reserved
+                  15: Reserved
+                  16: Reserved
+                  17: Engine Manufacturer Diagnostics (EMD)
+                  18: Engine Manufacturer Diagnostics Enhanced (EMD+)
+                  19: Heavy Duty On-Board Diagnostics (Child/Partial) (HD OBD-C)
+                  20: Heavy Duty On-Board Diagnostics (HD OBD)
+                  21: World Wide Harmonized OBD (WWH OBD)
+                  22: Reserved
+                  23: Heavy Duty Euro OBD Stage I without NOx control (HD EOBD-I)
+                  24: Heavy Duty Euro OBD Stage I with NOx control (HD EOBD-I N)
+                  25: Heavy Duty Euro OBD Stage II without NOx control (HD EOBD-II)
+                  26: Heavy Duty Euro OBD Stage II with NOx control (HD EOBD-II N)
+                  27: Reserved
+                  28: Brazil OBD Phase 1 (OBDBr-1)
+                  29: Brazil OBD Phase 2 (OBDBr-2)
+                  30: Korean OBD (KOBD)
+                  31: India OBD I (IOBD I)
+                  32: India OBD II (IOBD II)
+                  33: Heavy Duty Euro OBD Stage VI (HD EOBD-IV)
+                  34-250: reserved
+                  251-255: not available for assignment (SAE J1939 special meaning)
+
+    0x1D:
+        name: Oxygen sensors present (in 4 banks)
+        bytes: 1
+        unit: none
+        bitmap:
+            - bits: 0-7
+              rule: flag
+              flag: *oxygen-sensor-presence
+
+    0x1E:
+        name: Auxilliary input status
+        bytes: 1
+        unit: none
+        bitmap:
+            - bits: 0
+              rule: map
+              map:
+                  0: power take off (PTO) inactive
+                  1: power take off (PTO) active
+
+    0x1F:
+        name: Run time since engine start
+        bytes: 2
+        unit: second
+        expr: 256*A + B
+
+    0x20:
+        name: PIDs supported (21-40)
+        bytes: 4
+        unit: none
+        bitmap: *pids-supported
+
+    0x21:
+        name: Distance traveled with malfunction indicator lamp (MIL) on
+        bytes: 2
+        unit: km
+        expr: 256*A + B
+
+    0x22:
+        name: fuel rail pressure (relative to manifold vacuum)
+        bytes: 2
+        unit: kPa
+        expr: 0.079*(256*A + B)
+
+    0x23:
+        name: fuel rail gauge pressure (diesel, or gasoline direct injection)
+        bytes: 2
+        unit: kPa
+        expr: 10*(256*A + B)
+
+    0x24:
+        name: Oxygen sensor 1
+        bytes: 4
+        bitmap: &oxygen-sensor-type-2
+            - name: Fuel-air equivalence ratio
+              bits: 0-15
+              unit: ratio
+              expr: 2/65536*(256*A + B)
+            - name: Voltage
+              bits: 16-31
+              unit: volt
+              expr: 2/65536*(256*A + B)
+
+    0x25:
+        name: Oxygen sensor 2
+        bytes: 4
+        bitmap: *oxygen-sensor-type-2
+
+    0x26:
+        name: Oxygen sensor 3
+        bytes: 4
+        bitmap: *oxygen-sensor-type-2
+
+    0x27:
+        name: Oxygen sensor 4
+        bytes: 4
+        bitmap: *oxygen-sensor-type-2
+
+    0x28:
+        name: Oxygen sensor 5
+        bytes: 4
+        bitmap: *oxygen-sensor-type-2
+
+    0x29:
+        name: Oxygen sensor 6
+        bytes: 4
+        bitmap: *oxygen-sensor-type-2
+
+    0x2A:
+        name: Oxygen sensor 7
+        bytes: 4
+        bitmap: *oxygen-sensor-type-2
+
+    0x2B:
+        name: Oxygen sensor 8
+        bytes: 4
+        bitmap: *oxygen-sensor-type-2
+
+    0x2C:
+        name: Commanded EGR
+        bytes: 1
+        unit: percent
+        expr: 100/255*A
+
+    0x2D:
+        name: EGR error
+        bytes: 1
+        unit: percent
+        expr: 100/128*A - 100
+
+    0x2E:
+        name: Commanded evaporative purge
+        bytes: 1
+        unit: percent
+        expr: 100/255*A
+
+    0x2F:
+        name: Fuel tank level input
+        bytes: 1
+        unit: percent
+        expr: 100/255*A
+
+    0x30:
+        name: Warm-ups since codes cleared
+        bytes: 1
+        unit: none
+        expr: A
+
+    0x31:
+        name: Distance traveled  since codes cleared
+        bytes: 2
+        unit: km
+        expr: 256*A + B
+
+    0x32:
+        name: Evaporative system vapor pressure
+        bytes: 2
+        unit: Pa
+        expr: (256*A + B) / 4
+        signed: true
+
+    0x33:
+        name: Absolute barometric pressure
+        bytes: 1
+        unit: kPa
+        expr: A
+
+    0x34:
+        name: Oxygen sensor 1
+        bytes: 4
+        bitmap: &oxygen-sensor-type-3
+            - name: Fuel-air equivalence ratio
+              bits: 0-15
+              unit: ratio
+              expr: 2/65536*(256*A + B)
+            - name: Current
+              bits: 16-31
+              unit: mA
+              expr: (256*C + D)/256 - 128
+
+    0x35:
+        name: Oxygen sensor 2
+        bytes: 4
+        bitmap: *oxygen-sensor-type-3
+
+    0x36:
+        name: Oxygen sensor 3
+        bytes: 4
+        bitmap: *oxygen-sensor-type-3
+
+    0x37:
+        name: Oxygen sensor 4
+        bytes: 4
+        bitmap: *oxygen-sensor-type-3
+
+    0x38:
+        name: Oxygen sensor 5
+        bytes: 4
+        bitmap: *oxygen-sensor-type-3
+
+    0x39:
+        name: Oxygen sensor 6
+        bytes: 4
+        bitmap: *oxygen-sensor-type-3
+
+    0x3A:
+        name: Oxygen sensor 7
+        bytes: 4
+        bitmap: *oxygen-sensor-type-3
+
+    0x3B:
+        name: Oxygen sensor 8
+        bytes: 4
+        bitmap: *oxygen-sensor-type-3
+
+    0x3C:
+        name: "Catalyst temperature: bank 1, sensor 1"
+        bytes: 2
+        unit: celsius
+        expr: (256*A + B)/10 - 40
+
+    0x3D:
+        name: "Catalyst temperature: bank 2, sensor 1"
+        bytes: 2
+        unit: celsius
+        expr: (256*A + B)/10 - 40
+
+    0x3E:
+        name: "Catalyst temperature: bank 1, sensor 2"
+        bytes: 2
+        unit: celsius
+        expr: (256*A + B)/10 - 40
+
+    0x3F:
+        name: "Catalyst temperature: bank 2, sensor 2"
+        bytes: 2
+        unit: celsius
+        expr: (256*A + B)/10 - 40
+
+    0x40:
+        name: PIDs supported (41-60)
+        bytes: 4
+        unit: none
+        bitmap: *pids-supported
+
+    0x41:
+        name: Monitor status this drive cycle
+        bytes: 4
+        unit: none
+        bitmap:
+            - *misfire-test-completeness
+            - *fuel-system-test-availability
+            - *components-test-availability
+            - *misfire-test-completeness
+            - *fuel-system-test-completeness
+            - *components-test-completeness
+            - *ignition-monitor-support
+
+    0x42:
+        name: Control module voltage
+        bytes: 2
+        unit: volt
+        expr: (256*A + B) / 1000
+
+    0x43:
+        name: Absolute load value
+        bytes: 2
+        unit: percent
+        expr: 100/255*(256*A + B)
+
+    0x44:
+        name: Fuel-air commanded equivalence ratio
+        bytes: 2
+        unit: ratio
+        expr: 2/65536*(256*A + B)
+
+    0x45:
+        name: Relative throttle position
+        bytes: 1
+        unit: percent
+        expr: 100/255*A
+
+    0x46:
+        name: Ambient air temperature
+        bytes: 1
+        unit: celsius
+        expr: A - 40
+
+    0x47:
+        name: Absolute throttle position B
+        bytes: 1
+        unit: percent
+        expr: 100/255*A
+
+    0x48:
+        name: Absolute throttle position C
+        bytes: 1
+        unit: percent
+        expr: 100/255*A
+
+    0x49:
+        name: Absolute throttle position D
+        bytes: 1
+        unit: percent
+        expr: 100/255*A
+
+
+    0x4A:
+        name: Absolute throttle position E
+        bytes: 1
+        unit: percent
+        expr: 100/255*A
+
+
+    0x4B:
+        name: Absolute throttle position F
+        bytes: 1
+        unit: percent
+        expr: 100/255*A
+
+    0x4C:
+        name: Commanded throttle actuator
+        bytes: 1
+        unit: percent
+        expr: 100/255*A
+
+    0x4D:
+        name: Time run with ML on
+        bytes: 2
+        unit: minute
+        expr: 256*A + B
+
+    0x4E:
+        name: Time since trouble codes cleared
+        bytes: 2
+        unit: minute
+        expr: 256*A + B
+
+    0x4F:
+        name: Maximum values
+        bytes: 4
+        bitmap:
+            - name: Fuel-air equivalence ratio
+              bits: 0-7
+              unit: ratio
+              rule: value
+            - name: Oxygen sensor voltage
+              bits: 8-15
+              unit: volt
+              rule: value
+            - name: Oxygen sensor current
+              bits: 16-23
+              unit: mA
+              rule: value
+            - name: Intake manifold absolute pressure
+              bits: 24-31
+              unit: kPa
+              expr: A*10
+
+    0x50:
+        name: Maximum values
+        bytes: 4
+        bitmap:
+            - name: Air flow rate from mass air flow sensor
+              bits: 0-7
+              unit: g/s
+              expr: A*10
+            # the other bytes are reserved
+
+    0x51:
+        name: Fuel type
+        bytes: 1
+        unit: none
+        bitmap:
+            - bits: 0-7
+              rule: map
+              map:
+                  0: Not available
+                  1: Gasoline
+                  2: Methanol
+                  3: Ethanol
+                  4: Diesel
+                  5: LPG
+                  6: CNG
+                  7: Propane
+                  8: Electric
+                  9: Bifuel running gasoline
+                  10: Bifuel running methanol
+                  11: Bifuel running ethanol
+                  12: Bifuel running LPG
+                  13: Bifuel running CNG
+                  14: Bifuel running propane
+                  15: Bifuel running electricity
+                  16: Bifuel running electric and combustion engine
+                  17: Hybrid gasoline
+                  18: Hybrid ethanol
+                  19: Hybrid diesel
+                  20: Hybrid electric
+                  21: Hybrid running electric and combustion engine
+                  22: Hybrid regenerative
+                  23: Bifuel running diesel
+
+    0x52:
+        name: Ethanol fuel percent
+        bytes: 1
+        unit: percent
+        expr: 100/255*A
+
+    0x53:
+        name: Absolute evaporative system vapor pressure
+        bytes: 2
+        unit: kPa
+        expr: (256*A + B)/200
+
+    0x54:
+        name: Evaporature system vapor pressure
+        bytes: 2
+        unit: Pa
+        expr: ((A*245) + B) - 32767
+
+    0x55:
+        name: Short-term secondary oxygen sensor trim
+        bytes: 2
+        unit: percent
+        bitmap:
+            - name: bank 1
+              bits: 0-7
+              expr: 100/128*A - 100
+            - name: bank 3
+              bits: 0-7
+              expr: 100/128*A - 100
+
+    0x56:
+        name: Long-term secondary oxygen sensor trim
+        bytes: 2
+        unit: percent
+        bitmap:
+            - name: bank 1
+              bits: 0-7
+              expr: 100/128*A - 100
+            - name: bank 3
+              bits: 0-7
+              expr: 100/128*A - 100
+
+    0x57:
+        name: Short-term secondary oxygen sensor trim
+        bytes: 2
+        unit: percent
+        bitmap:
+            - name: bank 2
+              bits: 0-7
+              expr: 100/128*A - 100
+            - name: bank 4
+              bits: 0-7
+              expr: 100/128*A - 100
+
+    0x58:
+        name: Long-term secondary oxygen sensor trim
+        bytes: 2
+        unit: percent
+        bitmap:
+            - name: bank 2
+              bits: 0-7
+              expr: 100/128*A - 100
+            - name: bank 4
+              bits: 0-7
+              expr: 100/128*A - 100
+
+    0x59:
+        name: Fuel rail absolute pressure
+        bytes: 2
+        unit: kPa
+        expr: 10*(256*A + B)
+
+    0x5A:
+        name: Relative accelerator pedal position
+        bytes: 1
+        unit: percent
+        expr: 100/255*A
+
+    0x5B:
+        name: Hybrid battery pack remaining life
+        bytes: 1
+        unit: percent
+        expr: 100/255*A
+
+    0x5C:
+        name: Engine oil temperature
+        bytes: 1
+        unit: celsius
+        expr: A - 40
+
+    0x5D:
+        name: Fuel injection timing
+        bytes: 2
+        unit: celsius
+        expr: (256*A + B)/128 - 210
+
+    0x5E:
+        name: Engine fuel rate
+        bytes: 2
+        unit: L/h
+        expr: (256*A + B) / 20
+
+    0x5F:
+        name: Emission requirements to which vehicle is designed
+        bytes: 1
+        unit: none
+        unknown: true
+
+    0x60:
+        name: PIDs supported (61-80)
+        bytes: 4
+        unit: none
+        bitmap: *pids-supported
+
+    0x61:
+        name: Driver's demand engine - percent torque
+        bytes: 1
+        unit: percent
+        expr: A - 125
+
+    0x62:
+        name: Actual engine - percent torque
+        bytes: 1
+        unit: percent
+        expr: A - 125
+
+    0x63:
+        name: Engine reference torque
+        bytes: 2
+        unit: Nm
+        expr: 256*A + B
+
+    0x64:
+        name: Engine percent torque data
+        bytes: 5
+        unit: percent
+        bitmap:
+            - name: idle
+              bits: 0-7
+              expr: A - 125
+            - name: engine point 1
+              bits: 8-15
+              expr: A - 125
+            - name: engine point 2
+              bits: 16-23
+              expr: A - 125
+            - name: engine point 3
+              bits: 24-31
+              expr: A - 125
+            - name: engine point 4
+              bits: 32-39
+              expr: A - 125
+
+    0x65:
+        name: Auxiliary input / output supported
+        bytes: 2
+        unit: unknown
+        unknown: true
+
+    0x66:
+        name: Mass air flow sensor
+        bytes: 5
+        unit: unknown
+        unknown: true
+
+    0x67:
+        name: Engine coolant temperature
+        bytes: 3
+        unit: unknown
+        unknown: true
+
+    0x68:
+        name: Intake air temperature sensor
+        bytes: 7
+        unit: unknown
+        unknown: true
+
+    0x69:
+        name: Commanded EGR and EGR error
+        bytes: 7
+        unit: unknown
+        unknown: true
+
+    0x6A:
+        name: Commanded diesel intake air flow control and relative intake air flow position
+        bytes: 5
+        unit: unknown
+        unknown: true
+
+    0x6B:
+        name: Exhaust gas recirculation temperature
+        bytes: 5
+        unit: unknown
+        unknown: true
+
+    0x6C:
+        name: Commanded throttle actuator control and relative throttle position
+        bytes: 5
+        unit: unknown
+        unknown: true
+
+    0x6D:
+        name: Fuel pressure control system
+        bytes: 6
+        unit: unknown
+        unknown: true
+
+    0x6E:
+        name: Injection pressure control system
+        bytes: 5
+        unit: unknown
+        unknown: true
+
+    0x6F:
+        name: Turbocharger compressor inlet pressure
+        bytes: 3
+        unit: unknown
+        unknown: true
+
+    0x70:
+        name: Boost pressure control
+        bytes: 9
+        unit: unknown
+        unknown: true
+
+    0x71:
+        name: Variable geometry turbo (VGT) control
+        bytes: 5
+        unit: unknown
+        unknown: true
+
+    0x72:
+        name: Wastegate control
+        bytes: 5
+        unit: unknown
+        unknown: true
+
+    0x73:
+        name: Exhaust pressure
+        bytes: 5
+        unit: unknown
+        unknown: true
+
+    0x74:
+        name: Turbocharger RPM
+        bytes: 5
+        unit: unknown
+        unknown: true
+
+    0x75:
+        name: Turbocharger temperature
+        bytes: 7
+        unit: unknown
+        unknown: true
+
+    0x76:
+        name: Turbocharger temperature
+        bytes: 7
+        unit: unknown
+        unknown: true
+
+    0x77:
+        name: Charge air cooler temperature (CACT)
+        bytes: 5
+        unit: unknown
+        unknown: true
+
+    0x78:
+        name: Exhaust gas temperature (EGT) bank 1
+        bytes: 9
+        unit: none
+        bitmap: &exhaust-gas-temperature-bank
+            - name: EGT bank 1, sensor 1 supported
+              bits: 0
+              rule: flag
+              flag:
+                  0: unsupported
+                  1: supported
+            - name: EGT bank 1, sensor 2 supported
+              bits: 1
+              rule: flag
+              flag:
+                  0: unsupported
+                  1: supported
+            - name: EGT bank 1, sensor 3 supported
+              bits: 2
+              rule: flag
+              flag:
+                  0: unsupported
+                  1: supported
+            - name: EGT bank 1, sensor 4 supported
+              bits: 3
+              rule: flag
+              flag:
+                  0: unsupported
+                  1: supported
+            # bits 4-7 (A4-A7) are reserved
+            - name: temperature read by EGT11
+              bits: 8-23
+              unit: celsius
+              rule: value
+            - name: temperature read by EGT12
+              bits: 24-39
+              unit: celsius
+              rule: value
+            - name: temperature read by EGT13
+              bits: 40-55
+              unit: celsius
+              rule: value
+            - name: temperature read by EGT14
+              bits: 56-71
+              unit: celsius
+              rule: value
+
+    0x79:
+        name: Exhaust gas temperature (EGT) bank 2
+        bytes: 9
+        unit: none
+        bitmap: *exhaust-gas-temperature-bank
+
+    0x7A:
+        name: Diesel particulate filter (DPF)
+        bytes: 7
+        unit: unknown
+        unknown: true
+
+    0x7B:
+        name: Diesel particulate filter (DPF)
+        bytes: 7
+        unit: unknown
+        unknown: true
+
+    0x7C:
+        name: Diesel particulate filter (DPF) temperature
+        bytes: 9
+        unit: unknown
+        unknown: true
+
+    0x7D:
+        name: NOx NTE (Not-To-Exceed) control area status
+        bytes: 1
+        unit: unknown
+        unknown: true
+
+    0x7E:
+        name: PM NTE (Not-To-Exceed) control area status
+        bytes: 1
+        unit: unknown
+        unknown: true
+
+    0x7F:
+        name: Engine run time
+        bytes: 1
+        unit: unknown
+        unknown: true
+
+    0x80:
+        name: PIDs supported (81-A0)
+        bytes: 4
+        unit: none
+        bitmap: *pids-supported
+
+    0x81:
+        name: Engine run time for auxiliary emissions control device (AECD)
+        bytes: 21
+        unit: unknown
+        unknown: true
+
+    0x82:
+        name: Engine run time for auxiliary emissions control device (AECD)
+        bytes: 21
+        unit: unknown
+        unknown: true
+
+    0x83:
+        name: NOx sensor
+        bytes: 5
+        unit: unknown
+        unknown: true
+
+    0x84:
+        name: Manifold surface temperature
+        bytes: unknown
+        unit: unknown
+        unknown: true
+
+    0x85:
+        name: NOx reagent system
+        bytes: unknown
+        unit: unknown
+        unknown: true
+
+    0x86:
+        name: Particulate matter (PM) sensor
+        bytes: unknown
+        unit: unknown
+        unknown: true
+
+    0x87:
+        name: Intake manifold absolute pressure
+        bytes: unknown
+        unit: unknown
+        unknown: true
+
+    # PIDs 0x88-0x9F are not listed.
+
+    0xA0:
+        name: PIDs supported (A1-C0)
+        bytes: 4
+        unit: none
+        bitmap: *pids-supported
+
+    # PIDs 0xA1-0xBF are not listed.
+
+    0xC0:
+        name: PIDs supported (C1-E0)
+        bytes: 4
+        unit: none
+        bitmap: *pids-supported
+
+    # PIDs 0xC1-0xC2 are not listed.
+
+    0xC3:
+        name: unknown
+        bytes: unknown
+        unit: none
+        unknown: true
+
+    0xC4:
+        name: unknown
+        bytes: unknown
+        unit: none
+        unknown: true
