@@ -44,7 +44,6 @@ src = [
 thread_dep = dependency('threads')
 xlib_dep = dependency('xlib')
 yaml_dep = dependency('yaml-0.1')
-
 deps = [
     thread_dep,
     xlib_dep,
@@ -64,6 +63,15 @@ pkg.generate(
     libraries: [lib],
     version: meson.project_version())
 yobd_dep = declare_dependency(link_with: lib, include_directories: include)
+
+# This is a dependency for schema checking but not for runtime. Sadly, at this
+# time (meson version 0.47.2), meson does not support checking for Python module
+# dependencies, so we have to do it manually.
+python = find_program('python3', required: true)
+out = run_command(python.path(), '-c', 'import sschema')
+if out.returncode() != 0
+    error('Cannot import python module sschema. Please do "pip3 install sschema"')
+endif
 
 # Install schemas.
 install_subdir(
