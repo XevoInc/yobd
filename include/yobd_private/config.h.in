@@ -10,6 +10,9 @@
 #ifndef YOBD_PRIVATE_CONFIG_H_
 #define YOBD_PRIVATE_CONFIG_H_
 
+/**
+ * The directory in which to look for schema files when given a relative path.
+ */
 #mesondefine CONFIG_YOBD_SCHEMADIR
 
 #endif /* YOBD_PRIVATE_CONFIG_H_ */
