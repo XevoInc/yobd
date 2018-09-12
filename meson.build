@@ -43,10 +43,12 @@ src = [
 
 thread_dep = dependency('threads')
 xlib_dep = dependency('xlib')
+yaml_dep = dependency('yaml-0.1')
+
 deps = [
     thread_dep,
     xlib_dep,
-    dependency('yaml-0.1'),
+    yaml_dep,
 ]
 
 lib = library(
