@@ -10,7 +10,6 @@
 #ifndef YOBD_PRIVATE_CONFIG_H_
 #define YOBD_PRIVATE_CONFIG_H_
 
-#mesondefine CONFIG_YOBD_CONFDIR
 #mesondefine CONFIG_YOBD_SCHEMADIR
 
 #endif /* YOBD_PRIVATE_CONFIG_H_ */
