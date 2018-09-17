@@ -40,7 +40,7 @@ There are a few parts to YoloBD:
 - (optional, for developers) Python requirements, as documented in
   `dev-requirements.txt`. These are some build-time tools that are not required
   for runtime. They are used for sanity-checking OBD II schemas. You can install
-  them from your distro or via `pip3 install -r requirements.txt`.
+  them from your distro or via `pip3 install -r dev-requirements.txt`.
 
 ### Custom requirements building
 
