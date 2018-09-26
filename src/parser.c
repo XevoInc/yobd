@@ -240,6 +240,7 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
 
     /* Quiet the compiler about uninitialized warnings. */
     mode = 0;
+    parse_ctx = NULL;
 
     state.map = MAP_NONE;
     state.key = KEY_NONE;
