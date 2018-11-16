@@ -10,10 +10,6 @@
 
 #include <xlib/xassert.h>
 
-void log_syslog(const char *msg);
-
-XASSERT_DEFINE_ASSERTS(log_syslog)
-
 #define XASSERT_ERRCODE(x, y) _XASSERT_ERRCODE(x, y, yobd_strerror)
 #define XASSERT_OK(err) XASSERT_ERRCODE(err, YOBD_OK)
 
