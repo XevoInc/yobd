@@ -5,10 +5,10 @@ also attempts to achieve an efficient, bitpacked representation of the OBD II
 responses. While this representation is not as convenient as a self-describing
 representation like JSON, it is much more efficient than self-describing data
 for routine querying of PIDs, such as querying vehicle speed several times a
-    second. The intent is that the application has to lookup the descriptors for
-    the OBD II responses it gets exactly once, after which data can flow without
-    overhead. From there, the application can also perform aggegation or other
-    tasks that require understanding the meaning of the OBD II responses.
+second. The intent is that the application has to lookup the descriptors
+for the OBD II responses it gets exactly once, after which data can flow without
+overhead. From there, the application can also perform aggegation or other tasks
+that require understanding the meaning of the OBD II responses.
 
 Below is a rough description of the intended flow and usage of yobd:
 
@@ -30,12 +30,12 @@ have OBD II over TCP/IP or similar.
 ## Ask yobd to parse CAN responses
 Once the application receives CAN responses, it asks yobd to parse them.  yobd
 returns a bitpacked representation of the parsed OBD II response. For example,
-for OBD II PID 0x0C (engine RPM), yobd would perform the calculation `(256*A +
-    B) / 4` and put the result in a buffer as a 4-byte float. Although this has
-    now doubled the data size from 2 bytes of bitpacked CAN to 4 bytes of OBD
-    II, this result can be readily aggregated, filtered, and operated on in
-    general. It is also still far more compact than it would be in a
-    self-describing format, such as JSON.
+for OBD II PID 0x0C (engine RPM), yobd would perform the calculation
+`(256*A + B) / 4` and put the result in a buffer as a 4-byte float. Although
+this has now doubled the data size from 2 bytes of bitpacked CAN to 4 bytes of
+OBD II, this result can be readily aggregated, filtered, and operated on in
+general. It is also still far more compact than it would be in a self-describing
+format, such as JSON.
 
 ## Ask yobd for an OBD II response descriptor
 Given that yobd yields data in a bitpacked format, the application needs a way
