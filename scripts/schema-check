@@ -48,10 +48,10 @@ def main():
     args = parser.parse_args()
 
     with open(args.schema, 'r') as f:
-        schema = yaml.load(f)
+        schema = yaml.safe_load(f)
 
     with open(args.datafile, 'r') as f:
-        data = yaml.load(f)
+        data = yaml.safe_load(f)
 
     handler = sschema.handler.include.make_default_handler()
     resolver = sschema.make_resolver(schema, [handler])
