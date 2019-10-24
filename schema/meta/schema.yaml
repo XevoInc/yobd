@@ -95,6 +95,7 @@ properties:
       additionalProperties:
         $ref: "#/defs/pid"
 
+additionalProperties: false
 required:
   - endian
   - modepid
