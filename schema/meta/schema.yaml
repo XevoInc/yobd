@@ -40,7 +40,7 @@ defs:
       val:
         type: string
         format: infix
-    requiredProperties:
+    required:
       - type
       - val
     additionalProperties: false
@@ -59,10 +59,11 @@ defs:
         $ref: include://si-unit.yaml
       expr:
         $ref: "#/defs/expr"
-    requiredProperties:
+    required:
       - name
       - bytes
-      - unit
+      - raw-unit
+      - si-unit
       - expr
     additionalProperties: false
 
