@@ -229,12 +229,14 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
 
     unit_name_map = xh_init(UNIT_NAME_MAP);
     if (unit_name_map == NULL) {
-        return YOBD_OOM;
+        err = YOBD_OOM;
+        goto error_map_init;
     }
 
     ret = yaml_parser_initialize(&parser);
     if (ret == 0) {
-        return YOBD_OOM;
+        err = YOBD_OOM;
+        goto error_parser_init;
     }
     yaml_parser_set_input_file(&parser, file);
 
@@ -527,6 +529,11 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
         err = YOBD_OOM;
     }
 
+    return err;
+
+error_parser_init:
+    xh_destroy(UNIT_NAME_MAP, unit_name_map);
+error_map_init:
     return err;
 }
 
