@@ -535,11 +535,12 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
         }
     }
 
-    return err;
+    goto out;
 
 error_parser_init:
     xh_destroy(UNIT_NAME_MAP, unit_name_map);
 error_map_init:
+out:
     return err;
 }
 
