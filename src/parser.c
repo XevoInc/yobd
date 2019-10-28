@@ -250,7 +250,7 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
     do {
         ret = yaml_parser_parse(&parser, &event);
         if (ret == 0) {
-            err = YOBD_OOM;
+            err = YOBD_PARSE_FAIL;
             break;
         }
 

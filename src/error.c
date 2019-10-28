@@ -49,6 +49,8 @@ const char *yobd_strerror(yobd_err err)
             return "unknown unit specified";
         case YOBD_INVALID_DATA_BYTES:
             return "bytes specified is different than expected";
+        case YOBD_PARSE_FAIL:
+            return "failed to parse YOBD schema";
     }
 
     /*

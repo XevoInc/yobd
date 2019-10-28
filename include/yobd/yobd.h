@@ -32,7 +32,8 @@ typedef enum {
     YOBD_INVALID_PID = -9,
     YOBD_UNKNOWN_MODE_PID = -10,
     YOBD_UNKNOWN_UNIT = -11,
-    YOBD_INVALID_DATA_BYTES = -12
+    YOBD_INVALID_DATA_BYTES = -12,
+    YOBD_PARSE_FAIL = -13
 } yobd_err;
 
 /**
