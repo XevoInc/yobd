@@ -519,14 +519,20 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
     xh_destroy(UNIT_NAME_MAP, unit_name_map);
     yaml_parser_delete(&parser);
 
-    ret = xh_trim(UNIT_MAP, ctx->unit_map);
-    if (ret == -1 && err == YOBD_OK) {
-        err = YOBD_OOM;
-    }
-
-    ret = xh_trim(MODEPID_MAP, ctx->modepid_map);
-    if (ret == -1 && err == YOBD_OK) {
-        err = YOBD_OOM;
+    /*
+     * Don't bother to trim the maps if we're about to error-out, since the
+     * entire context will be freed anyway.
+     */
+    if (err == YOBD_OK) {
+        ret = xh_trim(UNIT_MAP, ctx->unit_map);
+        if (ret == -1) {
+            err = YOBD_OOM;
+        } else {
+            ret = xh_trim(MODEPID_MAP, ctx->modepid_map);
+            if (ret == -1) {
+                err = YOBD_OOM;
+            }
+        }
     }
 
     return err;
