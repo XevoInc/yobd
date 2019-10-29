@@ -519,22 +519,6 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
     xh_destroy(UNIT_NAME_MAP, unit_name_map);
     yaml_parser_delete(&parser);
 
-    /*
-     * Don't bother to trim the maps if we're about to error-out, since the
-     * entire context will be freed anyway.
-     */
-    if (err == YOBD_OK) {
-        ret = xh_trim(UNIT_MAP, ctx->unit_map);
-        if (ret == -1) {
-            err = YOBD_OOM;
-        } else {
-            ret = xh_trim(MODEPID_MAP, ctx->modepid_map);
-            if (ret == -1) {
-                err = YOBD_OOM;
-            }
-        }
-    }
-
     goto out;
 
 error_parser_init:
@@ -554,6 +538,7 @@ yobd_err yobd_parse_schema(const char *schema, struct yobd_ctx **out_ctx)
     size_t i;
     bool is_path;
     size_t len;
+    int ret;
 
     if (schema == NULL) {
         err = YOBD_INVALID_PARAMETER;
@@ -635,11 +620,25 @@ yobd_err yobd_parse_schema(const char *schema, struct yobd_ctx **out_ctx)
     }
 
     fclose(file);
+
+    ret = xh_trim(UNIT_MAP, ctx->unit_map);
+    if (ret == -1) {
+        err = YOBD_OOM;
+        goto error_trim;
+    }
+
+    ret = xh_trim(MODEPID_MAP, ctx->modepid_map);
+    if (ret == -1) {
+        err = YOBD_OOM;
+        goto error_trim;
+    }
+
     *out_ctx = ctx;
     err = YOBD_OK;
 
     goto out;
 
+error_trim:
 error_parse:
     xh_destroy(MODEPID_MAP, ctx->modepid_map);
 error_modepid_map_init:
