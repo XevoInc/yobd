@@ -634,7 +634,6 @@ yobd_err yobd_parse_schema(const char *schema, struct yobd_ctx **out_ctx)
     }
 
     *out_ctx = ctx;
-    err = YOBD_OK;
 
     goto out;
 
