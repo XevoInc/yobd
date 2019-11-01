@@ -181,7 +181,7 @@ parse_key find_key(const char *str)
 }
 
 static
-void find_type(const char *str, pid_data_type *type)
+pid_data_type find_type(const char *str)
 {
     size_t i;
 
@@ -196,8 +196,7 @@ void find_type(const char *str, pid_data_type *type)
 
     for (i = 0; i < ARRAYLEN(types); ++i) {
         if (strcmp(types[i], str) == 0) {
-            *type = i;
-            return;
+            return i;
         }
     }
 
@@ -484,7 +483,7 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
                         state.key = KEY_NONE;
 
                         XASSERT_NOT_NULL(parse_ctx);
-                        find_type(val, &parse_ctx->pid_type);
+                        parse_ctx->pid_type = find_type(val);
 
                         break;
 
