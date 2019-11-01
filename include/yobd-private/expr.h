@@ -11,8 +11,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <yobd/yobd.h>
-#include <yobd_private/stack.h>
-#include <yobd_private/types.h>
+#include <yobd-private/stack.h>
+#include <yobd-private/types.h>
 
 struct expr_token {
     enum {

@@ -7,8 +7,8 @@
 
 #include <string.h>
 #include <yobd/yobd.h>
-#include <yobd_private/assert.h>
-#include <yobd_private/unit.h>
+#include <yobd-private/assert.h>
+#include <yobd-private/unit.h>
 
 #define PI 3.141593f
 

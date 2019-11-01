@@ -6,9 +6,9 @@
  */
 
 #include <yobd/yobd.h>
-#include <yobd_private/api.h>
-#include <yobd_private/error.h>
-#include <yobd_private/log.h>
+#include <yobd-private/api.h>
+#include <yobd-private/error.h>
+#include <yobd-private/log.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>

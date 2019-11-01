@@ -11,11 +11,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <yaml.h>
-#include <yobd_private/api.h>
-#include <yobd_private/assert.h>
-#include <yobd_private/expr.h>
-#include <yobd_private/parser.h>
-#include <yobd_private/unit.h>
+#include <yobd-private/api.h>
+#include <yobd-private/assert.h>
+#include <yobd-private/expr.h>
+#include <yobd-private/parser.h>
+#include <yobd-private/unit.h>
 
 #include "config.h"
 

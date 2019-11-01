@@ -11,9 +11,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <yobd/yobd.h>
-#include <yobd_private/assert.h>
-#include <yobd_private/expr.h>
-#include <yobd_private/stack.h>
+#include <yobd-private/assert.h>
+#include <yobd-private/expr.h>
+#include <yobd-private/stack.h>
 
 #define ARRAYLEN(a) (sizeof(a) / sizeof(a[0]))
 #define OP_STACK_SIZE (20)

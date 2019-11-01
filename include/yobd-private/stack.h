@@ -9,7 +9,7 @@
 #define YOBD_PRIVATE_STACK_H_
 
 #include <string.h>
-#include <yobd_private/assert.h>
+#include <yobd-private/assert.h>
 
 #define DEFINE_STACK(stack_type, item_type) \
     struct stack_type { \

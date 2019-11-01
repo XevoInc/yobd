@@ -7,10 +7,10 @@
 
 #include <float.h>
 #include <stdbool.h>
-#include <yobd_private/api.h>
-#include <yobd_private/expr.h>
-#include <yobd_private/parser.h>
-#include <yobd_private/unit.h>
+#include <yobd-private/api.h>
+#include <yobd-private/expr.h>
+#include <yobd-private/parser.h>
+#include <yobd-private/unit.h>
 #include <yobd/yobd.h>
 
 #include <stdio.h>

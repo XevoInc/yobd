@@ -11,7 +11,7 @@
 #include <stdint.h>
 #include <xlib/xhash.h>
 #include <yobd/yobd.h>
-#include <yobd_private/unit.h>
+#include <yobd-private/unit.h>
 
 typedef enum {
     EVAL_TYPE_EXPR
