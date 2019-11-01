@@ -342,7 +342,7 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
                             case MAP_MODEPID:
                                 errno = 0;
                                 mode = strtol(val, NULL, 0);
-                                XASSERT_EQ(errno, 0);
+                                XASSERT_OK(errno);
                                 break;
                             case MAP_SPECIFIC_MODE:
                                 /* Get PID. */
