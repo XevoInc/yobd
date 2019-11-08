@@ -16,7 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <yobd/yobd.h>
-#include <yobd_test/assert.h>
+#include <yobd-test/assert.h>
 
 #define FLOAT_THRESH 0.001
 
