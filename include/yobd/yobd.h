@@ -83,7 +83,7 @@ void yobd_free_ctx(struct yobd_ctx *ctx);
  *
  * Note that this call is relatively cheap (it amounts to a hash table lookup),
  * so it is OK for callers to call it for every incoming CAN frame. In other
- * words, there is no need to separately cache PID descriptors, and caller
+ * words, there is no need to separately cache PID descriptors, and the caller
  * should just look them up on-demand.
  *
  * @param ctx a yobd context
@@ -99,6 +99,33 @@ yobd_err yobd_get_pid_descriptor(
     yobd_mode mode,
     yobd_pid pid,
     const struct yobd_pid_desc **desc);
+
+/**
+ * PID processing function, used in yobd_pid_foreach.
+ *
+ * @param desc a PID descriptor provided by the iteration function
+ * @param data user-specific data context passed into each function call
+ *
+ * @return true boolean indicating "done status". if done processing
+ *              descriptors, false otherwise. If this function returns true,
+ *              iteration will terminate.
+ */
+typedef bool (*pid_process_func)(const struct yobd_pid_desc *desc, void *data);
+
+/**
+ * Iterates through the PID descriptors in the given yobd context.
+ *
+ * @param ctx a yobd context
+ * @param func a function called once per PID descriptor
+ * @param data user-specific data context passed into each function call
+ * descriptors left
+ *
+ * @return an error code
+ */
+yobd_err yobd_pid_foreach(
+    struct yobd_ctx *ctx,
+    pid_process_func func,
+    void *data);
 
 /**
  * Translates a unit to a unit string.

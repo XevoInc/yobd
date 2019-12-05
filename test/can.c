@@ -20,6 +20,18 @@
 
 #define FLOAT_THRESH 0.001
 
+bool process_pids(const struct yobd_pid_desc *desc, void *data)
+{
+    size_t *pid_count;
+
+    XASSERT_NOT_NULL(desc);
+
+    pid_count = data;
+    ++(*pid_count);
+
+    return false;
+}
+
 int main(int argc, const char **argv)
 {
     struct yobd_ctx *ctx;
@@ -34,6 +46,7 @@ int main(int argc, const char **argv)
     yobd_mode mode2;
     yobd_pid pid;
     yobd_pid pid2;
+    size_t pid_count;
     const struct yobd_pid_desc *pid_desc;
     const char *schema_file;
     const char *str;
@@ -57,6 +70,10 @@ int main(int argc, const char **argv)
     err = yobd_parse_schema(schema_file, &ctx);
     XASSERT_OK(err);
     XASSERT_NOT_NULL(ctx);
+
+    pid_count = 0;
+    err = yobd_pid_foreach(ctx, process_pids, &pid_count);
+    XASSERT_EQ(pid_count, 27);
 
     err = yobd_get_pid_descriptor(ctx, 0x1, 0x0f, &pid_desc);
     XASSERT_OK(err);

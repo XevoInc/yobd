@@ -21,6 +21,8 @@
 
 #define ARRAYLEN(a) (sizeof(a) / sizeof(a[0]))
 
+typedef xhiter_t yobd_iter;
+
 struct parse_pid_ctx *get_parse_ctx(
     const struct yobd_ctx *ctx,
     yobd_mode mode,
@@ -34,6 +36,32 @@ struct parse_pid_ctx *get_parse_ctx(
     }
 
     return &xh_val(ctx->modepid_map, iter);
+}
+
+PUBLIC_API
+yobd_err yobd_pid_foreach(
+    struct yobd_ctx *ctx,
+    pid_process_func func,
+    void *data)
+{
+    const struct yobd_pid_desc *desc;
+    bool done;
+    xhiter_t iter;
+
+    if (ctx == NULL) {
+        return YOBD_INVALID_PARAMETER;
+    }
+
+    /* Find the first valid iter entry. */
+    xh_iter(ctx->modepid_map, iter,
+        desc = &xh_val(ctx->modepid_map, iter).desc;
+        done = func(desc, data);
+        if (done) {
+            break;
+        }
+    );
+
+    return YOBD_OK;
 }
 
 static
