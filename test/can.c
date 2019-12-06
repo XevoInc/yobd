@@ -34,6 +34,7 @@ bool process_pids(const struct yobd_pid_desc *desc, void *data)
 
 int main(int argc, const char **argv)
 {
+    size_t api_pid_count;
     struct yobd_ctx *ctx;
     union {
         uint16_t as_uint16_t;
@@ -42,11 +43,11 @@ int main(int argc, const char **argv)
     yobd_err err;
     struct can_frame frame;
     struct can_frame frame2;
+    size_t iter_pid_count;
     yobd_mode mode;
     yobd_mode mode2;
     yobd_pid pid;
     yobd_pid pid2;
-    size_t pid_count;
     const struct yobd_pid_desc *pid_desc;
     const char *schema_file;
     const char *str;
@@ -71,9 +72,14 @@ int main(int argc, const char **argv)
     XASSERT_OK(err);
     XASSERT_NOT_NULL(ctx);
 
-    pid_count = 0;
-    err = yobd_pid_foreach(ctx, process_pids, &pid_count);
-    XASSERT_EQ(pid_count, 27);
+    api_pid_count = 0;
+    err = yobd_get_pid_count(ctx, &api_pid_count);
+    XASSERT_OK(err);
+    XASSERT_GT(api_pid_count, 0);
+
+    iter_pid_count = 0;
+    err = yobd_pid_foreach(ctx, process_pids, &iter_pid_count);
+    XASSERT_EQ(iter_pid_count, api_pid_count);
 
     err = yobd_get_pid_descriptor(ctx, 0x1, 0x0f, &pid_desc);
     XASSERT_OK(err);

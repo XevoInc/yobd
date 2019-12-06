@@ -14,6 +14,7 @@ extern "C" {
 
 #include <linux/can.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 /** Forward declaration for opaque pointer. */
@@ -76,6 +77,16 @@ yobd_err yobd_parse_schema(const char *file, struct yobd_ctx **ctx);
  * @param ctx a yobd context
  */
 void yobd_free_ctx(struct yobd_ctx *ctx);
+
+/**
+ * Gets the number of PIDs known to this context.
+ *
+ * @param ctx a yobd context
+ * @param count to be filled in with the PID count
+ *
+ * @return an error code
+ */
+yobd_err yobd_get_pid_count(struct yobd_ctx *ctx, size_t *count);
 
 /**
  * Gets the descriptor corresponding to the given mode and PID, containing

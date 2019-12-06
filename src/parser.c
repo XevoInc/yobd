@@ -39,6 +39,18 @@ struct parse_pid_ctx *get_parse_ctx(
 }
 
 PUBLIC_API
+yobd_err yobd_get_pid_count(struct yobd_ctx *ctx, size_t *count)
+{
+    if (ctx == NULL || count == NULL) {
+        return YOBD_INVALID_PARAMETER;
+    }
+
+    *count = xh_size(ctx->modepid_map);
+
+    return YOBD_OK;
+}
+
+PUBLIC_API
 yobd_err yobd_pid_foreach(
     struct yobd_ctx *ctx,
     pid_process_func func,
