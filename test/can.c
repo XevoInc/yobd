@@ -143,12 +143,12 @@ int main(int argc, const char **argv)
     XASSERT_EQ(frame.data[7], 0xcc);
 
     /* Make sure we can parse the response we made. */
-    err = yobd_parse_headers(ctx, &frame, &mode, &pid);
+    err = yobd_parse_can_headers(ctx, &frame, &mode, &pid);
     XASSERT_OK(err);
     XASSERT_EQ(mode, 0x1);
     XASSERT_EQ(pid, 0x10);
     mode2 = pid2 = 0;
-    err = yobd_parse_headers_noctx(ctx, &frame, &mode2, &pid2);
+    err = yobd_parse_can_headers_noctx(ctx, &frame, &mode2, &pid2);
     XASSERT_OK(err);
     XASSERT_EQ(mode, mode2);
     XASSERT_EQ(pid, pid2);
@@ -171,7 +171,7 @@ int main(int argc, const char **argv)
     frame.data[1] = 0x1;
     frame.data[2] = 0x0d;
     frame.data[3] = 60;
-    err = yobd_parse_headers(ctx, &frame, &mode, &pid);
+    err = yobd_parse_can_headers(ctx, &frame, &mode, &pid);
     XASSERT_OK(err);
     XASSERT_EQ(mode, 0x1);
     XASSERT_EQ(pid, 0x0d);

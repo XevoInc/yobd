@@ -331,7 +331,7 @@ yobd_err parse_mode_pid(
 }
 
 PUBLIC_API
-yobd_err yobd_parse_headers_noctx(
+yobd_err yobd_parse_can_headers_noctx(
     bool big_endian,
     const struct can_frame *frame,
     yobd_mode *mode,
@@ -362,7 +362,7 @@ yobd_err yobd_parse_headers_noctx(
 }
 
 PUBLIC_API
-yobd_err yobd_parse_headers(
+yobd_err yobd_parse_can_headers(
     struct yobd_ctx *ctx,
     const struct can_frame *frame,
     yobd_mode *mode,
@@ -372,7 +372,7 @@ yobd_err yobd_parse_headers(
         return YOBD_INVALID_PARAMETER;
     }
 
-    return yobd_parse_headers_noctx(ctx->big_endian, frame, mode, pid);
+    return yobd_parse_can_headers_noctx(ctx->big_endian, frame, mode, pid);
 }
 
 PUBLIC_API

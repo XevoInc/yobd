@@ -246,7 +246,7 @@ yobd_err yobd_make_can_response_noctx(
  *
  * @return an error code
  */
-yobd_err yobd_parse_headers(
+yobd_err yobd_parse_can_headers(
     struct yobd_ctx *ctx,
     const struct can_frame *frame,
     yobd_mode *mode,
@@ -263,7 +263,7 @@ yobd_err yobd_parse_headers(
  *
  * @return an error code
  */
-yobd_err yobd_parse_headers_noctx(
+yobd_err yobd_parse_can_headers_noctx(
     bool big_endian,
     const struct can_frame *frame,
     yobd_mode *mode,
