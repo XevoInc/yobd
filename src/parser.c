@@ -570,7 +570,7 @@ out:
 PUBLIC_API
 yobd_err yobd_parse_schema(const char *schema, struct yobd_ctx **out_ctx)
 {
-    char *abspath;
+    char abspath[PATH_MAX];
     struct yobd_ctx *ctx;
     yobd_err err;
     FILE *file;
@@ -605,27 +605,8 @@ yobd_err yobd_parse_schema(const char *schema, struct yobd_ctx **out_ctx)
         file = fopen(schema, "r");
     }
     else {
-        /* Path is relative to the schema directory. */
-        /*
-         * ARRAYLEN(CONFIG_YOBD_SCHEMADIR)-1 --> schema dir length - '\0'
-         * + 1 --> '/' to join paths
-         * len --> length of path relative to schema dir
-         * + 1 --> '\0'
-         */
-        len = ARRAYLEN(CONFIG_YOBD_SCHEMADIR)-1 + 1 + len + 1;
-        if (len >= PATH_MAX) {
-            err = YOBD_INVALID_PATH;
-            goto out;
-        }
-        abspath = malloc(len);
-        if (abspath == NULL) {
-            err = YOBD_OOM;
-            goto out;
-        }
         sprintf(abspath, "%s/%s", CONFIG_YOBD_SCHEMADIR, schema);
-
         file = fopen(abspath, "r");
-        free(abspath);
 
     }
     if (file == NULL) {
