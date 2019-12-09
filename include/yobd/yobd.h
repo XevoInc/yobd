@@ -17,6 +17,9 @@ extern "C" {
 #include <stddef.h>
 #include <stdint.h>
 
+/** The CAN address to use to query a vehicle. */
+#define YOBD_OBD_II_QUERY_ADDRESS (0x7df)
+
 /** Forward declaration for opaque pointer. */
 struct yobd_ctx;
 

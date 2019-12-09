@@ -16,11 +16,6 @@
 #include <stdio.h>
 
 /**
- * The CAN address to use to query a vehicle.
- */
-#define OBD_II_QUERY_ADDRESS (0x7df)
-
-/**
  * The CAN address to listen for when getting a vehicle's response.
  */
 #define OBD_II_RESPONSE_ADDRESS (0x7e8)
@@ -148,7 +143,7 @@ yobd_err yobd_make_can_query_noctx(
     }
 
     /* These are standard for all OBD II. */
-    frame->can_id = OBD_II_QUERY_ADDRESS;
+    frame->can_id = YOBD_OBD_II_QUERY_ADDRESS;
     frame->can_dlc = 8;
 
     /* These vary per query. */
@@ -349,7 +344,7 @@ yobd_err yobd_parse_headers_noctx(
         return YOBD_INVALID_PARAMETER;
     }
 
-    if (frame->can_id != OBD_II_QUERY_ADDRESS &&
+    if (frame->can_id != YOBD_OBD_II_QUERY_ADDRESS &&
         frame->can_id != OBD_II_RESPONSE_ADDRESS) {
         return YOBD_UNKNOWN_ID;
     }
