@@ -3,7 +3,7 @@ endian: big
 modepid:
   "0x1":
     "0x04":
-      name: Calculated engine load
+      name: calculated engine load
       bytes: 1
       raw-unit: percent
       si-unit: percent
@@ -12,7 +12,7 @@ modepid:
         val: A / 2.55
 
     "0x05":
-      name: Engine coolant temperature
+      name: engine coolant temperature
       bytes: 1
       raw-unit: celsius
       si-unit: percent
@@ -21,7 +21,7 @@ modepid:
         val: A - 40
 
     "0x0a":
-      name: Fuel pressure (gauge pressure)
+      name: fuel pressure (gauge pressure)
       bytes: 1
       raw-unit: kPa
       si-unit: Pa
@@ -30,7 +30,7 @@ modepid:
         val: 3*A
 
     "0x0c":
-      name: Engine RPM
+      name: engine RPM
       bytes: 2
       raw-unit: rpm
       si-unit: rad/s
@@ -39,7 +39,7 @@ modepid:
         val: (256*A + B) / 4
 
     "0x0d":
-      name: Vehicle speed
+      name: vehicle speed
       bytes: 1
       raw-unit: km/h
       si-unit: m/s
@@ -48,7 +48,7 @@ modepid:
         val: A
 
     "0x0f":
-      name: Intake air temperature
+      name: intake air temperature
       bytes: 1
       raw-unit: celsius
       si-unit: K
@@ -66,7 +66,7 @@ modepid:
         val: (256*A + B) / 100
 
     "0x11":
-      name: Throttle position
+      name: throttle position
       bytes: 1
       raw-unit: percent
       si-unit: percent
@@ -75,7 +75,7 @@ modepid:
         val: A / 2.55
 
     "0x1f":
-      name: Runtime since engine start
+      name: runtime since engine start
       bytes: 2
       raw-unit: s
       si-unit: s
@@ -84,7 +84,7 @@ modepid:
         val: 256*A + B
 
     "0x21":
-      name: Distance traveled with MIL on
+      name: distance traveled with MIL on
       bytes: 2
       raw-unit: km
       si-unit: m
@@ -93,7 +93,7 @@ modepid:
         val: 256*A + B
 
     "0x31":
-      name: Distance traveled since codes cleared
+      name: distance traveled since codes cleared
       bytes: 2
       raw-unit: km
       si-unit: m
@@ -102,7 +102,7 @@ modepid:
         val: 256*A + B
 
     "0x32":
-      name: Evaporative system vapor pressure
+      name: evaporative system vapor pressure
       bytes: 2
       raw-unit: Pa
       si-unit: Pa
@@ -111,7 +111,7 @@ modepid:
         val: (256*A + B) / 4
 
     "0x33":
-      name: Absolute barometric pressure
+      name: absolute barometric pressure
       bytes: 1
       raw-unit: kPa
       si-unit: Pa
@@ -120,7 +120,7 @@ modepid:
         val: A
 
     "0x45":
-      name: Relative throttle position
+      name: relative throttle position
       bytes: 1
       raw-unit: percent
       si-unit: percent
@@ -129,7 +129,7 @@ modepid:
         val: A / 2.55
 
     "0x46":
-      name: Ambient air temperature
+      name: ambient air temperature
       bytes: 1
       raw-unit: celsius
       si-unit: K
@@ -138,7 +138,7 @@ modepid:
         val: A - 40
 
     "0x47":
-      name: Absolute throttle position B
+      name: absolute throttle position B
       bytes: 1
       raw-unit: percent
       si-unit: percent
@@ -147,7 +147,7 @@ modepid:
         val: A / 2.55
 
     "0x48":
-      name: Absolute throttle position C
+      name: absolute throttle position C
       bytes: 1
       raw-unit: percent
       si-unit: percent
@@ -156,7 +156,7 @@ modepid:
         val: A / 2.55
 
     "0x49":
-      name: Accelerator pedal position D
+      name: accelerator pedal position D
       bytes: 1
       raw-unit: percent
       si-unit: percent
@@ -165,7 +165,7 @@ modepid:
         val: A / 2.55
 
     "0x4a":
-      name: Accelerator pedal position E
+      name: accelerator pedal position E
       bytes: 1
       raw-unit: percent
       si-unit: percent
@@ -174,7 +174,7 @@ modepid:
         val: A / 2.55
 
     "0x4b":
-      name: Accelerator pedal position F
+      name: accelerator pedal position F
       bytes: 1
       raw-unit: percent
       si-unit: percent
@@ -183,7 +183,7 @@ modepid:
         val: A / 2.55
 
     "0x52":
-      name: Ethanol fuel percent
+      name: ethanol fuel percent
       bytes: 1
       raw-unit: percent
       si-unit: percent
@@ -192,7 +192,7 @@ modepid:
         val: A / 2.55
 
     "0x5a":
-      name: Relative accelerator pedal position
+      name: relative accelerator pedal position
       bytes: 1
       raw-unit: percent
       si-unit: percent
@@ -201,7 +201,7 @@ modepid:
         val: A / 2.55
 
     "0x5b":
-      name: Hybrid battery pack remaining life
+      name: hybrid battery pack remaining life
       bytes: 1
       raw-unit: percent
       si-unit: percent
@@ -210,7 +210,7 @@ modepid:
         val: A / 2.55
 
     "0x5c":
-      name: Engine oil temperature
+      name: engine oil temperature
       bytes: 1
       raw-unit: celsius
       si-unit: K
@@ -219,7 +219,7 @@ modepid:
         val: A - 40
 
     "0x61":
-      name: Driver's demand engine torque
+      name: driver's demand engine torque
       bytes: 1
       raw-unit: percent
       si-unit: percent
@@ -228,7 +228,7 @@ modepid:
         val: A - 125
 
     "0x62":
-      name: Actual engine torque
+      name: actual engine torque
       bytes: 1
       raw-unit: percent
       si-unit: percent
@@ -237,7 +237,7 @@ modepid:
         val: A - 125
 
     "0x63":
-      name: Engine reference torque
+      name: engine reference torque
       bytes: 2
       raw-unit: nm
       si-unit: m

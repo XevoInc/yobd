@@ -84,7 +84,7 @@ int main(int argc, const char **argv)
     err = yobd_get_pid_descriptor(ctx, 0x1, 0x0f, &pid_desc);
     XASSERT_OK(err);
     XASSERT_NOT_NULL(pid_desc)
-    XASSERT_STREQ(pid_desc->name, "Intake air temperature");
+    XASSERT_STREQ(pid_desc->name, "intake air temperature");
     XASSERT_EQ(pid_desc->can_bytes, 1);
 
     err = yobd_get_unit_str(ctx, pid_desc->unit, &str);
