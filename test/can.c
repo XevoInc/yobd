@@ -20,7 +20,7 @@
 
 #define FLOAT_THRESH 0.001
 
-bool process_pids(const struct yobd_pid_desc *desc, void *data)
+bool process_pid(const struct yobd_pid_desc *desc, void *data)
 {
     size_t *pid_count;
 
@@ -78,7 +78,7 @@ int main(int argc, const char **argv)
     XASSERT_GT(api_pid_count, 0);
 
     iter_pid_count = 0;
-    err = yobd_pid_foreach(ctx, process_pids, &iter_pid_count);
+    err = yobd_pid_foreach(ctx, process_pid, &iter_pid_count);
     XASSERT_EQ(iter_pid_count, api_pid_count);
 
     err = yobd_get_pid_descriptor(ctx, 0x1, 0x0f, &pid_desc);
