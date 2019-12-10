@@ -23,6 +23,21 @@
 
 typedef xhiter_t yobd_iter;
 
+static uint32_t get_modepid(yobd_mode mode, yobd_pid pid)
+{
+    return (mode << 16) | pid;
+}
+
+static yobd_mode get_mode(uint32_t modepid)
+{
+    return modepid >> 16;
+}
+
+static yobd_pid get_pid(uint32_t modepid)
+{
+    return modepid & 0xff;
+}
+
 struct parse_pid_ctx *get_parse_ctx(
     const struct yobd_ctx *ctx,
     yobd_mode mode,
@@ -30,7 +45,7 @@ struct parse_pid_ctx *get_parse_ctx(
 {
     xhiter_t iter;
 
-    iter = xh_get(MODEPID_MAP, ctx->modepid_map, (mode << 16) | pid);
+    iter = xh_get(MODEPID_MAP, ctx->modepid_map, get_modepid(mode, pid));
     if (iter == xh_end(ctx->modepid_map)) {
         return NULL;
     }
@@ -59,6 +74,9 @@ yobd_err yobd_pid_foreach(
     const struct yobd_pid_desc *desc;
     bool done;
     xhiter_t iter;
+    yobd_mode mode;
+    uint32_t modepid;
+    yobd_pid pid;
 
     if (ctx == NULL) {
         return YOBD_INVALID_PARAMETER;
@@ -66,8 +84,11 @@ yobd_err yobd_pid_foreach(
 
     /* Find the first valid iter entry. */
     xh_iter(ctx->modepid_map, iter,
+        modepid = xh_key(ctx->modepid_map, iter);
+        mode = get_mode(modepid);
+        pid = get_pid(modepid);
         desc = &xh_val(ctx->modepid_map, iter).desc;
-        done = func(desc, data);
+        done = func(desc, mode, pid, data);
         if (done) {
             break;
         }

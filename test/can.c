@@ -20,11 +20,18 @@
 
 #define FLOAT_THRESH 0.001
 
-bool process_pid(const struct yobd_pid_desc *desc, void *data)
+bool process_pid(
+    const struct yobd_pid_desc *desc,
+    yobd_mode mode,
+    yobd_pid pid,
+    void *data)
 {
     size_t *pid_count;
 
     XASSERT_NOT_NULL(desc);
+
+    XASSERT_EQ(mode, 0x1);
+    XASSERT_GT(pid, 0x0);
 
     pid_count = data;
     ++(*pid_count);

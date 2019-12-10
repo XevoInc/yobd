@@ -119,12 +119,17 @@ yobd_err yobd_get_pid_descriptor(
  *
  * @param desc a PID descriptor provided by the iteration function
  * @param data user-specific data context passed into each function call
+ * @param mode the mode of the passed-in PID
+ * @param pid the PID being processed
  *
  * @return true boolean indicating "done status". if done processing
  *              descriptors, false otherwise. If this function returns true,
  *              iteration will terminate.
  */
-typedef bool (*pid_process_func)(const struct yobd_pid_desc *desc, void *data);
+typedef bool (*pid_process_func)(
+    const struct yobd_pid_desc *desc,
+    yobd_mode mode,
+    yobd_pid pid, void *data);
 
 /**
  * Iterates through the PID descriptors in the given yobd context.
