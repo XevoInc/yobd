@@ -497,7 +497,6 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
                          */
                         XASSERT_NOT_NULL(desc->convert);
 
-
                         iter = xh_put(UNIT_NAME_MAP, unit_name_map, unit_str, &ret);
                         if (ret == -1) {
                             err = YOBD_OOM;

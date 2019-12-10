@@ -61,6 +61,12 @@ float rpm_to_rads(float val)
     return val * PI / 30.0;
 }
 
+static
+float s_to_ns(float val)
+{
+    return val * ((float) 1e9);
+}
+
 to_si get_conversion(const char *unit)
 {
     to_si convert;
@@ -99,6 +105,9 @@ to_si get_conversion(const char *unit)
     else if (strcmp(unit, "nm") == 0) {
         convert = nm_to_m;
     }
+    else if (strcmp(unit, "ns") == 0) {
+        convert = nop;
+    }
     else if (strcmp(unit, "Pa") == 0) {
         convert = nop;
     }
@@ -112,7 +121,7 @@ to_si get_conversion(const char *unit)
         convert = rpm_to_rads;
     }
     else if (strcmp(unit, "s") == 0) {
-        convert = nop;
+        convert = s_to_ns;
     }
     else {
         /* We need to add a new conversion function. */

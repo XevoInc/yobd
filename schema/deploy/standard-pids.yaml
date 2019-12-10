@@ -78,7 +78,7 @@ modepid:
       name: runtime since engine start
       bytes: 2
       raw-unit: s
-      si-unit: s
+      si-unit: ns
       expr:
         type: uint16
         val: 256*A + B
