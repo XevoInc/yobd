@@ -32,7 +32,6 @@ configure_file(
 
 # Library.
 src = [
-    'src/entrypoint.c',
     'src/error.c',
     'src/eval.c',
     'src/expr.c',
