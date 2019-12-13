@@ -41,6 +41,26 @@ typedef enum {
 } yobd_err;
 
 /**
+ * Units for PID descriptors.  these are SI units as much as possible. Time is
+ * an exception, as specifying everything in seconds will result in floating
+ * point issues.
+ */
+typedef enum {
+    YOBD_UNIT_DEGREE = 0,
+    YOBD_UNIT_KELVIN,
+    YOBD_UNIT_KG_PER_S,
+    YOBD_UNIT_METER,
+    YOBD_UNIT_METERS_PER_S,
+    YOBD_UNIT_METERS_PER_S_SQUARED,
+    YOBD_UNIT_NONE,
+    YOBD_UNIT_PASCAL,
+    YOBD_UNIT_PERCENT,
+    YOBD_UNIT_RAD,
+    YOBD_UNIT_RAD_PER_S,
+    YOBD_UNIT_NANOSECOND
+} yobd_unit;
+
+/**
  * Returns a human-readable error string. The string must not be modified or
  * freed, but it may be modified by subsequent calls to yobd_strerror or the
  * libc strerror class of functions.
@@ -52,9 +72,6 @@ typedef uint_fast8_t yobd_mode;
 
 /** OBD II PID. */
 typedef uint_fast16_t yobd_pid;
-
-/** An ID for a unit, used to lookup a corresponding string. */
-typedef uint_fast8_t yobd_unit;
 
 /** The details about how to interpret a PID from bitpacked yobd output. */
 struct yobd_pid_desc {
@@ -145,21 +162,6 @@ yobd_err yobd_pid_foreach(
     struct yobd_ctx *ctx,
     pid_process_func func,
     void *data);
-
-/**
- * Translates a unit to a unit string.
- *
- * @param ctx a yobd context
- * @param unit a unit
- * @param unit_str filled in with a unit string, with memory owned by yobd
- *
- * @return an error code
- * found
- */
-yobd_err yobd_get_unit_str(
-    const struct yobd_ctx *ctx,
-    yobd_unit unit,
-    const char **unit_str);
 
 /**
  * Creates a CAN frame representing a given OBD II query.

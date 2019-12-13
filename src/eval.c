@@ -10,7 +10,6 @@
 #include <yobd-private/api.h>
 #include <yobd-private/expr.h>
 #include <yobd-private/parser.h>
-#include <yobd-private/unit.h>
 #include <yobd/yobd.h>
 
 #include <stdio.h>
@@ -37,7 +36,7 @@ static \
 float eval_expr_##stack_type( \
     struct expr *expr, \
     const uint8_t *data, \
-    to_si convert) \
+    convert_func convert) \
 { \
     size_t i; \
     struct expr_token tok1; \
@@ -278,7 +277,7 @@ void eval_expr(
     struct expr *expr,
     const uint8_t *data,
     float *val,
-    to_si convert)
+    convert_func convert)
 {
     switch (pid_type) {
         case PID_DATA_TYPE_FLOAT:
@@ -381,14 +380,13 @@ yobd_err yobd_parse_can_response(
     const struct can_frame *frame,
     float *val)
 {
-    to_si convert;
     const uint8_t *data_start;
     yobd_err err;
     size_t expected_bytes;
     yobd_mode mode;
     yobd_pid pid;
     size_t offset;
-    struct parse_pid_ctx *parse_ctx;
+    struct parse_pid_ctx *pid_ctx;
 
     if (ctx == NULL || frame == NULL || val == NULL) {
         return YOBD_INVALID_PARAMETER;
@@ -407,8 +405,8 @@ yobd_err yobd_parse_can_response(
         return err;
     }
 
-    parse_ctx = get_parse_ctx(ctx, mode, pid);
-    if (parse_ctx == NULL) {
+    pid_ctx = get_pid_ctx(ctx, mode, pid);
+    if (pid_ctx == NULL) {
         /* We don't know about this mode-PID combination! */
         return YOBD_UNKNOWN_MODE_PID;
     }
@@ -421,19 +419,18 @@ yobd_err yobd_parse_can_response(
         /* One byte for mode, two bytes for PID. */
         offset = 3;
     }
-    expected_bytes = offset + parse_ctx->desc.can_bytes;
+    expected_bytes = offset + pid_ctx->desc.can_bytes;
 
     if (frame->data[0] != expected_bytes) {
         return YOBD_INVALID_DATA_BYTES;
     }
 
-    convert = get_convert_func(ctx, parse_ctx->raw_unit);
     eval_expr(
-        parse_ctx->pid_type,
-        &parse_ctx->expr,
+        pid_ctx->pid_type,
+        &pid_ctx->expr,
         data_start,
         val,
-        convert);
+        pid_ctx->convert_func);
 
     return YOBD_OK;
 }
@@ -445,18 +442,18 @@ yobd_err yobd_get_pid_descriptor(
     yobd_pid pid,
     const struct yobd_pid_desc **pid_desc)
 {
-    const struct parse_pid_ctx *parse_ctx;
+    const struct parse_pid_ctx *pid_ctx;
 
     if (ctx == NULL || pid_desc == NULL) {
         return YOBD_INVALID_PARAMETER;
     }
 
-    parse_ctx = get_parse_ctx(ctx, mode, pid);
-    if (parse_ctx == NULL) {
+    pid_ctx = get_pid_ctx(ctx, mode, pid);
+    if (pid_ctx == NULL) {
         return YOBD_UNKNOWN_MODE_PID;
     }
 
-    *pid_desc = &parse_ctx->desc;
+    *pid_desc = &pid_ctx->desc;
 
     return YOBD_OK;
 }

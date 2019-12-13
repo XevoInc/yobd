@@ -44,10 +44,7 @@ struct expr {
     struct EXPR_STACK stack;
 };
 
-yobd_err parse_expr(
-    const char *str,
-    struct expr *expr,
-    pid_data_type type);
+yobd_err parse_expr_val(const char *str, struct expr *expr, pid_data_type type);
 
 void destroy_expr(struct expr *expr);
 

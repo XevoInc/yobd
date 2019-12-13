@@ -14,8 +14,7 @@
 #include <yobd-private/unit.h>
 
 struct parse_pid_ctx {
-    /* The raw OBD II unit, not yet converted to SI. */
-    yobd_unit raw_unit;
+    convert_func convert_func;
     pid_data_type pid_type;
     /* The byte count of the CAN response, not of the OBD II response. */
     struct expr expr;
@@ -23,26 +22,15 @@ struct parse_pid_ctx {
     struct yobd_pid_desc desc;
 };
 
-struct parse_pid_ctx *get_parse_ctx(
+struct parse_pid_ctx *get_pid_ctx(
     const struct yobd_ctx *ctx,
     yobd_mode mode,
     yobd_pid pid);
 
-struct unit_tuple {
-    yobd_unit raw_unit;
-    yobd_unit si_unit;
-};
-
-to_si get_convert_func(const struct yobd_ctx *ctx, yobd_unit unit);
-
-XHASH_MAP_INIT_INT8(UNIT_MAP, struct unit_desc)
 XHASH_MAP_INIT_INT(MODEPID_MAP, struct parse_pid_ctx)
-
-XHASH_MAP_INIT_STR(UNIT_NAME_MAP, struct unit_tuple)
 
 struct yobd_ctx {
     bool big_endian;
-    xhash_t(UNIT_MAP) *unit_map;
     xhash_t(MODEPID_MAP) *modepid_map;
 };
 

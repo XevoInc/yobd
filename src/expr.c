@@ -276,10 +276,7 @@ void shunting_yard(
     XASSERT_GT(STACK_SIZE(EXPR_STACK, out_stack), 0);
 }
 
-yobd_err parse_expr(
-    const char *str,
-    struct expr *expr,
-    pid_data_type type)
+yobd_err parse_expr_val(const char *str, struct expr *expr, pid_data_type type)
 {
     struct expr_token *data;
     size_t expr_bytes;

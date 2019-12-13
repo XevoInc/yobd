@@ -67,66 +67,61 @@ float s_to_ns(float val)
     return val * ((float) 1e9);
 }
 
-to_si get_conversion(const char *unit)
+convert_func find_convert_func(const char *raw_unit)
 {
-    to_si convert;
-
     /*
      * Please keep this list sorted to prevent duplicates. If the list gets
      * large enough, we could consider switching to a hash map.
      */
-    if (strcmp(unit, "celsius") == 0) {
-        convert = celsius_to_k;
+    if (strcmp(raw_unit, "celsius") == 0) {
+        return celsius_to_k;
     }
-    else if (strcmp(unit, "g/s") == 0) {
-        convert = gs_to_kgs;
+    else if (strcmp(raw_unit, "g/s") == 0) {
+        return gs_to_kgs;
     }
-    else if (strcmp(unit, "K") == 0) {
-        convert = nop;
+    else if (strcmp(raw_unit, "K") == 0) {
+        return nop;
     }
-    else if (strcmp(unit, "kg/s") == 0) {
-        convert = nop;
+    else if (strcmp(raw_unit, "kg/s") == 0) {
+        return nop;
     }
-    else if (strcmp(unit, "km") == 0) {
-        convert = km_to_m;
+    else if (strcmp(raw_unit, "km") == 0) {
+        return km_to_m;
     }
-    else if (strcmp(unit, "km/h") == 0) {
-        convert = kmh_to_ms;
+    else if (strcmp(raw_unit, "km/h") == 0) {
+        return kmh_to_ms;
     }
-    else if (strcmp(unit, "kPa") == 0) {
-        convert = kpa_to_pa;
+    else if (strcmp(raw_unit, "kPa") == 0) {
+        return kpa_to_pa;
     }
-    else if (strcmp(unit, "m") == 0) {
-        convert = nop;
+    else if (strcmp(raw_unit, "m") == 0) {
+        return nop;
     }
-    else if (strcmp(unit, "m/s") == 0) {
-        convert = nop;
+    else if (strcmp(raw_unit, "m/s") == 0) {
+        return nop;
     }
-    else if (strcmp(unit, "nm") == 0) {
-        convert = nm_to_m;
+    else if (strcmp(raw_unit, "nm") == 0) {
+        return nm_to_m;
     }
-    else if (strcmp(unit, "ns") == 0) {
-        convert = nop;
+    else if (strcmp(raw_unit, "ns") == 0) {
+        return nop;
     }
-    else if (strcmp(unit, "Pa") == 0) {
-        convert = nop;
+    else if (strcmp(raw_unit, "Pa") == 0) {
+        return nop;
     }
-    else if (strcmp(unit, "percent") == 0) {
-        convert = nop;
+    else if (strcmp(raw_unit, "percent") == 0) {
+        return nop;
     }
-    else if (strcmp(unit, "rad/s") == 0) {
-        convert = nop;
+    else if (strcmp(raw_unit, "rad/s") == 0) {
+        return nop;
     }
-    else if (strcmp(unit, "rpm") == 0) {
-        convert = rpm_to_rads;
+    else if (strcmp(raw_unit, "rpm") == 0) {
+        return rpm_to_rads;
     }
-    else if (strcmp(unit, "s") == 0) {
-        convert = s_to_ns;
-    }
-    else {
-        /* We need to add a new conversion function. */
-        XASSERT_ERROR;
+    else if (strcmp(raw_unit, "s") == 0) {
+        return s_to_ns;
     }
 
-    return convert;
+    /* We need to add a new conversion function. */
+    XASSERT_ERROR;
 }

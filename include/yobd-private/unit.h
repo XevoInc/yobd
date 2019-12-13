@@ -10,18 +10,13 @@
 
 #include <yobd/yobd.h>
 
-typedef float (*to_si)(float val);
-
-struct unit_desc {
-    const char *name;
-    to_si convert;
-};
+typedef float (*convert_func)(float val);
 
 /**
  * Returns the conversion function (converting to SI units) for a given unit.
  * @param unit a unit ID
  * @return conversion function pointer
  */
-to_si get_conversion(const char *unit);
+convert_func find_convert_func(const char *raw_unit);
 
 #endif /* YOBD_PRIVATE_UNIT_H_ */

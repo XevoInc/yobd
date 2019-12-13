@@ -57,7 +57,6 @@ int main(int argc, const char **argv)
     yobd_pid pid2;
     const struct yobd_pid_desc *pid_desc;
     const char *schema_file;
-    const char *str;
     float val;
 
     if (argc != 2) {
@@ -93,10 +92,7 @@ int main(int argc, const char **argv)
     XASSERT_NOT_NULL(pid_desc)
     XASSERT_STREQ(pid_desc->name, "intake air temperature");
     XASSERT_EQ(pid_desc->can_bytes, 1);
-
-    err = yobd_get_unit_str(ctx, pid_desc->unit, &str);
-    XASSERT_OK(err);
-    XASSERT_STREQ(str, "K");
+    XASSERT_EQ(pid_desc->unit, YOBD_UNIT_KELVIN);
 
     memset(&frame, 0, sizeof(frame));
     memset(&frame2, 0, sizeof(frame2));
