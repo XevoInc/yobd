@@ -48,7 +48,6 @@ XHASH_MAP_INIT_INT(MODEPID_MAP, struct parse_pid_ctx)
 XHASH_MAP_INIT_STR(UNIT_NAME_MAP, struct unit_tuple)
 
 struct yobd_ctx {
-    yobd_unit next_unit_id;
     bool big_endian;
     xhash_t(UNIT_MAP) *unit_map;
     xhash_t(MODEPID_MAP) *modepid_map;

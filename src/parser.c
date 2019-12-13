@@ -274,6 +274,7 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
     xhiter_t iter;
     int key;
     yobd_mode mode;
+    yobd_unit next_unit_id;
     yaml_parser_t parser;
     yobd_pid pid;
     struct parse_pid_ctx *parse_ctx;
@@ -496,8 +497,8 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
                         }
 
                         /* Get a new unit ID. */
-                        unit_id = ctx->next_unit_id;
-                        ++ctx->next_unit_id;
+                        unit_id = next_unit_id;
+                        ++next_unit_id;
 
                         /* Finally put the unit into our maps. */
                         iter = xh_put(
@@ -651,8 +652,6 @@ yobd_err yobd_parse_schema(const char *schema, struct yobd_ctx **out_ctx)
         err = YOBD_OOM;
         goto error_modepid_map_init;
     }
-
-    ctx->next_unit_id = 0;
 
     err = parse(ctx, file);
     if (err != YOBD_OK) {
