@@ -13,19 +13,12 @@
 #include <yobd/yobd.h>
 #include <yobd-private/unit.h>
 
-typedef enum {
-    EVAL_TYPE_EXPR
-} eval_type;
-
 struct parse_pid_ctx {
     /* The raw OBD II unit, not yet converted to SI. */
     yobd_unit raw_unit;
     pid_data_type pid_type;
     /* The byte count of the CAN response, not of the OBD II response. */
-    eval_type eval_type;
-    union {
-        struct expr expr;
-    };
+    struct expr expr;
     /* Public PID descriptor. */
     struct yobd_pid_desc desc;
 };

@@ -138,10 +138,7 @@ void yobd_free_ctx(struct yobd_ctx *ctx)
         parse_ctx = &xh_val(ctx->modepid_map, iter);
 
         free((char *) parse_ctx->desc.name);
-        switch (parse_ctx->eval_type) {
-            case EVAL_TYPE_EXPR:
-                destroy_expr(&parse_ctx->expr);
-        }
+        destroy_expr(&parse_ctx->expr);
     );
     xh_destroy(MODEPID_MAP, ctx->modepid_map);
 
@@ -559,7 +556,6 @@ yobd_err parse(struct yobd_ctx *ctx, FILE *file)
                         state.key = KEY_NONE;
 
                         XASSERT_NOT_NULL(parse_ctx);
-                        parse_ctx->eval_type = EVAL_TYPE_EXPR;
                         err = parse_expr(
                             val,
                             &parse_ctx->expr,

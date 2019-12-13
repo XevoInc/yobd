@@ -428,16 +428,12 @@ yobd_err yobd_parse_can_response(
     }
 
     convert = get_convert_func(ctx, parse_ctx->raw_unit);
-    switch (parse_ctx->eval_type) {
-        case EVAL_TYPE_EXPR:
-            eval_expr(
-                parse_ctx->pid_type,
-                &parse_ctx->expr,
-                data_start,
-                val,
-                convert);
-            break;
-    }
+    eval_expr(
+        parse_ctx->pid_type,
+        &parse_ctx->expr,
+        data_start,
+        val,
+        convert);
 
     return YOBD_OK;
 }
