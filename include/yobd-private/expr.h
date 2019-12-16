@@ -41,7 +41,6 @@ DEFINE_STACK(EXPR_STACK, struct expr_token)
 struct expr {
     size_t size;
     struct expr_token *data;
-    struct EXPR_STACK stack;
 };
 
 yobd_err parse_expr_val(const char *str, struct expr *expr, pid_data_type type);

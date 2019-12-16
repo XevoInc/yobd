@@ -278,7 +278,6 @@ void shunting_yard(
 
 yobd_err parse_expr_val(const char *str, struct expr *expr, pid_data_type type)
 {
-    struct expr_token *data;
     size_t expr_bytes;
     parse_token op_data[OP_STACK_SIZE];
     struct OP_STACK op_stack;
@@ -306,22 +305,10 @@ yobd_err parse_expr_val(const char *str, struct expr *expr, pid_data_type type)
      */
     memcpy(expr->data, STACK_DATA(EXPR_STACK, &out_stack), expr_bytes);
 
-    /*
-     * Alloc an evaluation stack for the expression. Note that we give the
-     * evaluation stack the same size as the expression data. This is an
-     * upper-bound, and we could likely do better with a bit of cleverness.
-     */
-    data = malloc(expr_bytes);
-    if (data == NULL) {
-        return YOBD_OOM;
-    }
-    INIT_STACK(EXPR_STACK, &expr->stack, data, expr->size);
-
     return YOBD_OK;
 }
 
 void destroy_expr(struct expr *expr)
 {
     free(expr->data);
-    free(STACK_DATA(EXPR_STACK, &expr->stack));
 }

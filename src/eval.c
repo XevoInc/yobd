@@ -35,6 +35,7 @@
 static \
 float eval_expr_##stack_type( \
     struct expr *expr, \
+    struct EXPR_STACK *stack, \
     const uint8_t *data, \
     convert_func convert) \
 { \
@@ -49,26 +50,26 @@ float eval_expr_##stack_type( \
             case EXPR_A: \
                 result.type = enum_type; \
                 result.as_##stack_type = data[0]; \
-                PUSH_STACK(EXPR_STACK, &expr->stack, &result); \
+                PUSH_STACK(EXPR_STACK, stack, &result); \
                 break; \
             case EXPR_B: \
                 result.type = enum_type; \
                 result.as_##stack_type = data[1]; \
-                PUSH_STACK(EXPR_STACK, &expr->stack, &result); \
+                PUSH_STACK(EXPR_STACK, stack, &result); \
                 break; \
             case EXPR_C: \
                 result.type = enum_type; \
                 result.as_##stack_type = data[2]; \
-                PUSH_STACK(EXPR_STACK, &expr->stack, &result); \
+                PUSH_STACK(EXPR_STACK, stack, &result); \
                 break; \
             case EXPR_D: \
                 result.type = enum_type; \
                 result.as_##stack_type = data[3]; \
-                PUSH_STACK(EXPR_STACK, &expr->stack, &result); \
+                PUSH_STACK(EXPR_STACK, stack, &result); \
                 break; \
             case EXPR_OP: \
-                tok1 = POP_STACK(EXPR_STACK, &expr->stack); \
-                tok2 = POP_STACK(EXPR_STACK, &expr->stack); \
+                tok1 = POP_STACK(EXPR_STACK, stack); \
+                tok2 = POP_STACK(EXPR_STACK, stack); \
                 XASSERT_EQ(tok1.type, enum_type); \
                 XASSERT_EQ(tok2.type, enum_type); \
                 result.type = enum_type; \
@@ -86,10 +87,10 @@ float eval_expr_##stack_type( \
                         result.as_##stack_type = tok2.as_##stack_type / tok1.as_##stack_type; \
                         break; \
                 } \
-                PUSH_STACK(EXPR_STACK, &expr->stack, &result); \
+                PUSH_STACK(EXPR_STACK, stack, &result); \
                 break; \
             case enum_type: \
-                PUSH_STACK(EXPR_STACK, &expr->stack, &expr->data[i]); \
+                PUSH_STACK(EXPR_STACK, stack, &expr->data[i]); \
                 break; \
             default: \
                 /*
@@ -100,8 +101,8 @@ float eval_expr_##stack_type( \
         } \
     } \
     \
-    XASSERT_EQ(STACK_SIZE(EXPR_STACK, &expr->stack), 1); \
-    result = POP_STACK(EXPR_STACK, &expr->stack); \
+    XASSERT_EQ(STACK_SIZE(EXPR_STACK, stack), 1); \
+    result = POP_STACK(EXPR_STACK, stack); \
     XASSERT_EQ(result.type, enum_type); \
     \
     val = result.as_##stack_type; \
@@ -279,15 +280,21 @@ void eval_expr(
     float *val,
     convert_func convert)
 {
+    struct EXPR_STACK eval_stack;
+    struct expr_token stack_data[expr->size * sizeof(*expr->data)];
+
+    /* Put the data for the evaluation stack on the stack. Haha. */
+    INIT_STACK(EXPR_STACK, &eval_stack, stack_data, expr->size);
+
     switch (pid_type) {
         case PID_DATA_TYPE_FLOAT:
-            *val = eval_expr_float(expr, data, convert);
+            *val = eval_expr_float(expr, &eval_stack, data, convert);
             break;
         case PID_DATA_TYPE_UINT8:
         case PID_DATA_TYPE_UINT16:
         case PID_DATA_TYPE_INT8:
         case PID_DATA_TYPE_INT16:
-            *val = eval_expr_int32_t(expr, data, convert);
+            *val = eval_expr_int32_t(expr, &eval_stack, data, convert);
             break;
     }
 }
