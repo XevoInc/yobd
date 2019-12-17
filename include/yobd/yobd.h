@@ -20,6 +20,17 @@ extern "C" {
 /** The CAN address to use to query a vehicle. */
 #define YOBD_OBD_II_QUERY_ADDRESS (0x7df)
 
+/*
+ * OBD-II responses will be on addresses between
+ * OBD_II_RESPONSE_BASE and OBD_II_RESPONSE_END, inclusive.
+ */
+
+/** The first OBD-II response address. */
+#define YOBD_OBD_II_RESPONSE_BASE (0x7e8)
+
+/** The last OBD-II response address. */
+#define YOBD_OBD_II_RESPONSE_END (0x7ef)
+
 /** Forward declaration for opaque pointer. */
 struct yobd_ctx;
 

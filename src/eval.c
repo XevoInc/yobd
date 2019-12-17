@@ -15,11 +15,6 @@
 #include <stdio.h>
 
 /**
- * The CAN address to listen for when getting a vehicle's response.
- */
-#define OBD_II_RESPONSE_ADDRESS (0x7e8)
-
-/**
  * The value to use to pad OBD II messages. ISO 15765-2:2016 page 43 suggests
  * but does not require 0xcc for padding.
  */
@@ -213,7 +208,7 @@ yobd_err yobd_make_can_response_noctx(
     }
 
     /* These are standard for all OBD II. */
-    frame->can_id = OBD_II_RESPONSE_ADDRESS;
+    frame->can_id = YOBD_OBD_II_RESPONSE_BASE;
     frame->can_dlc = 8;
 
     /* These vary per query. */
@@ -273,6 +268,19 @@ yobd_err yobd_make_can_response(
 }
 
 static
+bool is_query(const struct can_frame *frame)
+{
+    return frame->can_id == YOBD_OBD_II_QUERY_ADDRESS;
+}
+
+static
+bool is_response(const struct can_frame *frame)
+{
+    return (frame->can_id >= YOBD_OBD_II_RESPONSE_BASE &&
+            frame->can_id <= YOBD_OBD_II_RESPONSE_END);
+}
+
+static
 void eval_expr(
     pid_data_type pid_type,
     struct expr *expr,
@@ -312,7 +320,7 @@ yobd_err parse_mode_pid(
      * response mode of less than 1, which is invalid.
      */
     *mode = frame->data[1];
-    if (frame->can_id == OBD_II_RESPONSE_ADDRESS) {
+    if (is_response(frame)) {
         if (*mode < 0x41) {
             return YOBD_INVALID_MODE;
         }
@@ -350,8 +358,7 @@ yobd_err yobd_parse_can_headers_noctx(
         return YOBD_INVALID_PARAMETER;
     }
 
-    if (frame->can_id != YOBD_OBD_II_QUERY_ADDRESS &&
-        frame->can_id != OBD_II_RESPONSE_ADDRESS) {
+    if (!is_query(frame) && !is_response(frame)) {
         return YOBD_UNKNOWN_ID;
     }
 
@@ -399,7 +406,7 @@ yobd_err yobd_parse_can_response(
         return YOBD_INVALID_PARAMETER;
     }
 
-    if (frame->can_id != OBD_II_RESPONSE_ADDRESS) {
+    if (!is_response(frame)) {
         return YOBD_UNKNOWN_ID;
     }
 
