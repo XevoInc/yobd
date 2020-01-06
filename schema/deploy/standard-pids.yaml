@@ -15,7 +15,7 @@ modepid:
       name: engine coolant temperature
       bytes: 1
       raw-unit: celsius
-      si-unit: percent
+      si-unit: K
       expr:
         type: int8
         val: A - 40
