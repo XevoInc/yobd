@@ -242,5 +242,5 @@ modepid:
       raw-unit: nm
       si-unit: m
       expr:
-        type: int8
+        type: int16
         val: 256*A + B
