@@ -69,11 +69,7 @@ defs:
 
 properties:
   endian:
-    description: The endianness of the OBD-II data
-    type: string
-    enum:
-      - big
-      - little
+    $ref: "sschema://endian.yaml"
   modepid:
     description: A map from mode to all pids in the mode
     type: object

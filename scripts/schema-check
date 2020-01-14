@@ -17,7 +17,7 @@ import yaml
 import jsonschema
 import formatchecker.infix
 import sschema
-import sschema.handler.include
+import sschema.handler.sschema
 
 
 def get_arg_parser():
@@ -52,7 +52,7 @@ def main():
     with open(args.datafile, 'r') as f:
         data = yaml.safe_load(f)
 
-    handler = sschema.handler.include.make_default_handler()
+    handler = sschema.handler.sschema.make_default_handler()
     resolver = sschema.make_resolver(schema, [handler])
     format_checker = sschema.make_format_checker([formatchecker.infix])
     errors = list(jsonschema.Draft7Validator(
