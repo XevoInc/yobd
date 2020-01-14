@@ -36,7 +36,7 @@ defs:
     type: object
     properties:
       type:
-        $ref: include://type.yaml
+        $ref: sschema://type.yaml
       val:
         type: string
         format: infix
@@ -54,9 +54,9 @@ defs:
       bytes:
         $ref: "#/defs/bytes"
       raw-unit:
-        $ref: include://raw-unit.yaml
+        $ref: sschema://raw-unit.yaml
       si-unit:
-        $ref: include://si-unit.yaml
+        $ref: sschema://si-unit.yaml
       expr:
         $ref: "#/defs/expr"
     required:
