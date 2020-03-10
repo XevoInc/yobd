@@ -11,8 +11,8 @@
 #define YOBD_PRIVATE_CONFIG_H_
 
 /**
- * The directory in which to look for schema files when given a relative path.
+ * The directory in which to look for PID files when given a relative path.
  */
-#mesondefine CONFIG_YOBD_SCHEMADIR
+#mesondefine CONFIG_YOBD_PID_DIR
 
 #endif /* YOBD_PRIVATE_CONFIG_H_ */

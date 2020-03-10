@@ -23,8 +23,8 @@ yobd_confdir = join_paths(
     get_option('prefix'),
     get_option('sysconfdir'),
     'yobd')
-yobd_schemadir = join_paths(yobd_confdir, 'schema')
-conf.set_quoted('CONFIG_YOBD_SCHEMADIR', yobd_schemadir)
+yobd_schemadir = join_paths(yobd_confdir, 'pids')
+conf.set_quoted('CONFIG_YOBD_PID_DIR', yobd_schemadir)
 configure_file(
     input: 'include/yobd-private/config.h.in',
     output: 'config.h',
