@@ -71,7 +71,7 @@ install_subdir(
 # Tests.
 add_test_setup('valgrind', exe_wrapper: ['valgrind', '-v'])
 tests = [
-    ['can', ['test/can.c'], files('schema/deploy/standard-pids.yaml') ],
+    ['can', ['test/can.c'], files('schema/deploy/sae-standard.yaml') ],
 ]
 test_include = include_directories('test/include')
 test_deps = [yobd_dep] + [xlib_dep]
