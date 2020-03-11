@@ -175,7 +175,7 @@ yobd_unit find_unit(const char *val)
     else if (strcmp(val, "lat") == 0) {
         return YOBD_UNIT_LATITUDE;
     }
-    else if (strcmp(val, "long") == 0) {
+    else if (strcmp(val, "lng") == 0) {
         return YOBD_UNIT_LONGITUDE;
     }
     else if (strcmp(val, "m") == 0) {
