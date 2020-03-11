@@ -104,6 +104,12 @@ convert_func find_convert_func(const char *raw_unit)
     else if (strcmp(raw_unit, "kPa") == 0) {
         return kpa_to_pa;
     }
+    else if (strcmp(raw_unit, "lat") == 0) {
+        return nop;
+    }
+    else if (strcmp(raw_unit, "long") == 0) {
+        return nop;
+    }
     else if (strcmp(raw_unit, "m") == 0) {
         return nop;
     }
