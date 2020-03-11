@@ -5,6 +5,7 @@
  * @copyright Copyright (C) 2017 Xevo Inc. All Rights Reserved.
  */
 
+#include <math.h>
 #include <string.h>
 #include <yobd/yobd.h>
 #include <yobd-private/assert.h>
@@ -22,6 +23,12 @@ static
 float celsius_to_k(float val)
 {
     return val + 273.15;
+}
+
+static
+float degree_to_rad(float val)
+{
+    return val * (PI / 180.0);
 }
 
 static
@@ -75,6 +82,9 @@ convert_func find_convert_func(const char *raw_unit)
      */
     if (strcmp(raw_unit, "celsius") == 0) {
         return celsius_to_k;
+    }
+    if (strcmp(raw_unit, "degree") == 0) {
+        return degree_to_rad;
     }
     else if (strcmp(raw_unit, "g/s") == 0) {
         return gs_to_kgs;
