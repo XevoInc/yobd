@@ -338,7 +338,7 @@ yobd_err parse_desc(
 }
 
 static
-yobd_err parse_pid(
+yobd_err parse_mode(
     yaml_node_t *node,
     yaml_document_t *doc,
     yobd_mode mode,
@@ -413,7 +413,7 @@ yobd_err parse_modepid(
         val = yaml_document_get_node(doc, pair->value);
         XASSERT_NOT_NULL(val);
 
-        err = parse_pid(val, doc, mode, ctx);
+        err = parse_mode(val, doc, mode, ctx);
         if (err != YOBD_OK) {
             return err;
         }
