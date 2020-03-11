@@ -52,9 +52,9 @@ typedef enum {
 } yobd_err;
 
 /**
- * Units for PID descriptors.  these are SI units as much as possible. Time is
- * an exception, as specifying everything in seconds will result in floating
- * point issues.
+ * Units for PID descriptors. These are SI units as much as possible. Time is an
+ * exception, as specifying everything in seconds will result in floating point
+ * issues.
  */
 typedef enum {
     YOBD_UNIT_DEGREE = 0,
