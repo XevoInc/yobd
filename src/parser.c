@@ -145,8 +145,8 @@ pid_data_type find_type(const char *str)
     /* Make sure this stays in sync with the pid_data_type enum! */
     static const char *types[] = {
         [PID_DATA_TYPE_UINT8] = "uint8",
-        [PID_DATA_TYPE_UINT16] = "uint16",
         [PID_DATA_TYPE_INT8] = "int8",
+        [PID_DATA_TYPE_UINT16] = "uint16",
         [PID_DATA_TYPE_INT16] = "int16",
         [PID_DATA_TYPE_FLOAT] = "float"
     };

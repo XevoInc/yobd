@@ -298,9 +298,9 @@ float eval_expr(
         case PID_DATA_TYPE_FLOAT:
             val = eval_expr_float(expr, &eval_stack, data, convert);
             break;
+        case PID_DATA_TYPE_INT8:
         case PID_DATA_TYPE_UINT8:
         case PID_DATA_TYPE_UINT16:
-        case PID_DATA_TYPE_INT8:
         case PID_DATA_TYPE_INT16:
             val = eval_expr_int32_t(expr, &eval_stack, data, convert);
             break;
