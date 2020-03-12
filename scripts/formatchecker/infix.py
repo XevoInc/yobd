@@ -19,6 +19,11 @@ FORMAT_NAME = 'infix'
 def check(val):
     '''Returns True if val is a valid infix expression and raises FormatError
     otherwise.'''
+    if val == 'nop':
+        # nop just means passing through the value, so it's allowed as a
+        # special-case.
+        return True
+
     operators = {
         ast.Add: operator.add,
         ast.Sub: operator.sub,

@@ -45,7 +45,7 @@ modepid:
       si-unit: m/s
       expr:
         type: uint8
-        val: A
+        val: nop
 
     "0x0f":
       name: intake air temperature
@@ -117,7 +117,7 @@ modepid:
       si-unit: Pa
       expr:
         type: uint8
-        val: A
+        val: nop
 
     "0x45":
       name: relative throttle position

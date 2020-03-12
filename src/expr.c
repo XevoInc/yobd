@@ -286,12 +286,24 @@ yobd_err parse_expr_val(const char *str, struct expr *expr, pid_data_type type)
     struct expr_token out_data[OUT_STACK_SIZE];
     struct EXPR_STACK out_stack;
 
+    if (strcmp(str, "nop") == 0) {
+        /*
+         * no-op means we don't have to evaluate anything; just pass the data
+         * through.
+         */
+        expr->type = EXPR_NOP;
+        expr->size = 0;
+        expr->data = NULL;
+        return YOBD_OK;
+    }
+
     INIT_STACK(OP_STACK, &op_stack, op_data, ARRAYLEN(op_data));
     INIT_STACK(EXPR_STACK, &out_stack, out_data, ARRAYLEN(out_data));
 
     shunting_yard(str, type, &op_stack, &out_stack);
 
     /* Make our expression data the right size. */
+    expr->type = EXPR_STACK;
     expr->size = STACK_SIZE(EXPR_STACK, &out_stack);
     expr_bytes = expr->size * sizeof(*expr->data);
     expr->data = malloc(expr_bytes);

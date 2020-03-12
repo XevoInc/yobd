@@ -38,7 +38,13 @@ struct expr_token {
 
 DEFINE_STACK(EXPR_STACK, struct expr_token)
 
+typedef enum {
+    EXPR_NOP,
+    EXPR_STACK
+} expr_type;
+
 struct expr {
+    expr_type type;
     size_t size;
     struct expr_token *data;
 };

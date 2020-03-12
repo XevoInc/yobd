@@ -5,6 +5,8 @@
  * @copyright Copyright (C) 2017 Xevo Inc. All Rights Reserved.
  */
 
+#define _DEFAULT_SOURCE
+#include <endian.h>
 #include <float.h>
 #include <stdbool.h>
 #include <yobd-private/api.h>
@@ -31,8 +33,7 @@ static \
 float eval_expr_##stack_type( \
     struct expr *expr, \
     struct EXPR_STACK *stack, \
-    const uint8_t *data, \
-    convert_func convert) \
+    const uint8_t *data) \
 { \
     size_t i; \
     struct expr_token tok1; \
@@ -101,7 +102,7 @@ float eval_expr_##stack_type( \
     XASSERT_EQ(result.type, enum_type); \
     \
     val = result.as_##stack_type; \
-    return convert((float) val); \
+    return (float) val; \
 }
 
 DEFINE_EVAL_FUNC(int32_t, EXPR_INT32)
@@ -280,23 +281,66 @@ bool is_response(const struct can_frame *frame)
             frame->can_id <= YOBD_OBD_II_RESPONSE_END);
 }
 
+float nop_eval(bool big_endian, pid_data_type pid_type, const uint8_t *data)
+{
+    union {
+        float float_val;
+        uint32_t uint_val;
+    } nop;
+    float val;
+
+    switch (pid_type) {
+        case PID_DATA_TYPE_INT8:
+        case PID_DATA_TYPE_UINT8:
+            val = (float) *data;
+            break;
+        case PID_DATA_TYPE_INT16:
+        case PID_DATA_TYPE_UINT16:
+            if (big_endian) {
+                val = (float) be16toh(*((uint16_t *) data));
+            }
+            else {
+                val = (float) le16toh(*((uint16_t *) data));
+            }
+            break;
+        case PID_DATA_TYPE_INT32:
+        case PID_DATA_TYPE_UINT32:
+            if (big_endian) {
+                val = (float) be32toh(*((uint32_t *) data));
+            }
+            else {
+                val = (float) le32toh(*((uint32_t *) data));
+            }
+            break;
+        case PID_DATA_TYPE_FLOAT:
+            /* Reinterpret the bits as an IEEE 754 float. */
+            if (big_endian) {
+                nop.uint_val = be32toh(*((uint32_t *) data));
+            }
+            else {
+                /* Little endian. */
+                nop.uint_val = le32toh(*((uint32_t *) data));
+            }
+            val = nop.float_val;
+            break;
+    }
+
+    return val;
+}
+
 static
-float eval_expr(
-    pid_data_type pid_type,
-    struct expr *expr,
-    const uint8_t *data,
-    convert_func convert)
+float stack_eval(pid_data_type pid_type, struct expr *expr, const uint8_t *data)
 {
     struct EXPR_STACK eval_stack;
-    float val;
     struct expr_token stack_data[expr->size * sizeof(*expr->data)];
+    float val;
 
     /* Put the data for the evaluation stack on the stack. Haha. */
     INIT_STACK(EXPR_STACK, &eval_stack, stack_data, expr->size);
 
     switch (pid_type) {
         case PID_DATA_TYPE_FLOAT:
-            val = eval_expr_float(expr, &eval_stack, data, convert);
+            val = eval_expr_float(expr, &eval_stack, data);
             break;
         case PID_DATA_TYPE_INT8:
         case PID_DATA_TYPE_UINT8:
@@ -304,11 +348,33 @@ float eval_expr(
         case PID_DATA_TYPE_INT16:
         case PID_DATA_TYPE_UINT32:
         case PID_DATA_TYPE_INT32:
-            val = eval_expr_int32_t(expr, &eval_stack, data, convert);
+            val = eval_expr_int32_t(expr, &eval_stack, data);
             break;
     }
 
     return val;
+}
+
+static
+float eval_expr(
+    bool big_endian,
+    pid_data_type pid_type,
+    struct expr *expr,
+    const uint8_t *data,
+    convert_func convert)
+{
+    float val;
+
+    switch (expr->type) {
+        case EXPR_NOP:
+            val = nop_eval(big_endian, pid_type, data);
+            break;
+        case EXPR_STACK:
+            val = stack_eval(pid_type, expr, data);
+            break;
+    }
+
+    return convert(val);
 }
 
 static
@@ -444,6 +510,7 @@ yobd_err yobd_parse_can_response(
     }
 
     *val = eval_expr(
+        ctx->big_endian,
         pid_ctx->pid_type,
         &pid_ctx->expr,
         data_start,

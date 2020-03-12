@@ -130,7 +130,9 @@ void yobd_free_ctx(struct yobd_ctx *ctx)
         pid_ctx = &xh_val(ctx->modepid_map, iter);
 
         free((char *) pid_ctx->desc.name);
-        destroy_expr(&pid_ctx->expr);
+        if (pid_ctx->expr.type == EXPR_STACK) {
+            destroy_expr(&pid_ctx->expr);
+        }
     );
     xh_destroy(MODEPID_MAP, ctx->modepid_map);
 
