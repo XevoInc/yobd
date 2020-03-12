@@ -281,14 +281,14 @@ bool is_response(const struct can_frame *frame)
 }
 
 static
-void eval_expr(
+float eval_expr(
     pid_data_type pid_type,
     struct expr *expr,
     const uint8_t *data,
-    float *val,
     convert_func convert)
 {
     struct EXPR_STACK eval_stack;
+    float val;
     struct expr_token stack_data[expr->size * sizeof(*expr->data)];
 
     /* Put the data for the evaluation stack on the stack. Haha. */
@@ -296,15 +296,17 @@ void eval_expr(
 
     switch (pid_type) {
         case PID_DATA_TYPE_FLOAT:
-            *val = eval_expr_float(expr, &eval_stack, data, convert);
+            val = eval_expr_float(expr, &eval_stack, data, convert);
             break;
         case PID_DATA_TYPE_UINT8:
         case PID_DATA_TYPE_UINT16:
         case PID_DATA_TYPE_INT8:
         case PID_DATA_TYPE_INT16:
-            *val = eval_expr_int32_t(expr, &eval_stack, data, convert);
+            val = eval_expr_int32_t(expr, &eval_stack, data, convert);
             break;
     }
+
+    return val;
 }
 
 static
@@ -439,11 +441,10 @@ yobd_err yobd_parse_can_response(
         return YOBD_INVALID_DATA_BYTES;
     }
 
-    eval_expr(
+    *val = eval_expr(
         pid_ctx->pid_type,
         &pid_ctx->expr,
         data_start,
-        val,
         pid_ctx->convert_func);
 
     return YOBD_OK;
