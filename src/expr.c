@@ -204,6 +204,8 @@ void shunting_yard(
                     case PID_DATA_TYPE_INT8:
                     case PID_DATA_TYPE_UINT16:
                     case PID_DATA_TYPE_INT16:
+                    case PID_DATA_TYPE_UINT32:
+                    case PID_DATA_TYPE_INT32:
                         expr_tok.as_int32_t = strtol((const char *) start, NULL, 10);
                         expr_tok.type = EXPR_INT32;
                         break;

@@ -148,6 +148,8 @@ pid_data_type find_type(const char *str)
         [PID_DATA_TYPE_INT8] = "int8",
         [PID_DATA_TYPE_UINT16] = "uint16",
         [PID_DATA_TYPE_INT16] = "int16",
+        [PID_DATA_TYPE_UINT32] = "uint32",
+        [PID_DATA_TYPE_INT32] = "int32",
         [PID_DATA_TYPE_FLOAT] = "float"
     };
 
