@@ -281,21 +281,26 @@ bool is_response(const struct can_frame *frame)
             frame->can_id <= YOBD_OBD_II_RESPONSE_END);
 }
 
-float nop_eval(bool big_endian, pid_data_type pid_type, const uint8_t *data)
+float nop_eval(
+    bool big_endian,
+    uint_fast8_t can_bytes,
+    pid_data_type pid_type,
+    const uint8_t *data)
 {
+    uint8_t first_byte;
+    uint16_t last_bytes;
     union {
         float float_val;
         uint32_t uint_val;
     } nop;
+    uint32_t num;
     float val;
 
-    switch (pid_type) {
-        case PID_DATA_TYPE_INT8:
-        case PID_DATA_TYPE_UINT8:
+    switch (can_bytes) {
+        case 1:
             val = (float) *data;
             break;
-        case PID_DATA_TYPE_INT16:
-        case PID_DATA_TYPE_UINT16:
+        case 2:
             if (big_endian) {
                 val = (float) be16toh(*((uint16_t *) data));
             }
@@ -303,26 +308,41 @@ float nop_eval(bool big_endian, pid_data_type pid_type, const uint8_t *data)
                 val = (float) le16toh(*((uint16_t *) data));
             }
             break;
-        case PID_DATA_TYPE_INT32:
-        case PID_DATA_TYPE_UINT32:
+        case 3:
+            first_byte = *data;
+            last_bytes = *((uint16_t *) (data+1));
             if (big_endian) {
-                val = (float) be32toh(*((uint32_t *) data));
+                num = (first_byte << 16) | (last_bytes);
             }
             else {
-                val = (float) le32toh(*((uint32_t *) data));
+                num = (last_bytes << 8) | first_byte;
             }
+            val = (float) num;
             break;
-        case PID_DATA_TYPE_FLOAT:
-            /* Reinterpret the bits as an IEEE 754 float. */
-            if (big_endian) {
-                nop.uint_val = be32toh(*((uint32_t *) data));
+        case 4:
+            if (pid_type != PID_DATA_TYPE_FLOAT) {
+                if (big_endian) {
+                    val = (float) be32toh(*((uint32_t *) data));
+                }
+                else {
+                    val = (float) le32toh(*((uint32_t *) data));
+                }
             }
             else {
-                /* Little endian. */
-                nop.uint_val = le32toh(*((uint32_t *) data));
+                /* Reinterpret the bits as an IEEE 754 float. */
+                if (big_endian) {
+                    nop.uint_val = be32toh(*((uint32_t *) data));
+                }
+                else {
+                    /* Little endian. */
+                    nop.uint_val = le32toh(*((uint32_t *) data));
+                }
+                val = nop.float_val;
             }
-            val = nop.float_val;
             break;
+        default:
+            /* We should not have passed the parsing step. */
+            XASSERT_ERROR;
     }
 
     return val;
@@ -358,6 +378,7 @@ float stack_eval(pid_data_type pid_type, struct expr *expr, const uint8_t *data)
 static
 float eval_expr(
     bool big_endian,
+    uint_fast8_t can_bytes,
     pid_data_type pid_type,
     struct expr *expr,
     const uint8_t *data,
@@ -367,7 +388,7 @@ float eval_expr(
 
     switch (expr->type) {
         case EXPR_NOP:
-            val = nop_eval(big_endian, pid_type, data);
+            val = nop_eval(big_endian, can_bytes, pid_type, data);
             break;
         case EXPR_STACK:
             val = stack_eval(pid_type, expr, data);
@@ -511,6 +532,7 @@ yobd_err yobd_parse_can_response(
 
     *val = eval_expr(
         ctx->big_endian,
+        pid_ctx->desc.can_bytes,
         pid_ctx->pid_type,
         &pid_ctx->expr,
         data_start,
