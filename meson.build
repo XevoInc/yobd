@@ -93,6 +93,9 @@ foreach t : tests
     test(t.get(0), exe, args: t.get(2))
 endforeach
 
+if get_option('install-tools')
+    install_data('scripts/merge-pids', install_dir: get_option('bindir'))
+endif
 
 # Documentation.
 run_target('docs', command: 'meson/makedoc')
