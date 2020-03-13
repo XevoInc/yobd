@@ -9,7 +9,7 @@ if [[ $# != 0 ]]; then
 fi
 
 SCHEMA_FILE="$MESON_SOURCE_ROOT/schema/meta/schema.yaml"
-for datafile in "$MESON_SOURCE_ROOT"/schema/deploy/*; do
+for datafile in "$MESON_SOURCE_ROOT"/schema/example/*; do
     if [[ ! -f $datafile ]]; then
         continue
     fi
