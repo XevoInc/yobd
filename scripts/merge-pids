@@ -1,0 +1,82 @@
+#!/usr/bin/python3
+#
+# A script to merge PID files together to generate a single PID schema usable
+# by yobd.
+#
+
+import sys
+import yaml
+
+def bail(msg):
+    print(msg, file=sys.stderr)
+    sys.exit(1)
+
+def print_pid(pid, desc):
+    expr = desc['expr']
+    print('    "0x%x":' % pid)
+    print('''\
+      name: %s
+      bytes: %d
+      raw-unit: %s
+      si-unit: %s
+      expr:
+        type: %s
+        val: %s\
+''' % (
+    desc['name'],
+    desc['bytes'],
+    desc['raw-unit'],
+    desc['si-unit'],
+    expr['type'],
+    expr['val']
+))
+
+def print_mode(mode, pidmap):
+    print('  "0x%x":' % int(mode, 0))
+    for pid, desc in pidmap.items():
+        print_pid(int(pid, 0), desc)
+
+def print_schema(s):
+    # Custom printing so we order the schema fields in a way that's easiest to
+    # read.
+    print('---')
+    print('endian: %s' % s['endian'])
+    print('modepid:')
+    for mode, pidmap in s['modepid'].items():
+        print_mode(mode, pidmap)
+
+def merge_pidmap(modepid, mode, new_pidmap):
+    try:
+        pidmap = modepid[mode]
+    except KeyError:
+        modepid[mode] = new_pidmap
+        return
+
+    for pid, desc in new_pidmap.items():
+        if pid in pidmap:
+            bail('mode %s, PID %s specified multiple times' % (mode, pid))
+        pidmap[pid] = desc
+
+if len(sys.argv) == 0:
+    bail('Usage: %s [PID-FILES]' % sys.argv[0])
+
+endian = None
+modepid = {}
+for path in sys.argv[1:]:
+    with open(path, 'r') as f:
+        d = yaml.load(f)
+    d_endian = d['endian']
+    if endian is None:
+        endian = d_endian
+    elif d_endian != endian:
+        bail('all documents must share the same endianness')
+
+    d_modepid = d['modepid']
+    for mode, pidmap in d_modepid.items():
+        merge_pidmap(modepid, mode, pidmap)
+
+schema = {
+    'endian': endian,
+    'modepid': modepid
+}
+print_schema(schema)
