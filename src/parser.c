@@ -188,12 +188,6 @@ yobd_unit find_unit(const char *val)
     else if (strcmp(val, "m/s") == 0) {
         return YOBD_UNIT_METERS_PER_S;
     }
-    else if (strcmp(val, "m/s^2") == 0) {
-        return YOBD_UNIT_METERS_PER_S_SQUARED;
-    }
-    else if (strcmp(val, "none") == 0) {
-        return YOBD_UNIT_NONE;
-    }
     else if (strcmp(val, "Pa") == 0) {
         return YOBD_UNIT_PASCAL;
     }
