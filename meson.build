@@ -70,12 +70,6 @@ pkg.generate(
     version: meson.project_version())
 yobd_dep = declare_dependency(link_with: lib, include_directories: include)
 
-# Install schemas.
-install_subdir(
-    'schema/deploy',
-    install_dir: yobd_schemadir,
-    strip_directory: true)
-
 # Tests.
 add_test_setup('valgrind', exe_wrapper: ['valgrind', '-v'])
 tests = [
