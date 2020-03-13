@@ -16,6 +16,7 @@ import yaml
 
 import jsonschema
 import formatchecker.infix
+import formatchecker.nop_bytes
 import sschema
 import sschema.handler.sschema
 
@@ -54,7 +55,8 @@ def main():
 
     handler = sschema.handler.sschema.make_default_handler()
     resolver = sschema.make_resolver(schema, [handler])
-    format_checker = sschema.make_format_checker([formatchecker.infix])
+    format_checker = sschema.make_format_checker(
+        [formatchecker.infix, formatchecker.nop_bytes])
     errors = list(jsonschema.Draft7Validator(
                       schema,
                       format_checker=format_checker,

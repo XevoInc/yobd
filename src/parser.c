@@ -338,6 +338,38 @@ yobd_err parse_desc(
         }
     }
 
+    switch (pid_ctx->pid_type) {
+        case PID_DATA_TYPE_FLOAT:
+            /* Passthrough floats must use 4 bytes, as we interpret them as a
+             * raw IEEE 754 value, which requires 4 bytes to work with. Note
+             * that this assertion should never fire, as the schema parser
+             * should catch this condition.
+             */
+            if (pid_ctx->expr.type == EXPR_NOP) {
+                XASSERT_EQ(pid_ctx->desc.can_bytes, 4);
+            }
+            break;
+        case PID_DATA_TYPE_INT8:
+        case PID_DATA_TYPE_UINT8:
+            XASSERT_EQ(pid_ctx->desc.can_bytes, 1);
+            break;
+        case PID_DATA_TYPE_UINT16:
+        case PID_DATA_TYPE_INT16:
+            /*
+             * Allow only widening casts (1 byte being output as 2 bytes),
+             * and not narrowing, since that would lose information.
+             */
+            XASSERT_GTE(pid_ctx->desc.can_bytes, 1);
+            XASSERT_LTE(pid_ctx->desc.can_bytes, 2);
+            break;
+        case PID_DATA_TYPE_UINT32:
+        case PID_DATA_TYPE_INT32:
+            /* See above; allow only widening casts. */
+            XASSERT_GTE(pid_ctx->desc.can_bytes, 1);
+            XASSERT_LTE(pid_ctx->desc.can_bytes, 4);
+            break;
+    }
+
     return YOBD_OK;
 }
 

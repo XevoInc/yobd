@@ -48,6 +48,7 @@ defs:
   pid:
     description: An OBD-II PID
     type: object
+    format: nop-bytes
     properties:
       name:
         $ref: "#/defs/name"
