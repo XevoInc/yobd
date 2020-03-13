@@ -53,6 +53,21 @@ defs:
       - rad
       - rad/s
 
+  yobd-type:
+    description: A yobd data type
+    type: string
+    enum:
+      # Please keep this list sorted to avoid accidental duplicates.
+      - float
+      - int16
+      - int32
+      - int64
+      - int8
+      - uint16
+      - uint32
+      - uint64
+      - uint8
+
   one-byte-hex:
     description: A PID from mode 0x1 (1 byte)
     type: string
@@ -79,7 +94,7 @@ defs:
     type: object
     properties:
       type:
-        $ref: sschema://type.yaml
+        $ref: "#/defs/yobd-type"
       val:
         type: string
         format: infix
