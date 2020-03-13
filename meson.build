@@ -70,22 +70,9 @@ pkg.generate(
     version: meson.project_version())
 yobd_dep = declare_dependency(link_with: lib, include_directories: include)
 
-# Tests.
-add_test_setup('valgrind', exe_wrapper: ['valgrind', '-v'])
-tests = [
-    ['can', ['test/can.c'], files('schema/example/sae-standard.yaml') ],
-]
-test_include = include_directories('test/include')
-test_deps = [yobd_dep] + [xlib_dep]
-foreach t : tests
-    exe = executable(
-        t.get(0),
-        t.get(1),
-        include_directories: test_include,
-        link_with: lib,
-        dependencies: test_deps)
-    test(t.get(0), exe, args: t.get(2))
-endforeach
+if get_option('build-tests')
+    subdir('test')
+endif
 
 if get_option('install-tools')
     install_data('scripts/merge-pids', install_dir: get_option('bindir'))
