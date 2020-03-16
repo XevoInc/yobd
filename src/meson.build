@@ -4,19 +4,6 @@ install_subdir('../include/yobd', install_dir : 'include')
 
 # Config header generation.
 conf = configuration_data()
-
-# sysconfdir is special, as when the prefix is /usr, it gets set to /etc. So we
-# need to treat this specially so it always gets installed in the right place.
-prefix = get_option('prefix')
-sysconfdir = get_option('sysconfdir')
-if prefix == '/usr'
-    base = sysconfdir
-else
-    base = join_paths(prefix, sysconfdir)
-endif
-yobd_confdir = join_paths(base, 'yobd')
-yobd_schemadir = join_paths(yobd_confdir, 'pids')
-
 conf.set_quoted('CONFIG_YOBD_PID_DIR', yobd_schemadir)
 configure_file(
     input: '../include/yobd-private/config.h.in',
