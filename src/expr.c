@@ -144,6 +144,23 @@ void op_to_expr(parse_token tok, struct expr_token *expr_tok)
     }
 }
 
+static
+int precedence(parse_token tok)
+{
+    switch (tok) {
+        case TOK_OP_ADD:
+        case TOK_OP_SUB:
+            return 0;
+        case TOK_OP_MUL:
+        case TOK_OP_DIV:
+            return 1;
+        default:
+            /* We should call this only on operators. */
+            XASSERT_ERROR;
+    }
+}
+
+static
 void handle_op(
     parse_token tok,
     struct OP_STACK *op_stack,
@@ -153,12 +170,19 @@ void handle_op(
     parse_token op_tok;
     int ret;
 
-    /* Pop all higher precedence operators onto the output stack. */
+    /* Pop all higher or equal precedence operators onto the output stack. */
     while (true) {
         ret = PEEK_STACK(OP_STACK, op_stack, &op_tok);
-        if (ret == -1 || (op_tok != TOK_OP_MUL && op_tok != TOK_OP_DIV)) {
+        if (ret == -1) {
             break;
         }
+        if (op_tok == TOK_LPAREN) {
+            break;
+        }
+        if (precedence(op_tok) < precedence(tok)) {
+            break;
+        }
+
         op_tok = POP_STACK(OP_STACK, op_stack);
         op_to_expr(op_tok, &expr_tok);
         PUSH_STACK(EXPR_STACK, out_stack, &expr_tok);
@@ -237,13 +261,9 @@ void shunting_yard(
 
             case TOK_OP_ADD:
             case TOK_OP_SUB:
-                handle_op(tok, op_stack, out_stack);
-                break;
-
             case TOK_OP_MUL:
             case TOK_OP_DIV:
-                /* This operator is high precedence, so just push it. */
-                PUSH_STACK(OP_STACK, op_stack, &tok);
+                handle_op(tok, op_stack, out_stack);
                 break;
 
             case TOK_LPAREN:
