@@ -15,15 +15,20 @@ pkg = import('pkgconfig')
 
 # sysconfdir is special, as when the prefix is /usr, it gets set to /etc. So we
 # need to treat this specially so it always gets installed in the right place.
+pkgconfig_vars = []
 prefix = get_option('prefix')
 sysconfdir = get_option('sysconfdir')
 if prefix == '/usr'
     base = sysconfdir
+    pkgconfig_base = ''
 else
     base = join_paths(prefix, sysconfdir)
+    pkgconfig_base = '${prefix}'
 endif
-yobd_confdir = join_paths(base, 'yobd')
-yobd_schemadir = join_paths(yobd_confdir, 'pids')
+pid_dir = join_paths('etc', 'pids')
+yobd_schemadir = join_paths(base, pid_dir)
+schemadir_pkgconfig = join_paths(pkgconfig_base, pid_dir)
+pkgconfig_vars += ['schemadir=' + schemadir_pkgconfig]
 
 subdir('src')
 
