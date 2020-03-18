@@ -19,13 +19,13 @@ pkgconfig_vars = []
 prefix = get_option('prefix')
 sysconfdir = get_option('sysconfdir')
 if prefix == '/usr'
-    base = sysconfdir
+    base = ''
     pkgconfig_base = ''
 else
-    base = join_paths(prefix, sysconfdir)
+    base = prefix
     pkgconfig_base = '${prefix}'
 endif
-pid_dir = join_paths('etc', 'pids')
+pid_dir = join_paths(sysconfdir, 'pids')
 yobd_schemadir = join_paths(base, pid_dir)
 schemadir_pkgconfig = join_paths(pkgconfig_base, pid_dir)
 pkgconfig_vars += ['schemadir=' + schemadir_pkgconfig]
