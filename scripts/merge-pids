@@ -64,7 +64,7 @@ endian = None
 modepid = {}
 for path in sys.argv[1:]:
     with open(path, 'r') as f:
-        d = yaml.load(f)
+        d = yaml.safe_load(f)
     d_endian = d['endian']
     if endian is None:
         endian = d_endian
