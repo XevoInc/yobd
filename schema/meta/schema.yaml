@@ -27,6 +27,7 @@ defs:
       - lng
       - m
       - m/s
+      - m/s^2
       - nm
       - ns
       - Pa
