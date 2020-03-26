@@ -116,6 +116,9 @@ convert_func find_convert_func(const char *raw_unit)
     else if (strcmp(raw_unit, "m/s") == 0) {
         return nop;
     }
+    else if (strcmp(raw_unit, "m/s^2") == 0) {
+        return nop;
+    }
     else if (strcmp(raw_unit, "nm") == 0) {
         return nm_to_m;
     }
