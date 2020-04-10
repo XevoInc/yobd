@@ -569,7 +569,6 @@ yobd_err yobd_parse_schema(const char *schema, struct yobd_ctx **out_ctx)
     else {
         sprintf(abspath, "%s/%s", CONFIG_YOBD_PID_DIR, schema);
         file = fopen(abspath, "r");
-
     }
     if (file == NULL) {
         err = YOBD_CANNOT_OPEN_FILE;
