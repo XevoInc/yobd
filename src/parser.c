@@ -533,6 +533,7 @@ PUBLIC_API
 yobd_err yobd_parse_schema(const char *schema, struct yobd_ctx **out_ctx)
 {
     char abspath[PATH_MAX];
+    int count;
     struct yobd_ctx *ctx;
     yobd_err err;
     FILE *file;
@@ -548,7 +549,16 @@ yobd_err yobd_parse_schema(const char *schema, struct yobd_ctx **out_ctx)
         file = fopen(schema, "r");
     }
     else {
-        sprintf(abspath, "%s/%s", CONFIG_YOBD_PID_DIR, schema);
+        count = snprintf(
+            abspath,
+            ARRAYLEN(abspath),
+            "%s/%s",
+            CONFIG_YOBD_PID_DIR,
+            schema);
+        if (count == PATH_MAX) {
+            err = YOBD_CANNOT_OPEN_FILE;
+            goto out;
+        }
         file = fopen(abspath, "r");
     }
     if (file == NULL) {
