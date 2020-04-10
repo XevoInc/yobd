@@ -538,7 +538,6 @@ yobd_err yobd_parse_schema(const char *schema, struct yobd_ctx **out_ctx)
     FILE *file;
     size_t i;
     bool is_path;
-    size_t len;
     int ret;
 
     if (schema == NULL) {
@@ -557,8 +556,7 @@ yobd_err yobd_parse_schema(const char *schema, struct yobd_ctx **out_ctx)
             is_path = true;
         }
     }
-    len = i;
-    if (len == PATH_MAX) {
+    if (i == PATH_MAX) {
         err = YOBD_INVALID_PATH;
         goto out;
     }
