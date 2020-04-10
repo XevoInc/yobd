@@ -536,8 +536,6 @@ yobd_err yobd_parse_schema(const char *schema, struct yobd_ctx **out_ctx)
     struct yobd_ctx *ctx;
     yobd_err err;
     FILE *file;
-    size_t i;
-    bool is_path;
     int ret;
 
     if (schema == NULL) {
@@ -546,22 +544,7 @@ yobd_err yobd_parse_schema(const char *schema, struct yobd_ctx **out_ctx)
     }
 
     /* Determine if path is absolute or relative. */
-    is_path = false;
-    for (i = 0; i < PATH_MAX; ++i) {
-        if (schema[i] == '\0') {
-            break;
-        }
-
-        if (schema[i] == '/') {
-            is_path = true;
-        }
-    }
-    if (i == PATH_MAX) {
-        err = YOBD_INVALID_PATH;
-        goto out;
-    }
-
-    if (is_path) {
+    if (schema[0] == '/') {
         file = fopen(schema, "r");
     }
     else {
