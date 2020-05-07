@@ -227,7 +227,7 @@ yobd_err yobd_make_can_response(
     struct yobd_ctx *ctx,
     yobd_mode mode,
     yobd_pid pid,
-    const uint8_t *data,
+    const unsigned char *data,
     uint8_t data_size,
     struct can_frame *frame);
 
@@ -251,7 +251,7 @@ yobd_err yobd_make_can_response_noctx(
     bool big_endian,
     yobd_mode mode,
     yobd_pid pid,
-    const uint8_t *data,
+    const unsigned char *data,
     uint8_t data_size,
     struct can_frame *frame);
 

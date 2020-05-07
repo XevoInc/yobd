@@ -33,7 +33,7 @@ static \
 float eval_expr_##stack_type( \
     struct expr *expr, \
     struct EXPR_STACK *stack, \
-    const uint8_t *data) \
+    const unsigned char *data) \
 { \
     size_t i; \
     struct expr_token tok1; \
@@ -132,7 +132,7 @@ yobd_err yobd_make_can_query_noctx(
     yobd_pid pid,
     struct can_frame *frame)
 {
-    const uint8_t *data_start;
+    const unsigned char *data_start;
 
     if (frame == NULL) {
         return YOBD_INVALID_PARAMETER;
@@ -194,11 +194,11 @@ yobd_err yobd_make_can_response_noctx(
     bool big_endian,
     yobd_mode mode,
     yobd_pid pid,
-    const uint8_t *data,
+    const unsigned char *data,
     uint8_t data_size,
     struct can_frame *frame)
 {
-    const uint8_t *data_start;
+    const unsigned char *data_start;
 
     if (data == NULL || frame == NULL) {
         return YOBD_INVALID_PARAMETER;
@@ -251,7 +251,7 @@ yobd_err yobd_make_can_response(
     struct yobd_ctx *ctx,
     yobd_mode mode,
     yobd_pid pid,
-    const uint8_t *data,
+    const unsigned char *data,
     uint8_t data_size,
     struct can_frame *frame)
 {
@@ -285,9 +285,9 @@ float nop_eval(
     bool big_endian,
     uint_fast8_t can_bytes,
     pid_data_type pid_type,
-    const uint8_t *data)
+    const unsigned char *data)
 {
-    uint8_t first_byte;
+    unsigned char first_byte;
     uint16_t last_bytes;
     union {
         float float_val;
@@ -349,7 +349,7 @@ float nop_eval(
 }
 
 static
-float stack_eval(pid_data_type pid_type, struct expr *expr, const uint8_t *data)
+float stack_eval(pid_data_type pid_type, struct expr *expr, const unsigned char *data)
 {
     struct EXPR_STACK eval_stack;
     struct expr_token stack_data[expr->size * sizeof(*expr->data)];
@@ -381,7 +381,7 @@ float eval_expr(
     uint_fast8_t can_bytes,
     pid_data_type pid_type,
     struct expr *expr,
-    const uint8_t *data,
+    const unsigned char *data,
     convert_func convert)
 {
     float val;
@@ -404,7 +404,7 @@ yobd_err parse_mode_pid(
     const struct can_frame *frame,
     yobd_mode *mode,
     yobd_pid *pid,
-    const uint8_t **data_start)
+    const unsigned char **data_start)
 {
     /*
      * The response mode is query mode + 0x40, so less than 0x41 implies a
@@ -442,7 +442,7 @@ yobd_err yobd_parse_can_headers_noctx(
     yobd_mode *mode,
     yobd_pid *pid)
 {
-    const uint8_t *data_start;
+    const unsigned char *data_start;
     yobd_err err;
 
     if (frame == NULL || mode == NULL || pid == NULL) {
@@ -485,7 +485,7 @@ yobd_err yobd_parse_can_response(
     const struct can_frame *frame,
     float *val)
 {
-    const uint8_t *data_start;
+    const unsigned char *data_start;
     yobd_err err;
     size_t expected_bytes;
     yobd_mode mode;
