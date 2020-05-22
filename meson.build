@@ -8,7 +8,10 @@ project('yobd', 'c',
         'warning_level=3',
         'werror=true'])
 
-cflags = ['-Wshadow', '-fvisibility=internal']
+cflags = [
+    '-Wshadow',
+    '-Wno-maybe-uninitialized',
+    '-fvisibility=internal']
 add_project_arguments(cflags, language: 'c')
 
 pkg = import('pkgconfig')
