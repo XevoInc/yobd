@@ -21,8 +21,6 @@
 
 #define ARRAYLEN(a) (sizeof(a) / sizeof(a[0]))
 
-typedef xhiter_t yobd_iter;
-
 static uint32_t get_modepid(yobd_mode mode, yobd_pid pid)
 {
     return (mode << 16) | pid;
