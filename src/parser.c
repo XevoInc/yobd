@@ -33,7 +33,7 @@ static yobd_mode get_mode(uint32_t modepid)
 
 static yobd_pid get_pid(uint32_t modepid)
 {
-    return modepid & 0xff;
+    return modepid & 0xffff;
 }
 
 struct parse_pid_ctx *get_pid_ctx(
