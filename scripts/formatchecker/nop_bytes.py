@@ -38,14 +38,12 @@ def check(desc):
         return True
 
     try:
-        can_bytes = desc['bytes']
+        can_bytes = int(desc['bytes'])
     except KeyError:
         raise jsonschema.exceptions.FormatError('no "bytes" key in %s' % desc)
-    try:
-        can_bytes = int(can_bytes)
     except ValueError:
         raise jsonschema.exceptions.FormatError(
-            'can_bytes value is not an int, in %s' % desc)
+            'can_bytes value %d is not an int, in %s' % (desc['bytes'], desc))
 
     try:
         pid_type = expr['type']
