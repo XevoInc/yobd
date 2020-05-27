@@ -75,7 +75,7 @@ modepid:
         val: A / 2.55
 
     "0x1f":
-      name: runtime since engine start
+      name: time since engine start
       bytes: 2
       raw-unit: s
       si-unit: ns
