@@ -331,6 +331,10 @@ yobd_err parse_desc(
         else if (strcmp(key_str, "expr") == 0) {
             parse_expr(val, doc, &pid_ctx->pid_type, &pid_ctx->expr);
         }
+        else {
+            /* Unrecognized key. */
+            XASSERT_ERROR;
+        }
     }
 
     switch (pid_ctx->pid_type) {
