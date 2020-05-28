@@ -220,7 +220,7 @@ bool parse_endianness(const char *val)
         return true;
     }
     else {
-        XASSERT_EQ(strcmp(val, "little"), 0);
+        XASSERT_STREQ(val, "little");
         return false;
     }
 }
