@@ -10,7 +10,7 @@ JSON or similar hierarchical, string-based format).  Without such a schema, one
 needs to either hardcode or do code generation (such as what `OpenXC` does),
 both of which have significant issues.
 
-There are a few parts to YoloBD:
+There are a few parts to yobd:
 
 - A YAML schema for describing OBD II PIDs. YAML is chosen because it is easy
   for humans to write and read.
@@ -50,7 +50,7 @@ packaging, you will need also need to tweak the following env vars:
 - `PKG_CONFIG_PATH` needs to be set only when you run `meson` and doesn't matter
   after that. It should be set to the directory containing the `.pc` files used
   by the prerequisite you built.
-- `LD_LIBRARY_PATH` needs to be set whenever you actually load the YoloBD
+- `LD_LIBRARY_PATH` needs to be set whenever you actually load the yobd
   library, such as when you run the unit tests with `ninja test`. It should be
   set to the directory containing the built prerequisite libraries.
 
