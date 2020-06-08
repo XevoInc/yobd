@@ -47,7 +47,7 @@ void next_token(
     /* Consume whitespace. */
     for (pos = str; isspace(*pos); ++pos);
 
-    if (*pos == '-' && *(pos+1) != '\0' && isdigit(*(pos+1))) {
+    if (*pos == '-' && isdigit(*(pos+1))) {
         *start = pos;
         ++pos;
     }
