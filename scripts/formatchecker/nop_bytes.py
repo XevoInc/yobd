@@ -61,6 +61,6 @@ def check(desc):
             'int8/uint8 types must have 1-2 CAN bytes in %s' % desc)
     elif pid_type in ('int32', 'uint32') and not (1 <= can_bytes <= 4):
         raise jsonschema.exceptions.FormatError(
-            'int32/uint32 types must have 1-2 CAN bytes in %s' % desc)
+            'int32/uint32 types must have 1-4 CAN bytes in %s' % desc)
 
     return True
