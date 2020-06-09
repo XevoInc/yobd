@@ -58,13 +58,10 @@
     static inline __attribute__ ((__unused__)) \
     item_type stack_type##_pop(struct stack_type *stack) \
     { \
-        item_type item; \
-        \
         XASSERT_GT(stack_type##_size(stack), 0); \
         \
         --stack->top; \
-        item = *stack->top; \
-        return item; \
+        return *stack->top; \
     } \
     static inline __attribute__ ((__unused__)) \
     int stack_type##_peek(const struct stack_type *stack, item_type *item) \
