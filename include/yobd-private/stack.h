@@ -11,6 +11,13 @@
 #include <string.h>
 #include <yobd-private/assert.h>
 
+/*
+ * Define a stack that grows up (so the bottom of the stack has a lower address
+ * than the top of the stack). This is an important requirement because, after
+ * parsing an expression, we memcpy the stack data to effectively reverse the
+ * stack and effectively turn it into a queue. If the stack were to grow down,
+ * this trick wouldn't work.
+ */
 #define DEFINE_STACK(stack_type, item_type) \
     struct stack_type { \
         size_t max_size; \
