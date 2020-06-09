@@ -45,6 +45,7 @@ typedef enum {
 
 struct expr {
     expr_type type;
+    /* The byte count of the CAN response, not of the OBD II response. */
     size_t size;
     struct expr_token *data;
 };

@@ -16,7 +16,6 @@
 struct parse_pid_ctx {
     convert_func convert_func;
     pid_data_type pid_type;
-    /* The byte count of the CAN response, not of the OBD II response. */
     struct expr expr;
     /* Public PID descriptor. */
     struct yobd_pid_desc desc;
