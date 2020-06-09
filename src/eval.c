@@ -31,7 +31,7 @@
 #define DEFINE_EVAL_FUNC(stack_type, enum_type) \
 static \
 float eval_expr_##stack_type( \
-    struct expr *expr, \
+    const struct expr *expr, \
     struct EXPR_STACK *stack, \
     const unsigned char *data) \
 { \
@@ -349,7 +349,7 @@ float nop_eval(
 }
 
 static
-float stack_eval(pid_data_type pid_type, struct expr *expr, const unsigned char *data)
+float stack_eval(pid_data_type pid_type, const struct expr *expr, const unsigned char *data)
 {
     struct EXPR_STACK eval_stack;
     struct expr_token stack_data[expr->size * sizeof(*expr->data)];
@@ -380,7 +380,7 @@ float eval_expr(
     bool big_endian,
     uint_fast8_t can_bytes,
     pid_data_type pid_type,
-    struct expr *expr,
+    const struct expr *expr,
     const unsigned char *data,
     convert_func convert)
 {
@@ -491,7 +491,7 @@ yobd_err yobd_parse_can_response(
     yobd_mode mode;
     yobd_pid pid;
     size_t offset;
-    struct parse_pid_ctx *pid_ctx;
+    const struct parse_pid_ctx *pid_ctx;
 
     if (ctx == NULL || frame == NULL || val == NULL) {
         return YOBD_INVALID_PARAMETER;
