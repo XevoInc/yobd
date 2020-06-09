@@ -52,7 +52,7 @@
     { \
         XASSERT_LT(stack_type##_size(stack), stack_type##_max_size(stack)); \
         \
-        memcpy(stack->top, item, sizeof(*stack->top)); \
+        *stack->top = *item; \
         ++stack->top; \
     } \
     static inline __attribute__ ((__unused__)) \
@@ -63,7 +63,7 @@
         XASSERT_GT(stack_type##_size(stack), 0); \
         \
         --stack->top; \
-        memcpy(&item, stack->top, sizeof(item)); \
+        item = *stack->top; \
         return item; \
     } \
     static inline __attribute__ ((__unused__)) \
@@ -72,7 +72,7 @@
         if (stack_type##_size(stack) == 0) { \
             return -1; \
         } \
-        memcpy(item, stack->top-1, sizeof(*item)); \
+        *item = *(stack->top-1); \
         return 0; \
     }
 
