@@ -166,14 +166,14 @@ void handle_op(
     struct OP_STACK *op_stack,
     struct EXPR_STACK *out_stack)
 {
+    bool success;
     struct expr_token expr_tok;
     parse_token op_tok;
-    int ret;
 
     /* Pop all higher or equal precedence operators onto the output stack. */
     while (true) {
-        ret = PEEK_STACK(OP_STACK, op_stack, &op_tok);
-        if (ret == -1) {
+        success = PEEK_STACK(OP_STACK, op_stack, &op_tok);
+        if (!success) {
             break;
         }
         if (op_tok == TOK_LPAREN) {

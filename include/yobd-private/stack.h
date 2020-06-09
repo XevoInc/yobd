@@ -64,13 +64,13 @@
         return *stack->top; \
     } \
     static inline __attribute__ ((__unused__)) \
-    int stack_type##_peek(const struct stack_type *stack, item_type *item) \
+    bool stack_type##_peek(const struct stack_type *stack, item_type *item) \
     { \
         if (stack_type##_size(stack) == 0) { \
-            return -1; \
+            return false; \
         } \
         *item = *(stack->top-1); \
-        return 0; \
+        return true; \
     }
 
 #define INIT_STACK(name, stack, data, max_size) name##_init(stack, data, max_size)
