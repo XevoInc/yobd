@@ -114,6 +114,7 @@ void next_token(
                 break;
             default:
                 /* Unrecognized token, should have failed schema checking. */
+                xlog(XLOG_ERR, "unrecognized token %c\n", *pos);
                 XASSERT_ERROR;
         }
 

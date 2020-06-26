@@ -209,6 +209,7 @@ yobd_unit find_unit(const char *val)
          * An unknown type was encountered. Either the schema validator failed,
          * or we need to add a new enum to yobd_unit and to the cases list here.
          */
+        xlog(XLOG_ERR, "unrecognized unit %s\n", val);
         XASSERT_ERROR;
     }
 }
@@ -333,6 +334,7 @@ yobd_err parse_desc(
         }
         else {
             /* Unrecognized key. */
+            xlog(XLOG_ERR, "unrecognized key %s\n", key_str);
             XASSERT_ERROR;
         }
     }

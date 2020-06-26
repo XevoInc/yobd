@@ -142,5 +142,6 @@ convert_func find_convert_func(const char *raw_unit)
     }
 
     /* We need to add a new conversion function. */
+    xlog(XLOG_ERR, "unrecognized raw unit %s\n", raw_unit);
     XASSERT_ERROR;
 }
