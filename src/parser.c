@@ -215,7 +215,7 @@ yobd_unit find_unit(const char *val)
 }
 
 static
-bool parse_endianness(const char *val)
+bool parse_is_big_endian(const char *val)
 {
     if (strcmp(val, "big") == 0) {
         return true;
@@ -488,7 +488,7 @@ yobd_err parse_doc(
         if (strcmp(key_str, "endian") == 0) {
             XASSERT_EQ(key->type, YAML_SCALAR_NODE);
             val_str = (const char *) val->data.scalar.value;
-            ctx->big_endian = parse_endianness(val_str);
+            ctx->big_endian = parse_is_big_endian(val_str);
         }
         else if (strcmp(key_str, "modepid") == 0) {
             err = parse_modepid(val, doc, ctx);
