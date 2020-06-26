@@ -23,6 +23,11 @@
 #define OBD_II_PAD_VALUE (0xcc)
 
 /**
+ * The CAN data length code that should be used for OBD-II frames.
+ */
+#define OBD_II_DLC 8
+
+/**
  * Macro to define stack evaluation functions.
  *
  * @param stack_type the type of values the stack can handle
@@ -140,7 +145,7 @@ yobd_err yobd_make_can_query_noctx(
 
     /* These are standard for all OBD II. */
     frame->can_id = YOBD_OBD_II_QUERY_ADDRESS;
-    frame->can_dlc = 8;
+    frame->can_dlc = OBD_II_DLC;
 
     /* These vary per query. */
     if (mode_is_sae_standard(mode)) {
@@ -149,22 +154,24 @@ yobd_err yobd_make_can_query_noctx(
         if (pid > 0xff) {
             return YOBD_INVALID_PID;
         }
+        frame->data[1] = mode;
         frame->data[2] = pid;
         data_start = &frame->data[3];
     }
     else {
         frame->data[0] = 3;
         if (big_endian) {
+            frame->data[1] = mode;
             frame->data[2] = pid & 0xff00;
             frame->data[3] = pid & 0x00ff;
         }
         else {
+            frame->data[1] = mode;
             frame->data[2] = pid & 0x00ff;
             frame->data[3] = pid & 0xff00;
         }
         data_start = &frame->data[4];
     }
-    frame->data[1] = mode;
 
     /* Pad the rest of the message. */
     memset(
@@ -210,9 +217,11 @@ yobd_err yobd_make_can_response_noctx(
 
     /* These are standard for all OBD II. */
     frame->can_id = YOBD_OBD_II_RESPONSE_BASE;
-    frame->can_dlc = 8;
+    frame->can_dlc = OBD_II_DLC;
 
     /* These vary per query. */
+    frame->data[0] = mode_data_offset(mode) + data_size;
+    frame->data[1] = 0x40 + mode;
     if (mode_is_sae_standard(mode)) {
         if (pid > 0xff) {
             /* Standard-mode PIDs must use only one byte. */
@@ -232,8 +241,6 @@ yobd_err yobd_make_can_response_noctx(
         }
         data_start = &frame->data[4];
     }
-    frame->data[0] = mode_data_offset(mode) + data_size;
-    frame->data[1] = 0x40 + mode;
 
     memcpy((void *) data_start, data, data_size);
 
