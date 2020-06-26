@@ -294,8 +294,6 @@ float nop_eval(
     pid_data_type pid_type,
     const unsigned char *data)
 {
-    unsigned char first_byte;
-    uint16_t last_bytes;
     union {
         float float_val;
         uint32_t uint_val;
@@ -316,13 +314,11 @@ float nop_eval(
             }
             break;
         case 3:
-            first_byte = *data;
-            last_bytes = *((uint16_t *) (data+1));
             if (big_endian) {
-                num = (first_byte << 16) | (last_bytes);
+                num = (data[0] << 16) | (data[1] << 8) | data[2];
             }
             else {
-                num = (last_bytes << 8) | first_byte;
+                num = (data[2] << 16) | (data[0] << 8) | data[0];
             }
             val = (float) num;
             break;
