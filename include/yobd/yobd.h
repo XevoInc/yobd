@@ -95,9 +95,9 @@ struct yobd_pid_desc {
 /**
  * Parses a schema, returning a context.
  *
- * @param file a schema file (either by name, in which case it must be in the
- *             yobd schema directory, or by path, either relative or absolute)
- * @param ctx a yobd context, to be filled in
+ * @param[in] file a schema file (either by name, in which case it must be in the
+ *                 yobd schema directory, or by path, either relative or absolute)
+ * @param[out] ctx a yobd context, to be filled in
  *
  * @return a yobd context
  */
@@ -106,15 +106,15 @@ yobd_err yobd_parse_schema(const char *file, struct yobd_ctx **ctx);
 /**
  * Frees a yobd context.
  *
- * @param ctx a yobd context
+ * @param[in] ctx a yobd context
  */
 void yobd_free_ctx(struct yobd_ctx *ctx);
 
 /**
  * Gets the number of PIDs known to this context.
  *
- * @param ctx a yobd context
- * @param count to be filled in with the PID count
+ * @param[in] ctx a yobd context
+ * @param[out] count to be filled in with the PID count
  *
  * @return an error code
  */
@@ -129,11 +129,11 @@ yobd_err yobd_get_pid_count(struct yobd_ctx *ctx, size_t *count);
  * words, there is no need to separately cache PID descriptors, and the caller
  * should just look them up on-demand.
  *
- * @param ctx a yobd context
- * @param mode an OBD II mode
- * @param pid an OBD II PID
- * @param desc filled in with a pointer to a PID descriptor describing the
- *             bitpacked data, with memory owned by yobd
+ * @param[in] ctx a yobd context
+ * @param[in] mode an OBD II mode
+ * @param[in] pid an OBD II PID
+ * @param[out] desc filled in with a pointer to a PID descriptor describing the
+ *                  bitpacked data, with memory owned by yobd
  *
  * @return an error code
  */
@@ -146,10 +146,10 @@ yobd_err yobd_get_pid_descriptor(
 /**
  * PID processing function, used in yobd_pid_foreach.
  *
- * @param desc a PID descriptor provided by the iteration function
- * @param data user-specific data context passed into each function call
- * @param mode the mode of the passed-in PID
- * @param pid the PID being processed
+ * @param[in] desc a PID descriptor provided by the iteration function
+ * @param[in] data user-specific data context passed into each function call
+ * @param[in] mode the mode of the passed-in PID
+ * @param[in] pid the PID being processed
  *
  * @return true boolean indicating "done status". if done processing
  *              descriptors, false otherwise. If this function returns true,
@@ -158,15 +158,16 @@ yobd_err yobd_get_pid_descriptor(
 typedef bool (*pid_process_func)(
     const struct yobd_pid_desc *desc,
     yobd_mode mode,
-    yobd_pid pid, void *data);
+    yobd_pid pid,
+    void *data);
 
 /**
  * Iterates through the PID descriptors in the given yobd context.
  *
- * @param ctx a yobd context
- * @param func a function called once per PID descriptor
- * @param data user-specific data context passed into each function call
- * descriptors left
+ * @param[in] ctx a yobd context
+ * @param[in] func a function called once per PID descriptor
+ * @param[in] data user-specific data context passed into each function call
+ *                 descriptors left
  *
  * @return an error code
  */
@@ -178,10 +179,10 @@ yobd_err yobd_pid_foreach(
 /**
  * Creates a CAN frame representing a given OBD II query.
  *
- * @param ctx a yobd context
- * @param mode an OBD II mode
- * @param pid an OBD II PID
- * @param frame the CAN frame to be filled in
+ * @param[in] ctx a yobd context
+ * @param[in] mode an OBD II mode
+ * @param[in] pid an OBD II PID
+ * @param[out] frame the CAN frame to be filled in
  *
  * @return an error code
  */
@@ -195,10 +196,10 @@ yobd_err yobd_make_can_query(
  * Creates a CAN frame representing a given OBD II query without requiring a
  * yobd context.
  *
- * @param big_endian whether or not the CAN bus is big-endian
- * @param mode an OBD II mode
- * @param pid an OBD II PID
- * @param frame the CAN frame to be filled in
+ * @param[in] big_endian whether or not the CAN bus is big-endian
+ * @param[in] mode an OBD II mode
+ * @param[in] pid an OBD II PID
+ * @param[out] frame the CAN frame to be filled in
  *
  * @return an error code
  */
@@ -211,15 +212,15 @@ yobd_err yobd_make_can_query_noctx(
 /**
  * Creates a CAN frame representing a given OBD II response.
  *
- * @param ctx a yobd context
- * @param mode an OBD II mode
- * @param pid an OBD II PID
- * @param data the data payload for the CAN frame
- * @param data_size the size of the data payload (must be between 1 and 5 by the
- *                  OBD II spec). This is specified so that yobd does not have
- *                  to know about the mode-pid in its schema or incur the
- *                  overhead of a schema lookup.
- * @param frame the CAN frame to be filled in
+ * @param[in] ctx a yobd context
+ * @param[in] mode an OBD II mode
+ * @param[in] pid an OBD II PID
+ * @param[in] data the data payload for the CAN frame
+ * @param[in] data_size the size of the data payload (must be between 1 and 5 by
+ *                      the OBD II spec). This is specified so that yobd does
+ *                      not have to know about the mode-pid in its schema or
+ *                      incur the overhead of a schema lookup.
+ * @param[out] frame the CAN frame to be filled in
  *
  * @return an error code
  */
@@ -235,15 +236,15 @@ yobd_err yobd_make_can_response(
  * Creates a CAN frame representing a given OBD II response, without requiring a
  * yobd context.
  *
- * @param big_endian whether or not the CAN bus is big-endian
- * @param mode an OBD II mode
- * @param pid an OBD II PID
- * @param data the data payload for the CAN frame
- * @param data_size the size of the data payload (must be between 1 and 5 by the
- *                  OBD II spec). This is specified so that yobd does not have
- *                  to know about the mode-pid in its schema or incur the
- *                  overhead of a schema lookup.
- * @param frame the CAN frame to be filled in
+ * @param[in] big_endian whether or not the CAN bus is big-endian
+ * @param[in] mode an OBD II mode
+ * @param[in] pid an OBD II PID
+ * @param[in] data the data payload for the CAN frame
+ * @param[in] data_size the size of the data payload (must be between 1 and 5 by
+ *                      the OBD II spec). This is specified so that yobd does
+ *                      not have to know about the mode-pid in its schema or
+ *                      incur the overhead of a schema lookup.
+ * @param[out] frame the CAN frame to be filled in
  *
  * @return an error code
  */
@@ -258,10 +259,10 @@ yobd_err yobd_make_can_response_noctx(
 /**
  * Parses a given CAN frame, returning basic header information about the frame.
  *
- * @param ctx a yobd context
- * @param frame a CAN frame to be parsed
- * @param mode filled in with the mode of the given CAN frame
- * @param pid filled in with the pid of the given CAN frame
+ * @param[in] ctx a yobd context
+ * @param[in] frame a CAN frame to be parsed
+ * @param[out] mode filled in with the mode of the given CAN frame
+ * @param[out] pid filled in with the pid of the given CAN frame
  *
  * @return an error code
  */
@@ -275,10 +276,10 @@ yobd_err yobd_parse_can_headers(
  * Parses a given CAN frame, returning basic header information about the
  * frame, without requiring a yobd context.
  *
- * @param big_endian true if parsing big endian CAN, false otherwise
- * @param frame a CAN frame to be parsed
- * @param mode filled in with the mode of the given CAN frame
- * @param pid filled in with the pid of the given CAN frame
+ * @param[in] big_endian true if parsing big endian CAN, false otherwise
+ * @param[in] frame a CAN frame to be parsed
+ * @param[out] mode filled in with the mode of the given CAN frame
+ * @param[out] pid filled in with the pid of the given CAN frame
  *
  * @return an error code
  */
@@ -291,9 +292,9 @@ yobd_err yobd_parse_can_headers_noctx(
 /**
  * Interprets a CAN frame, yielding an output buffer containing resource IDs.
  *
- * @param ctx a yobd context
- * @param frame a CAN frame to be interpreted
- * @param val a float value in SI units
+ * @param[in] ctx a yobd context
+ * @param[in] frame a CAN frame to be interpreted
+ * @param[out] val a float value in SI units
  * @return an error code
  */
 yobd_err yobd_parse_can_response(
