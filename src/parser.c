@@ -165,53 +165,37 @@ pid_data_type find_type(const char *str)
 static
 yobd_unit find_unit(const char *val)
 {
-    if (strcmp(val, "degree") == 0) {
-        return YOBD_UNIT_DEGREE;
+    size_t i;
+
+    /* Make sure this stays in sync with the yobd_unit enum! */
+    static const char *units[] = {
+        [YOBD_UNIT_DEGREE] = "degree",
+        [YOBD_UNIT_KELVIN] = "K",
+        [YOBD_UNIT_KG_PER_S] = "kg/s",
+        [YOBD_UNIT_LATITUDE] = "lat",
+        [YOBD_UNIT_LONGITUDE] = "lng",
+        [YOBD_UNIT_METER] = "m",
+        [YOBD_UNIT_METERS_PER_S] = "m/s",
+        [YOBD_UNIT_METERS_PER_S_2] = "m/s^2",
+        [YOBD_UNIT_NANOSECOND] = "ns",
+        [YOBD_UNIT_PASCAL] = "Pa",
+        [YOBD_UNIT_PERCENT] = "percent",
+        [YOBD_UNIT_RAD] = "rad",
+        [YOBD_UNIT_RAD_PER_S] = "rad/s"
+    };
+
+    for (i = 0; i < ARRAYLEN(units); ++i) {
+        if (strcmp(units[i], val) == 0) {
+            return i;
+        }
     }
-    else if (strcmp(val, "K") == 0) {
-        return YOBD_UNIT_KELVIN;
-    }
-    else if (strcmp(val, "kg/s") == 0) {
-        return YOBD_UNIT_KG_PER_S;
-    }
-    else if (strcmp(val, "lat") == 0) {
-        return YOBD_UNIT_LATITUDE;
-    }
-    else if (strcmp(val, "lng") == 0) {
-        return YOBD_UNIT_LONGITUDE;
-    }
-    else if (strcmp(val, "m") == 0) {
-        return YOBD_UNIT_METER;
-    }
-    else if (strcmp(val, "m/s") == 0) {
-        return YOBD_UNIT_METERS_PER_S;
-    }
-    else if (strcmp(val, "m/s^2") == 0) {
-        return YOBD_UNIT_METERS_PER_S_2;
-    }
-    else if (strcmp(val, "Pa") == 0) {
-        return YOBD_UNIT_PASCAL;
-    }
-    else if (strcmp(val, "percent") == 0) {
-        return YOBD_UNIT_PERCENT;
-    }
-    else if (strcmp(val, "rad") == 0) {
-        return YOBD_UNIT_RAD;
-    }
-    else if (strcmp(val, "rad/s") == 0) {
-        return YOBD_UNIT_RAD_PER_S;
-    }
-    else if (strcmp(val, "ns") == 0) {
-        return YOBD_UNIT_NANOSECOND;
-    }
-    else {
-        /*
-         * An unknown type was encountered. Either the schema validator failed,
-         * or we need to add a new enum to yobd_unit and to the cases list here.
-         */
-        xlog(XLOG_ERR, "unrecognized unit %s\n", val);
-        XASSERT_ERROR;
-    }
+
+    /*
+     * An unknown type was encountered. Either the schema validator failed,
+     * or we need to add a new enum to yobd_unit and to the cases list here.
+     */
+    xlog(XLOG_ERR, "unrecognized unit %s\n", val);
+    XASSERT_ERROR;
 }
 
 static
