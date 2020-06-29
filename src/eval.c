@@ -85,6 +85,7 @@ float eval_expr_##stack_type( \
                         result.as_##stack_type = tok2.as_##stack_type * tok1.as_##stack_type; \
                         break; \
                     case EXPR_OP_DIV: \
+                        XASSERT_NEQ(tok1.as_##stack_type, 0); \
                         result.as_##stack_type = tok2.as_##stack_type / tok1.as_##stack_type; \
                         break; \
                 } \
