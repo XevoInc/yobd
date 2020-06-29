@@ -124,14 +124,16 @@ void yobd_free_ctx(struct yobd_ctx *ctx)
 
     XASSERT_NOT_NULL(ctx->modepid_map);
 
-    xh_iter(ctx->modepid_map, iter,
-        pid_ctx = &xh_val(ctx->modepid_map, iter);
+    if (ctx->modepid_map != NULL) {
+        xh_iter(ctx->modepid_map, iter,
+            pid_ctx = &xh_val(ctx->modepid_map, iter);
 
-        free((char *) pid_ctx->desc.name);
-        if (pid_ctx->expr.type == EXPR_STACK) {
-            destroy_expr(&pid_ctx->expr);
-        }
-    );
+            free((char *) pid_ctx->desc.name);
+            if (pid_ctx->expr.type == EXPR_STACK) {
+                destroy_expr(&pid_ctx->expr);
+            }
+        );
+    }
     xh_destroy(MODEPID_MAP, ctx->modepid_map);
 
     free(ctx);
