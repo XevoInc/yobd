@@ -47,20 +47,14 @@ void next_token(
     /* Consume whitespace. */
     for (pos = str; isspace(*pos); ++pos);
 
+    *start = pos;
     if (*pos == '-' && isdigit(*(pos+1))) {
-        *start = pos;
         ++pos;
-    }
-    else {
-        *start = NULL;
     }
 
     /* Numbers are the only multi-character tokens. */
     if (isdigit(*pos)) {
         *type = TOK_NUMERIC;
-        if (*start == NULL) {
-            *start = pos;
-        }
 
         /* Read the rest of the number. */
         do {
@@ -118,7 +112,6 @@ void next_token(
                 XASSERT_ERROR;
         }
 
-        *start = pos;
         *end = pos + 1;
     }
 }
